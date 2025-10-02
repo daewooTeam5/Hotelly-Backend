@@ -7,10 +7,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 public interface NotificationRepository extends JpaRepository<NotificationEntity, Long> {
-    Page<NotificationEntity> findByUserIdOrUserIdIsNull (Long userId, Pageable pageable);
+    Page<NotificationEntity> findByUserIdOrUserIdIsNullOrderByCreatedAtDesc(Long userId, Pageable pageable);
     @Query("""
-    select count(*) 
-    from Notification n 
+    select count(n.id)
+    from Notification n
     where n.user.id = :userId or n.user.id is null
     """)
     long countByUserId(Long userId);

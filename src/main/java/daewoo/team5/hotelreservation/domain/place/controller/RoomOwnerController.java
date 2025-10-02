@@ -6,7 +6,9 @@ import daewoo.team5.hotelreservation.domain.place.dto.RoomDTO;
 import daewoo.team5.hotelreservation.domain.place.dto.RoomOwnerDTO;
 import daewoo.team5.hotelreservation.domain.place.dto.RoomUpdateDTO;
 import daewoo.team5.hotelreservation.domain.place.service.RoomOwnerService;
+import daewoo.team5.hotelreservation.domain.users.entity.Users;
 import daewoo.team5.hotelreservation.domain.users.projection.UserProjection;
+import daewoo.team5.hotelreservation.domain.users.repository.UsersRepository;
 import daewoo.team5.hotelreservation.global.aop.annotation.AuthUser;
 import daewoo.team5.hotelreservation.global.core.common.ApiResult;
 import daewoo.team5.hotelreservation.global.exception.ApiException;
@@ -15,10 +17,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -27,6 +31,7 @@ import java.util.List;
 public class RoomOwnerController {
 
     private final RoomOwnerService roomService;
+    private final UsersRepository usersRepository;
 
     /**
      * 소유자의 모든 객실 유형 조회
@@ -50,21 +55,23 @@ public class RoomOwnerController {
     /**
      * 객실 유형 생성
      */
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @AuthUser
     public ResponseEntity<?> createRoom(
+            Authentication authentication,
             @RequestPart("data") String data,
-           @RequestPart(value = "roomImages", required = false) List<MultipartFile> roomImages,
-            UserProjection user
+           @RequestPart(value = "roomImages", required = false) List<MultipartFile> roomImages
     ) throws JsonProcessingException {
-        log.info("{} data----1",data);
+        Object principal = authentication.getPrincipal();
+        UserProjection byId = usersRepository.findById(Long.parseLong(principal.toString()),UserProjection.class).orElseThrow(()->new ApiException(HttpStatus.NOT_FOUND,"",""));
+        log.info("{} data----1",authentication);
 
         // JSON → DTO 변환
         ObjectMapper mapper = new ObjectMapper();
         RoomUpdateDTO dto = mapper.readValue(data, RoomUpdateDTO.class);
-        log.info("{} data----1",dto);
+        log.info("{} data----1",roomImages);
         // 서비스 호출
-        roomService.createRoom(user.getId(), dto, roomImages);
+        roomService.createRoom(byId.getId(), dto, roomImages);
 
         return ResponseEntity.ok("객실 등록 성공");
     }

@@ -15,6 +15,7 @@ import daewoo.team5.hotelreservation.domain.place.repository.RoomRepository;
 import daewoo.team5.hotelreservation.global.exception.ApiException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,6 +25,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class RoomOwnerService {
 
     private final RoomRepository roomRepository;
@@ -74,6 +76,7 @@ public class RoomOwnerService {
             roomAmenityRepository.saveAll(entities);
         }
 
+        log.info("--- room saved: {}", roomImages);
         // ✅ 이미지 업로드
         if (roomImages != null) {
             for (MultipartFile img : roomImages) {
