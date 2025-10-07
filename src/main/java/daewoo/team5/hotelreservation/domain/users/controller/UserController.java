@@ -23,6 +23,7 @@ import daewoo.team5.hotelreservation.domain.users.service.UsersService;
 import daewoo.team5.hotelreservation.global.aop.annotation.AuthUser;
 import daewoo.team5.hotelreservation.global.core.common.ApiResult;
 import daewoo.team5.hotelreservation.global.exception.ApiException;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -31,6 +32,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -47,7 +49,7 @@ public class UserController {
 
     @GetMapping("/my/hotel-owner/status")
     @AuthUser
-    public ApiResult<OwnerRequestEntity> getHotelOwnerStatus(UserProjection user){
+    public ApiResult<OwnerRequestEntity> getHotelOwnerStatus(UserProjection user) {
         return ApiResult.ok(usersService.getHotelOwnerStatus(user.getId()), "호텔 운영자 상태 조회 성공");
     }
 
@@ -95,15 +97,20 @@ public class UserController {
     ) {
         return ApiResult.ok(usersService.getUserById(user.getId()), "사용자 정보 조회 성공");
     }
+
+
     @PutMapping("/update")
     @AuthUser
-    public ApiResult<Users> updateMyProfile(
+    public ApiResult<UserUpdateDTO> update(
             UserProjection user,
-            @RequestBody UserUpdateDTO dto
+            @RequestPart("dto") UserUpdateDTO dto,
+            @RequestPart(value = "file", required = false) MultipartFile file,
+            HttpServletRequest request
     ) {
-        Users updated = usersService.updateUser(user.getId(), dto);
-        return ApiResult.ok(updated, "프로필 업데이트 성공");
+        UserUpdateDTO updatedUserDto = usersService.updateUser(user.getId(), dto, file, request);
+        return ApiResult.ok(updatedUserDto, "프로필 업데이트 성공");
     }
+
 
     @GetMapping("/my/point-history")
     @AuthUser

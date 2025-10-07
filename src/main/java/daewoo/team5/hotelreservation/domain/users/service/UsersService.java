@@ -3,6 +3,9 @@ package daewoo.team5.hotelreservation.domain.users.service;
 import daewoo.team5.hotelreservation.domain.file.service.FileService;
 import daewoo.team5.hotelreservation.domain.payment.entity.GuestEntity;
 import daewoo.team5.hotelreservation.domain.payment.repository.GuestRepository;
+import daewoo.team5.hotelreservation.domain.place.entity.File;
+import daewoo.team5.hotelreservation.domain.place.repository.FileRepository;
+import daewoo.team5.hotelreservation.domain.place.service.FileUploadService;
 import daewoo.team5.hotelreservation.domain.users.dto.OwnerRequestDto;
 import daewoo.team5.hotelreservation.domain.users.dto.request.CreateUserDto;
 import daewoo.team5.hotelreservation.domain.users.dto.request.LogInUserDto;
@@ -17,6 +20,7 @@ import daewoo.team5.hotelreservation.domain.users.repository.UsersRepository;
 import daewoo.team5.hotelreservation.global.exception.ApiException;
 import daewoo.team5.hotelreservation.global.core.provider.JwtProvider;
 import daewoo.team5.hotelreservation.global.exception.UserNotFoundException;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,9 +33,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 
 @Service
@@ -45,12 +49,14 @@ public class UsersService {
     private final GuestRepository guestRepository;
     private final FileService fileService;
     private final OwnerRequestRepository ownerRequestRepository;
+    private final FileRepository fileRepository;
+    private final FileUploadService fileUploadService;
 
     public GuestEntity getGuestByUser(UserProjection user) {
         return guestRepository.findByUsersId(user.getId()).orElseThrow(() -> new ApiException(404, "사용자 게스트 정보 없음", "해당 사용자의 게스트 정보가 존재하지 않습니다."));
     }
 
-    public MyInfoProjection getUserById(Long id){
+    public MyInfoProjection getUserById(Long id) {
         return usersRepository.findById(id, MyInfoProjection.class).orElseThrow(() -> new ApiException(404, "사용자 정보 없음", "해당 사용자의 정보가 존재하지 않습니다."));
 
     }
@@ -84,7 +90,7 @@ public class UsersService {
     }
 
     public Page<UserProjection> getAllUserPage(int start, int size) {
-        return usersRepository.findAllBy(UserProjection.class,PageRequest.of(start,size));
+        return usersRepository.findAllBy(UserProjection.class, PageRequest.of(start, size));
     }
 
     public Page<UserResponse> getAllUsers(int start, int size) {
@@ -99,8 +105,12 @@ public class UsersService {
                         u.getRole(),
                         u.getStatus(),
                         u.getPoint()
+
+
+
                 ));
     }
+
 
     @Transactional
     public void allowUser(Long id) {
@@ -137,7 +147,7 @@ public class UsersService {
                         .build()
         );
         for (MultipartFile file : documents) {
-            fileService.uploadAndSave(file,userId,saveOwnerRequest.getId(),"owner_request",file.getName());
+            fileService.uploadAndSave(file, userId, saveOwnerRequest.getId(), "owner_request", file.getName());
         }
         return null;
     }
@@ -147,18 +157,24 @@ public class UsersService {
         return ownerRequestRepository.findTop1ByUserIdOrderByCreatedAtDesc(userId).orElse(null);
     }
 
-    public Users updateUser(Long userId, UserUpdateDTO dto) {
+    @Transactional
+    public UserUpdateDTO updateUser(Long userId, UserUpdateDTO dto, MultipartFile file, HttpServletRequest request) { // ✅ 반환 타입을 DTO로 변경
         Users user = usersRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
 
-        // DTO 값으로 엔티티 업데이트
-        if (dto.getName() != null) user.setName(dto.getName());
-        if (dto.getEmail() != null) user.setEmail(dto.getEmail());
-        if (dto.getPhone() != null) user.setPhone(dto.getPhone());
+        if (file != null && !file.isEmpty()) {
+            File savedFile = fileUploadService.storeProfileImage(file, user, request); // FileUploadService가 File 엔티티를 반환하도록 수정
+            user.setProfileImage(savedFile); // 연관관계 설정
+        }
 
-        return usersRepository.save(user); // 변경 사항 DB 반영
+        user.updateProfile(dto.getName(), dto.getEmail(), dto.getPhone());
+
+        return UserUpdateDTO.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .email(user.getEmail())
+                .phone(user.getPhone())
+                .profileImageUrl(user.getProfileImage() != null ? user.getProfileImage().getUrl() : null)
+                .build();
     }
-
-
-
 }
