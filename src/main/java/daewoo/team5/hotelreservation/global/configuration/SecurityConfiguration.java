@@ -51,6 +51,8 @@ public class SecurityConfiguration {
                                 "/auth",
                                 "/auth/code",
                                 "/auth/token",
+                                "/auth/google",
+                                "/auth/kakao",
                                 "/test",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
@@ -87,6 +89,9 @@ public class SecurityConfiguration {
                 .exceptionHandling(ex ->
                         ex.authenticationEntryPoint(authenticationEntryPoint)
                                 .accessDeniedHandler(accessDeniedHandler))
+                .oauth2Login(oauth->oauth
+                        .defaultSuccessUrl("http://localhost:5173/oauth2/success")
+                        .failureUrl("http://localhost:5173/oauth2/failure"))
                 .formLogin(AbstractHttpConfigurer::disable)
                 .logout(AbstractHttpConfigurer::disable);
 
