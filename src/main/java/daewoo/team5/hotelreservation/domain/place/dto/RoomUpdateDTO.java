@@ -11,19 +11,18 @@ import java.util.List;
 @Builder
 @ToString
 public class RoomUpdateDTO {
-    private int roomNumber;
+    private Integer roomNumber;
 
     private String roomType;
 
-    private int capacityPeople;
+    private Integer capacityPeople;
 
-    private int minPrice;
+    private Integer minPrice;
 
-    private int extraPrice;
+    private Integer extraPrice;
 
     private String bedType;
 
-//    private boolean isPublic;
 
     private Integer capacityRoom;
 

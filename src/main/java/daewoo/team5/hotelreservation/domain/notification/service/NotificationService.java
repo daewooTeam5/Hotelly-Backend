@@ -25,7 +25,7 @@ public class NotificationService {
     private final UsersRepository usersRepository;
 
     public Page<NotificationEntity> getMyNotification(Long userId, int page) {
-        return notificationRepository.findByUserIdOrUserIdIsNull(userId, PageRequest.of(page, 10));
+        return notificationRepository.findByUserIdOrUserIdIsNullOrderByCreatedAtDesc(userId, PageRequest.of(page, 10));
     }
 
     public Long countByUserIdAndIsReadFalse(Long userId) {

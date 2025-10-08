@@ -1,8 +1,5 @@
 package daewoo.team5.hotelreservation.global.aop.aspect;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import daewoo.team5.hotelreservation.domain.users.projection.UserProjection;
 import daewoo.team5.hotelreservation.domain.users.repository.UsersRepository;
 import daewoo.team5.hotelreservation.global.exception.ApiException;
@@ -10,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
@@ -24,24 +22,20 @@ public class AuthUserAspect {
     private final UsersRepository usersRepository;
 
     @Around("@annotation(daewoo.team5.hotelreservation.global.aop.annotation.AuthUser)")
-    public Object injectCurrentUser(ProceedingJoinPoint joinPoint) throws JsonProcessingException, Throwable {
+    public Object injectCurrentUser(ProceedingJoinPoint joinPoint) throws Throwable {
         Object[] args = joinPoint.getArgs();
 
-        // SecurityContext에서 userId 가져오기
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated()) return args;
+        if (auth == null || !auth.isAuthenticated()) return joinPoint.proceed(args);
 
         Object principal = auth.getPrincipal();
-        ObjectMapper mapper = new ObjectMapper();
-        log.info(auth.getName());
-        log.info(auth.toString());
-        log.info(principal.toString());
         UserProjection currentUser = usersRepository.findById(Long.parseLong(principal.toString()), UserProjection.class)
                 .orElseThrow(() -> new ApiException(404, "존재하지 않는 유저", "존재 하지 않는 유저입니다."));
-        System.out.println(currentUser);
 
+        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+        Class<?>[] paramTypes = signature.getMethod().getParameterTypes();
         for (int i = 0; i < args.length; i++) {
-            if (args[i] instanceof UserProjection || args[i] == null) {
+            if (UserProjection.class.isAssignableFrom(paramTypes[i])) {
                 args[i] = currentUser;
             }
         }

@@ -34,6 +34,8 @@ public class PublishingDTO {
 
     private List<String> images; // Base64 인코딩된 문자열 리스트
 
+    private List<File> placeImages;
+
     private List<Long> amenityIds; // 편의시설 이름 리스트
 
     private List<DiscountDTO> discounts;

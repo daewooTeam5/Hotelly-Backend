@@ -264,6 +264,7 @@ public class PublishingService {
                 .orElseThrow(() -> new RuntimeException("해당 숙소 없음 id=" + id));
 
         List<PlaceAddress> addresses = placeAddressRepository.findByPlaceId(id);
+        List<File> placeImage = fileRepository.findByDomainAndDomainFileId("place", place.getId());
         List<Room> rooms = roomRepository.findByPlaceId(id);
 
         List<Long> amenityIds = placeAmenityRepository.findByPlaceId(id).stream()
@@ -272,6 +273,7 @@ public class PublishingService {
 
         return PublishingDTO.builder()
                 .id(place.getId())
+                .placeImages(placeImage)
                 .hotelName(place.getName())
                 .description(place.getDescription())
                 .checkIn(place.getCheckIn().toString())
@@ -287,6 +289,7 @@ public class PublishingService {
                         .build()).toList())
                 .rooms(rooms.stream().map(r -> RoomDTO.builder()
                         .roomType(r.getRoomType())
+                        .roomImages(fileRepository.findByDomainAndDomainFileId("room",r.getId()))
                         .capacityPeople(r.getCapacityPeople())
                         .minPrice(r.getPrice().intValue())
                         .bedType(r.getBedType())
