@@ -7,8 +7,10 @@ import daewoo.team5.hotelreservation.domain.place.dto.AmenityDto;
 import daewoo.team5.hotelreservation.domain.place.dto.PlaceDetailResponse;
 import daewoo.team5.hotelreservation.domain.place.dto.PlaceInfoProjection;
 import daewoo.team5.hotelreservation.domain.place.dto.RoomInfoDto;
+import daewoo.team5.hotelreservation.domain.place.entity.PlaceCategory;
 import daewoo.team5.hotelreservation.domain.place.entity.Places;
 import daewoo.team5.hotelreservation.domain.place.projection.*;
+import daewoo.team5.hotelreservation.domain.place.repository.PlaceCategoryRepository;
 import daewoo.team5.hotelreservation.domain.place.repository.PlaceRepository;
 import daewoo.team5.hotelreservation.domain.users.entity.Users;
 import daewoo.team5.hotelreservation.global.exception.ApiException;
@@ -34,6 +36,7 @@ public class PlaceService {
     private final FcmService fcmService;
     private final NotificationRepository notificationRepository;
     private final PlaceRepository placeRepository;
+    private final PlaceCategoryRepository placeCategoryRepository;
 
     public Page<PlaceItemInfomation> AllSearchPlaces(
             int start, String name, String checkIn, String checkOut,
@@ -170,6 +173,10 @@ public class PlaceService {
                     );
                 })
                 .toList();
+    }
+
+    public List<PlaceCategory> getAllPlaceCategories() {
+        return placeCategoryRepository.findAll();
     }
 }
 

@@ -158,9 +158,9 @@ public interface PlaceRepository extends JpaRepository<Places, Long> {
               WHERE f.domain = 'place'
                 AND f.domain_file_id = :placeId
                 AND f.filetype = 'image'
-            
+                        
               UNION ALL
-            
+                        
               SELECT f.url
               FROM file f
               JOIN room r ON f.domain = 'room' AND f.domain_file_id = r.id
@@ -170,58 +170,58 @@ public interface PlaceRepository extends JpaRepository<Places, Long> {
     List<String> findPlaceImages(@Param("placeId") Long placeId);
 
     @Query(value = """
-    WITH RECURSIVE date_range AS (
-        SELECT :startDate AS date
-        UNION ALL
-        SELECT DATE_ADD(date, INTERVAL 1 DAY)
-        FROM date_range
-        WHERE date < DATE_SUB(:endDate, INTERVAL 1 DAY)
-    )
-    SELECT
-      r.id AS roomId,
-      r.room_type AS roomType,
-      r.bed_type AS bedType,
-      r.capacity_people AS capacityPeople,
-      r.capacity_room AS capacityRoom,
-      r.price AS price,
-      r.status AS status,
-      COALESCE(MIN(dpr.available_room), r.capacity_room) AS availableRoom,
-      r.area AS area,
-      GROUP_CONCAT(DISTINCT f.url SEPARATOR ',') AS images,
-      GROUP_CONCAT(DISTINCT CONCAT(a.name, ':', IFNULL(a.icon, '')) SEPARATOR ',') AS amenities,
-      CASE
-          WHEN
-              r.capacity_people >= CEIL(CAST(:totalPeople AS DECIMAL) / :roomNum)
-              AND
-              COALESCE(MIN(dpr.available_room), r.capacity_room) >= :roomNum
-          THEN 1
-          ELSE 0
-      END AS isAvailable,
-      -- (추가) 평균 할인율(%)
-      AVG(COALESCE(d.discount_value, 0)) AS discountValue,
-      -- (추가) 할인 적용 최종가
-      (r.price * (1 - AVG(COALESCE(d.discount_value, 0)) / 100.0)) AS finalPrice
-    FROM room r
-    LEFT JOIN file f
-           ON f.domain = 'room'
-          AND f.domain_file_id = r.id
-          AND f.filetype = 'image'
-    LEFT JOIN daily_place_reservation dpr
-           ON dpr.room_id = r.id
-          AND dpr.date >= :startDate AND dpr.date < :endDate
-    LEFT JOIN room_amenity_entity rae
-           ON rae.room_id = r.id
-    LEFT JOIN amenity a
-           ON a.id = rae.amenity_id
-    JOIN places p ON p.id = r.place_id
-    JOIN date_range dr
-    LEFT JOIN discount d
-           ON d.place_id = p.id
-          AND dr.date BETWEEN d.start_date AND d.end_date
-    WHERE r.place_id = :placeId
-    GROUP BY r.id, r.room_type, r.bed_type, r.capacity_people,
-             r.capacity_room, r.price, r.status, r.area
-    """, nativeQuery = true)
+            WITH RECURSIVE date_range AS (
+                SELECT :startDate AS date
+                UNION ALL
+                SELECT DATE_ADD(date, INTERVAL 1 DAY)
+                FROM date_range
+                WHERE date < DATE_SUB(:endDate, INTERVAL 1 DAY)
+            )
+            SELECT
+              r.id AS roomId,
+              r.room_type AS roomType,
+              r.bed_type AS bedType,
+              r.capacity_people AS capacityPeople,
+              r.capacity_room AS capacityRoom,
+              r.price AS price,
+              r.status AS status,
+              COALESCE(MIN(dpr.available_room), r.capacity_room) AS availableRoom,
+              r.area AS area,
+              GROUP_CONCAT(DISTINCT f.url SEPARATOR ',') AS images,
+              GROUP_CONCAT(DISTINCT CONCAT(a.name, ':', IFNULL(a.icon, '')) SEPARATOR ',') AS amenities,
+              CASE
+                  WHEN
+                      r.capacity_people >= CEIL(CAST(:totalPeople AS DECIMAL) / :roomNum)
+                      AND
+                      COALESCE(MIN(dpr.available_room), r.capacity_room) >= :roomNum
+                  THEN 1
+                  ELSE 0
+              END AS isAvailable,
+              -- (추가) 평균 할인율(%)
+              AVG(COALESCE(d.discount_value, 0)) AS discountValue,
+              -- (추가) 할인 적용 최종가
+              (r.price * (1 - AVG(COALESCE(d.discount_value, 0)) / 100.0)) AS finalPrice
+            FROM room r
+            LEFT JOIN file f
+                   ON f.domain = 'room'
+                  AND f.domain_file_id = r.id
+                  AND f.filetype = 'image'
+            LEFT JOIN daily_place_reservation dpr
+                   ON dpr.room_id = r.id
+                  AND dpr.date >= :startDate AND dpr.date < :endDate
+            LEFT JOIN room_amenity_entity rae
+                   ON rae.room_id = r.id
+            LEFT JOIN amenity a
+                   ON a.id = rae.amenity_id
+            JOIN places p ON p.id = r.place_id
+            JOIN date_range dr
+            LEFT JOIN discount d
+                   ON d.place_id = p.id
+                  AND dr.date BETWEEN d.start_date AND d.end_date
+            WHERE r.place_id = :placeId
+            GROUP BY r.id, r.room_type, r.bed_type, r.capacity_people,
+                     r.capacity_room, r.price, r.status, r.area
+            """, nativeQuery = true)
     List<RoomInfo> findRoomsByPlace(
             @Param("placeId") Long placeId,
             @Param("startDate") LocalDate startDate,
@@ -242,25 +242,25 @@ public interface PlaceRepository extends JpaRepository<Places, Long> {
     Optional<Places> findByOwnerId(Long ownerId);
 
     @Query("""
-        SELECT p.id AS id,
-         p.name AS name,
-         u.id AS ownerId,
-         u.name AS ownerName,
-         a.sido AS sido,
-         a.sigungu AS sigungu,
-         c.name AS categoryName,
-         p.status AS status
-          FROM Places p
-          JOIN p.owner u
-          JOIN PlaceAddress a ON a.place = p
-          JOIN p.category c
-          WHERE (:sido IS NULL OR a.sido = :sido)
-            AND (:sigungu IS NULL OR a.sigungu = :sigungu)
-            AND (:approvalStatus IS NULL OR p.status = :approvalStatus)
-            AND (:ownerName IS NULL OR u.name LIKE %:ownerName%)
-            AND (:placeName IS NULL OR p.name LIKE %:placeName%)
-          ORDER BY p.id DESC
-            """)
+            SELECT p.id AS id,
+             p.name AS name,
+             u.id AS ownerId,
+             u.name AS ownerName,
+             a.sido AS sido,
+             a.sigungu AS sigungu,
+             c.name AS categoryName,
+             p.status AS status
+              FROM Places p
+              JOIN p.owner u
+              JOIN PlaceAddress a ON a.place = p
+              JOIN p.category c
+              WHERE (:sido IS NULL OR a.sido = :sido)
+                AND (:sigungu IS NULL OR a.sigungu = :sigungu)
+                AND (:approvalStatus IS NULL OR p.status = :approvalStatus)
+                AND (:ownerName IS NULL OR u.name LIKE %:ownerName%)
+                AND (:placeName IS NULL OR p.name LIKE %:placeName%)
+              ORDER BY p.id DESC
+                """)
     Page<AdminPlaceProjection> searchAdminPlaces(
             @Param("sido") String sido,
             @Param("sigungu") String sigungu,
@@ -270,22 +270,28 @@ public interface PlaceRepository extends JpaRepository<Places, Long> {
             Pageable pageable
     );
 
-    @Query("SELECT p.id as placeId, p.name as placeName, p.description as description, " +
-            "p.status as status, p.isPublic as isPublic, p.avgRating as avgRating, p.reviewCount as reviewCount, p.minPrice as minPrice, " +
-            "pa.sido as sido, pa.sigungu as sigungu, pa.roadName as roadName, pa.detailAddress as detailAddress, f.url as fileUrl " +
-            "FROM Places p " +
-            "LEFT JOIN PlaceAddress pa ON pa.place.id = p.id " +
-            "LEFT JOIN File f ON f.domain = 'place' AND f.domainFileId = p.id " +
-            "WHERE p.id = :placeId")
+    @Query("""
+            SELECT p.id as placeId, p.name as placeName, p.description as description,
+                   p.status as status, p.isPublic as isPublic, p.avgRating as avgRating,
+                   p.reviewCount as reviewCount, p.minPrice as minPrice,
+                   pa.sido as sido, pa.sigungu as sigungu, pa.roadName as roadName,
+                   pa.detailAddress as detailAddress,
+                   (SELECT f.url FROM File f
+                    WHERE f.domain = 'place' AND f.domainFileId = p.id
+                    ORDER BY f.id ASC LIMIT 1) as fileUrl
+            FROM Places p
+            LEFT JOIN PlaceAddress pa ON pa.place.id = p.id
+            WHERE p.id = :placeId
+            """)
     PlaceInfoProjection findPlaceInfo(@Param("placeId") Long placeId);
     List<Places> findAllByOwnerId(Long ownerId);
 
     @Query(value = """
-    SELECT p.*
-    FROM places p
-    JOIN place_amenity pa ON p.id = pa.place_id
-    WHERE pa.amenity_id = :amenityId
-    """, nativeQuery = true)
+            SELECT p.*
+            FROM places p
+            JOIN place_amenity pa ON p.id = pa.place_id
+            WHERE pa.amenity_id = :amenityId
+            """, nativeQuery = true)
     List<Places> findByAmenityId(@Param("amenityId") Long amenityId);
 //    List<Places> findByAmenities_Id(Long amenityId);
 
