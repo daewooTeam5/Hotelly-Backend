@@ -2,6 +2,7 @@ package daewoo.team5.hotelreservation.domain.users.repository;
 
 import daewoo.team5.hotelreservation.domain.place.review.entity.Review;
 import daewoo.team5.hotelreservation.domain.users.entity.Users;
+import daewoo.team5.hotelreservation.domain.users.projection.MyInfoProjection;
 import daewoo.team5.hotelreservation.domain.users.projection.UserProjection;
 import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.domain.Page;
@@ -151,5 +152,9 @@ public interface UsersRepository extends JpaRepository<Users, Long> {
             "WHERE u.status = 'inactive' " +
             "GROUP BY FUNCTION('DATE_FORMAT', u.updatedAt, '%Y')")
     List<Object[]> countYearlyInactiveUsers();
+
+    @Query("SELECT u FROM Users u LEFT JOIN FETCH u.profileImage WHERE u.id = :id")
+    Optional<MyInfoProjection> findMyInfoProjectionById(@Param("id") Long id);
+
 
 }

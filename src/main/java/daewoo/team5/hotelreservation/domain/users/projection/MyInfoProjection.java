@@ -19,4 +19,6 @@ public interface MyInfoProjection {
     String getStatus();
     LocalDateTime createdAt();
     Long getPoint();
+    String getProfileImageUrl();
+
 }

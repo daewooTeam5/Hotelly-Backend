@@ -1,5 +1,7 @@
 package daewoo.team5.hotelreservation.domain.users.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import daewoo.team5.hotelreservation.domain.place.entity.File;
 import jakarta.persistence.*;
 import lombok.*;
 import daewoo.team5.hotelreservation.global.core.common.BaseTimeEntity;
@@ -43,9 +45,16 @@ public class Users extends BaseTimeEntity {
     @Column(columnDefinition = "ENUM('active', 'inactive', 'banned', 'withdraw') DEFAULT 'active'")
     private Status status;
 
+
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "ENUM('google','email','kakao','admin')")
     private UserType userType;
+
+
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "file_id")
+    @JsonManagedReference
+    private File profileImage;
 
 
     @Column(nullable = false)
@@ -55,6 +64,19 @@ public class Users extends BaseTimeEntity {
     @Column(nullable = true ,columnDefinition = "BIGINT DEFAULT 0")
     @Builder.Default
     private Long point=0L;
+
+    public void updateProfile(String name, String email, String phone) {
+
+        if (name != null && !name.isBlank()) {
+            this.name = name;
+        }
+        if (email != null && !email.isBlank()) {
+            this.email = email;
+        }
+        if (phone != null && !phone.isBlank()) {
+            this.phone = phone;
+        }
+    }
 
     public enum Role {
         customer,

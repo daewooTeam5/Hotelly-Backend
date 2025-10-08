@@ -2,6 +2,7 @@ package daewoo.team5.hotelreservation.domain.place.repository;
 
 import aj.org.objectweb.asm.commons.Remapper;
 import daewoo.team5.hotelreservation.domain.place.entity.File;
+import daewoo.team5.hotelreservation.domain.users.entity.Users;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -15,4 +16,5 @@ public interface FileRepository extends JpaRepository<File, Long> {
     void deleteByDomainAndDomainFileIdIn(String domain, List<Long> domainFileIds);
 
     Optional<File> findFirstByDomainAndDomainFileId(String domain, Long domainFileId);
+
 }
