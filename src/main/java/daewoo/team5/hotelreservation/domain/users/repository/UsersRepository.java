@@ -22,7 +22,11 @@ public interface UsersRepository extends JpaRepository<Users, Long> {
 
     Optional<Users> findByEmail(String email);
 
+    Optional<Users> findByEmailAndUserType(String email, Users.UserType userType);
+
     Optional<Users> findByUserId(String userId);
+
+    Optional<Users> findByUserIdAndUserType(String userId, Users.UserType userType);
 
     Optional<UserProjection> findProjectedById(Long id);
 

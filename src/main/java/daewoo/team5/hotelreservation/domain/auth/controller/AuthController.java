@@ -117,4 +117,22 @@ public class AuthController implements AuthSwagger {
         fcmService.subscribeToTopic("all", firebaseToken);
         return ApiResult.ok(true, "FCM 토큰 저장 성공");
     }
+
+    @PostMapping("/auth/google")
+    public ApiResult<LoginSuccessDto> googleLogin(
+            @RequestBody GoogleLoginRequest request,
+            HttpServletResponse response
+    ) {
+        LoginSuccessDto loginSuccessDto = authService.googleLogin(request.getCode(), request.getRedirectUri(), response);
+        return ApiResult.ok(loginSuccessDto, "Google 로그인 성공");
+    }
+
+    @PostMapping("/auth/kakao")
+    public ApiResult<LoginSuccessDto> kakaoLogin(
+            @RequestBody KakaoLoginRequest request,
+            HttpServletResponse response
+    ) {
+        LoginSuccessDto loginSuccessDto = authService.kakaoLogin(request.getCode(), request.getRedirectUri(), response);
+        return ApiResult.ok(loginSuccessDto, "Kakao 로그인 성공");
+    }
 }

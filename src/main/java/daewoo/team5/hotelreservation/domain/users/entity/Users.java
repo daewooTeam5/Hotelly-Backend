@@ -45,17 +45,25 @@ public class Users extends BaseTimeEntity {
     @Column(columnDefinition = "ENUM('active', 'inactive', 'banned', 'withdraw') DEFAULT 'active'")
     private Status status;
 
+
+    @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "ENUM('google','email','kakao','admin')")
+    private UserType userType;
+
+
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "file_id")
     @JsonManagedReference
     private File profileImage;
+
 
     @Column(nullable = false)
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
     @Column(nullable = true ,columnDefinition = "BIGINT DEFAULT 0")
-    private Long point;
+    @Builder.Default
+    private Long point=0L;
 
     public void updateProfile(String name, String email, String phone) {
 
@@ -83,6 +91,13 @@ public class Users extends BaseTimeEntity {
         inactive,
         banned,
         withdraw
+    }
+
+    public enum UserType{
+        google,
+        email,
+        kakao,
+        admin
     }
 }
 
