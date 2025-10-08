@@ -43,13 +43,18 @@ public class Users extends BaseTimeEntity {
     @Column(columnDefinition = "ENUM('active', 'inactive', 'banned', 'withdraw') DEFAULT 'active'")
     private Status status;
 
+    @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "ENUM('google','email','kakao','admin')")
+    private UserType userType;
+
 
     @Column(nullable = false)
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
     @Column(nullable = true ,columnDefinition = "BIGINT DEFAULT 0")
-    private Long point;
+    @Builder.Default
+    private Long point=0L;
 
     public enum Role {
         customer,
@@ -64,6 +69,13 @@ public class Users extends BaseTimeEntity {
         inactive,
         banned,
         withdraw
+    }
+
+    public enum UserType{
+        google,
+        email,
+        kakao,
+        admin
     }
 }
 
