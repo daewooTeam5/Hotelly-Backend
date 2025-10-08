@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import daewoo.team5.hotelreservation.domain.auth.dto.AdminLoginDto;
+import daewoo.team5.hotelreservation.domain.auth.dto.GoogleUserInfo;
+import daewoo.team5.hotelreservation.domain.auth.dto.KakaoUserInfo;
 import daewoo.team5.hotelreservation.domain.auth.dto.LoginSuccessDto;
 import daewoo.team5.hotelreservation.domain.auth.dto.SignUpRequest;
 import daewoo.team5.hotelreservation.domain.auth.entity.UserFcmEntity;
@@ -11,6 +13,7 @@ import daewoo.team5.hotelreservation.domain.auth.repository.BlackListRepository;
 import daewoo.team5.hotelreservation.domain.auth.repository.FcmCacheRepository;
 import daewoo.team5.hotelreservation.domain.auth.repository.OtpRepository;
 import daewoo.team5.hotelreservation.domain.auth.repository.UserFcmRepository;
+import daewoo.team5.hotelreservation.domain.file.service.FileService;
 import daewoo.team5.hotelreservation.domain.users.entity.Users;
 import daewoo.team5.hotelreservation.domain.users.projection.UserProjection;
 import daewoo.team5.hotelreservation.domain.users.repository.UsersRepository;
@@ -25,6 +28,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -51,9 +55,12 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final FcmCacheRepository fcmCacheRepository;
     private final UserFcmRepository userFcmRepository;
+    private final GoogleOAuthService googleOAuthService;
+    private final KakaoOAuthService kakaoOAuthService;
+    private final FileService fileService;
 
     // null 이면 비회원, null 아니면 회원
-    public UserProjection isAuthUser(Authentication auth){
+    public UserProjection isAuthUser(Authentication auth) {
         UserProjection currentUser = null;
         if (auth != null
                 && auth.isAuthenticated()
@@ -71,9 +78,10 @@ public class AuthService {
         }
         return currentUser;
     }
+
     public void logout(String refreshToken) {
         long expirationTime = jwtProvider.parseClaims(refreshToken).getExpiration().getTime();
-        blackListRepository.addToBlackList(refreshToken,expirationTime);
+        blackListRepository.addToBlackList(refreshToken, expirationTime);
     }
 
     public Users adminSignUp(SignUpRequest signUpRequest) {
@@ -92,14 +100,15 @@ public class AuthService {
                 .userId(signUpRequest.getAdminId())
                 .password(signUpRequest.getAdminPassword())
                 .role(role)
+                .userType(Users.UserType.admin)
                 .status(Users.Status.inactive)
                 .build());
     }
 
-    public LoginSuccessDto adminLogin(AdminLoginDto adminLoginDto, HttpServletResponse response){
-        Users admin = userRepository.findByUserId(adminLoginDto.getAdminId()).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND,"사용자 없음","해당 관리자가 존재하지 않습니다."));
-        if(!passwordEncoder.matches(adminLoginDto.getAdminPassword(),admin.getPassword())){
-            throw new ApiException(HttpStatus.UNAUTHORIZED,"로그인 실패","비밀번호가 일치하지 않습니다.");
+    public LoginSuccessDto adminLogin(AdminLoginDto adminLoginDto, HttpServletResponse response) {
+        Users admin = userRepository.findByUserId(adminLoginDto.getAdminId()).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "사용자 없음", "해당 관리자가 존재하지 않습니다."));
+        if (!passwordEncoder.matches(adminLoginDto.getAdminPassword(), admin.getPassword())) {
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "로그인 실패", "비밀번호가 일치하지 않습니다.");
         }
         UserProjection projection = userRepository.findById(admin.getId(), UserProjection.class)
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND,
@@ -140,10 +149,11 @@ public class AuthService {
                         .userId(UUID.randomUUID().toString())
                         .role(Users.Role.customer)
                         .status(Users.Status.active)
+                        .userType(Users.UserType.email)
                         .build()
 
         ));
-        return userRepository.findByName(users.getName(),UserProjection.class).get();
+        return userRepository.findByName(users.getName(), UserProjection.class).get();
 
     }
 
@@ -151,14 +161,14 @@ public class AuthService {
         if (refreshToken == null || !jwtProvider.validateToken(refreshToken)) {
             throw new ApiException(HttpStatus.UNAUTHORIZED, "토큰 재발급 실패", "유효하지 않은 리프레시 토큰입니다.");
         }
-        if( blackListRepository.isBlackListed(refreshToken)) {
-            cookieProvider.removeCookie("refreshToken",response);
+        if (blackListRepository.isBlackListed(refreshToken)) {
+            cookieProvider.removeCookie("refreshToken", response);
             throw new ApiException(HttpStatus.UNAUTHORIZED, "토큰 재발급 실패", "예기치 못한 오류 발생");
         }
         Claims tokenParse = jwtProvider.parseClaims(refreshToken);
         tokenParse.getSubject();
         Long userId = Long.parseLong(tokenParse.getSubject());
-        UserProjection users = userRepository.findById(userId,UserProjection.class).orElseThrow(
+        UserProjection users = userRepository.findById(userId, UserProjection.class).orElseThrow(
                 () -> new ApiException(HttpStatus.NOT_FOUND, "사용자 없음", "해당 사용자가 존재하지 않습니다.")
         );
         String newAccessToken = jwtProvider.generateToken(users, JwtProvider.TokenType.ACCESS);
@@ -199,5 +209,96 @@ public class AuthService {
             fcmCacheRepository.saveFcmToken(userId, fcmToken);
         }
         return fcmToken;
+    }
+
+    @Transactional
+    public LoginSuccessDto googleLogin(String code, String redirectUri, HttpServletResponse response) {
+        // 1. Authorization code로 Access Token 받기
+        String accessToken = googleOAuthService.getAccessToken(code, redirectUri);
+
+        // 2. Access Token으로 사용자 정보 가져오기
+        GoogleUserInfo googleUserInfo = googleOAuthService.getUserInfo(accessToken);
+
+        // 3. DB에서 사용자 조회 또는 생성
+        Optional<Users> findUser = userRepository.findByEmailAndUserType(googleUserInfo.getEmail(), Users.UserType.google);
+
+
+        Users user = findUser.orElseGet(() -> {
+            // 신규 사용자 생성
+            Users newUser = Users.builder()
+                    .email(googleUserInfo.getEmail())
+                    .name(googleUserInfo.getName())
+                    .userId("google_" + googleUserInfo.getSub())
+                    .role(Users.Role.customer)
+                    .status(Users.Status.active)
+                    .userType(Users.UserType.google)
+                    .point(0L)
+                    .build();
+            Users saveUser = userRepository.save(newUser);
+            if (googleUserInfo.getPicture() != null) {
+                fileService.save(googleUserInfo.getPicture(), saveUser.getId(), saveUser.getId(), "profile");
+            }
+            return saveUser;
+        });
+        log.info("Google User Info: {}", googleUserInfo.getPicture());
+
+        // 4. JWT 토큰 생성
+        UserProjection userProjection = userRepository.findById(user.getId(), UserProjection.class)
+                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "사용자 없음", "해당 사용자가 존재하지 않습니다."));
+
+        String jwtAccessToken = jwtProvider.generateToken(userProjection, JwtProvider.TokenType.ACCESS);
+        String refreshToken = jwtProvider.generateToken(userProjection.getId(), JwtProvider.TokenType.REFRESH);
+
+        // 5. Refresh Token을 쿠키에 저장
+        ResponseCookie refreshCookie = cookieProvider.generateRefreshTokenCookie(refreshToken);
+        response.addHeader("Set-Cookie", refreshCookie.toString());
+        return new LoginSuccessDto(jwtAccessToken, userProjection);
+    }
+
+    @Transactional
+    public LoginSuccessDto kakaoLogin(String code, String redirectUri, HttpServletResponse response) {
+        // 1. Authorization code로 Access Token 받기
+        String accessToken = kakaoOAuthService.getAccessToken(code, redirectUri);
+
+        // 2. Access Token으로 사용자 정보 가져오기
+        KakaoUserInfo kakaoUserInfo = kakaoOAuthService.getUserInfo(accessToken);
+        log.info("kakao: "+kakaoUserInfo.toString());
+
+        // 3. DB에서 사용자 조회 또는 생성
+        Optional<Users> findUser = userRepository.findByUserIdAndUserType(
+            "kakao_" + kakaoUserInfo.getId(),
+            Users.UserType.kakao
+        );
+
+        Users user = findUser.orElseGet(() -> {
+            // 신규 사용자 생성
+            Users newUser = Users.builder()
+                    .email(kakaoUserInfo.getEmail())
+                    .name(kakaoUserInfo.getNickname() != null ? kakaoUserInfo.getNickname() : "Kakao User")
+                    .userId("kakao_" + kakaoUserInfo.getId())
+                    .role(Users.Role.customer)
+                    .status(Users.Status.active)
+                    .userType(Users.UserType.kakao)
+                    .point(0L)
+                    .build();
+            Users saveUser = userRepository.save(newUser);
+            if (kakaoUserInfo.getProfileImage() != null) {
+                fileService.save(kakaoUserInfo.getProfileImage(), saveUser.getId(), saveUser.getId(), "profile");
+            }
+            return saveUser;
+        });
+        log.info("Kakao User Info: {}", kakaoUserInfo.getProfileImage());
+
+        // 4. JWT 토큰 생성
+        UserProjection userProjection = userRepository.findById(user.getId(), UserProjection.class)
+                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "사용자 없음", "해당 사용자가 존재하지 않습니다."));
+
+        String jwtAccessToken = jwtProvider.generateToken(userProjection, JwtProvider.TokenType.ACCESS);
+        String refreshToken = jwtProvider.generateToken(userProjection.getId(), JwtProvider.TokenType.REFRESH);
+
+        // 5. Refresh Token을 쿠키에 저장
+        ResponseCookie refreshCookie = cookieProvider.generateRefreshTokenCookie(refreshToken);
+        response.addHeader("Set-Cookie", refreshCookie.toString());
+        return new LoginSuccessDto(jwtAccessToken, userProjection);
     }
 }
