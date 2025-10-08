@@ -1,5 +1,7 @@
 package daewoo.team5.hotelreservation.domain.place.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import daewoo.team5.hotelreservation.domain.users.entity.Users;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -16,8 +18,9 @@ public class File {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // 파일 ID
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId; // 업로더 ID
+
+    @Column(name = "user_id", insertable = false, updatable = false)
+   private Long userId; // 업로더 ID
 
     @Column(name = "filename", length = 100, nullable = false)
     private String filename; // 파일명
@@ -36,4 +39,8 @@ public class File {
 
     @Column(name = "url", nullable = false, columnDefinition = "MEDIUMTEXT")
     private String url; // 파일 URL
+
+    @OneToOne(mappedBy = "profileImage", fetch = FetchType.LAZY)
+    @JsonBackReference
+    private Users user;
 }
