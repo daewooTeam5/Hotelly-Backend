@@ -37,3 +37,5 @@ src/main/resources/properties/
 uploads/
 
 config/firebase-service.json
+
+.DS_Store
