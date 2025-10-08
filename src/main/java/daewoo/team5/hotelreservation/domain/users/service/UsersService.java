@@ -163,8 +163,7 @@ public class UsersService {
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
 
         if (file != null && !file.isEmpty()) {
-            File savedFile = fileUploadService.storeProfileImage(file, user, request); // FileUploadService가 File 엔티티를 반환하도록 수정
-            user.setProfileImage(savedFile); // 연관관계 설정
+            fileService.uploadOrUpdate(file, userId, userId, "profile", file.getOriginalFilename());
         }
 
         user.updateProfile(dto.getName(), dto.getEmail(), dto.getPhone());

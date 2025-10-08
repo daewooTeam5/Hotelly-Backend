@@ -19,7 +19,7 @@ public class File {
     private Long id; // 파일 ID
 
 
-    @Column(name = "user_id", insertable = false, updatable = false)
+    @Column(name = "user_id",    updatable = false)
    private Long userId; // 업로더 ID
 
     @Column(name = "filename", length = 100, nullable = false)

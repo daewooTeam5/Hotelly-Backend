@@ -18,7 +18,7 @@ public class FileService {
     private final FileUploader fileUploader;
     private final FileRepository fileRepository;
 
-    public String save(String url,Long userId, Long domainId, String fileDomain) {
+    public File save(String url,Long userId, Long domainId, String fileDomain) {
         if (url == null || url.isBlank()) throw new IllegalArgumentException("url은 필수입니다.");
         if (domainId == null) throw new IllegalArgumentException("domainId는 필수입니다.");
         if (fileDomain == null || fileDomain.isBlank()) throw new IllegalArgumentException("fileDomain은 필수입니다.");
@@ -33,7 +33,47 @@ public class FileService {
                 .url(url)
                 .build();
         fileRepository.save(entity);
-        return entity.getUrl();
+        return entity;
+    }
+
+    public String uploadOrUpdate(MultipartFile file, Long userId, Long domainId, String fileDomain, String fileName) {
+        if (file == null || file.isEmpty()) throw new IllegalArgumentException("업로드할 파일이 비어있습니다.");
+        if (domainId == null) throw new IllegalArgumentException("domainId는 필수입니다.");
+        if (fileDomain == null || fileDomain.isBlank()) throw new IllegalArgumentException("fileDomain은 필수입니다.");
+
+        // 기존 파일 검색
+        File existingFile = fileRepository.findFirstByDomainAndDomainFileId(fileDomain, domainId).orElse(null);
+
+        // 업로드 수행
+        UploadResult result = fileUploader.uploadFile(file, fileName);
+        String newUrl = "http://localhost:8080/uploads/" + result.getUrl();
+
+        if (existingFile != null) {
+            // 기존 파일이 있으면 정보만 업데이트
+            existingFile.setFilename(result.getStoredName());
+            existingFile.setExtension(result.getExtension());
+            existingFile.setFiletype(result.getFiletype());
+            existingFile.setUrl(newUrl);
+            existingFile.setUserId(userId);
+
+            fileRepository.save(existingFile);
+            log.info("기존 파일 정보 업데이트: {}", existingFile.getFilename());
+            return existingFile.getUrl();
+        } else {
+            // 기존 파일이 없으면 새로 저장
+            File entity = File.builder()
+                    .userId(userId)
+                    .filename(result.getStoredName())
+                    .extension(result.getExtension())
+                    .filetype(result.getFiletype())
+                    .domainFileId(domainId)
+                    .domain(fileDomain)
+                    .url(newUrl)
+                    .build();
+            fileRepository.save(entity);
+            log.info("새 파일 저장: {}", entity.getFilename());
+            return entity.getUrl();
+        }
     }
 
     // 파일을 로컬에 저장 후 DB 메타데이터 저장. 저장된 파일 URL 반환

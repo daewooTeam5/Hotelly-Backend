@@ -14,6 +14,7 @@ import daewoo.team5.hotelreservation.domain.auth.repository.FcmCacheRepository;
 import daewoo.team5.hotelreservation.domain.auth.repository.OtpRepository;
 import daewoo.team5.hotelreservation.domain.auth.repository.UserFcmRepository;
 import daewoo.team5.hotelreservation.domain.file.service.FileService;
+import daewoo.team5.hotelreservation.domain.place.entity.File;
 import daewoo.team5.hotelreservation.domain.users.entity.Users;
 import daewoo.team5.hotelreservation.domain.users.projection.UserProjection;
 import daewoo.team5.hotelreservation.domain.users.repository.UsersRepository;
@@ -236,7 +237,8 @@ public class AuthService {
                     .build();
             Users saveUser = userRepository.save(newUser);
             if (googleUserInfo.getPicture() != null) {
-                fileService.save(googleUserInfo.getPicture(), saveUser.getId(), saveUser.getId(), "profile");
+                File profileImage = fileService.save(googleUserInfo.getPicture(), saveUser.getId(), saveUser.getId(), "profile");
+                saveUser.setProfileImage(profileImage);
             }
             return saveUser;
         });
@@ -283,7 +285,8 @@ public class AuthService {
                     .build();
             Users saveUser = userRepository.save(newUser);
             if (kakaoUserInfo.getProfileImage() != null) {
-                fileService.save(kakaoUserInfo.getProfileImage(), saveUser.getId(), saveUser.getId(), "profile");
+                File profileImage = fileService.save(kakaoUserInfo.getProfileImage(), saveUser.getId(), saveUser.getId(), "profile");
+                saveUser.setProfileImage(profileImage);
             }
             return saveUser;
         });
