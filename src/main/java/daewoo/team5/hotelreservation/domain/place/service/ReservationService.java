@@ -1,6 +1,7 @@
 package daewoo.team5.hotelreservation.domain.place.service;
 
 
+import daewoo.team5.hotelreservation.domain.auth.repository.UserFcmRepository;
 import daewoo.team5.hotelreservation.domain.auth.service.AuthService;
 import daewoo.team5.hotelreservation.domain.coupon.entity.CouponHistoryEntity;
 import daewoo.team5.hotelreservation.domain.coupon.entity.UserCouponEntity;
@@ -35,6 +36,7 @@ import daewoo.team5.hotelreservation.domain.users.entity.Users;
 import daewoo.team5.hotelreservation.domain.users.projection.UserProjection;
 import daewoo.team5.hotelreservation.domain.users.repository.UsersRepository;
 import daewoo.team5.hotelreservation.global.exception.ApiException;
+import daewoo.team5.hotelreservation.infrastructure.firebasefcm.FcmService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -72,6 +74,8 @@ public class ReservationService {
     private final AuthService authService;
 
     private final NotificationRepository notificationRepository;
+    private final UserFcmRepository userFcmRepository;
+    private final FcmService fcmService;
 
     /**
      * ✅ [추가] 리뷰 작성 가능한 예약 목록을 조회하는 서비스 로직
@@ -225,25 +229,26 @@ public class ReservationService {
         payment.setStatus(Payment.PaymentStatus.cancelled);
         if (response != null && response.getCancels() != null && !response.getCancels().isEmpty()) {
             TossCancelResponse.CancelHistory lastCancel = response.getCancels().get(response.getCancels().size() - 1);
-            payment.setAmount(lastCancel.getCancelAmount()); // 환불 금액 반영
-            payment.setTransactionDate(lastCancel.getCanceledAt().toLocalDateTime()); // 환불 시각 반영
+            payment.setAmount(lastCancel.getCancelAmount());
+            payment.setTransactionDate(lastCancel.getCanceledAt().toLocalDateTime());
         }
         paymentRepository.save(payment);
 
-        // TODO : 취소 로직 확인을 위한 임시 주석
-//        // ✅ 재고 복구
+        // ✅ 재고 복구
         if (r.getRoom() != null && r.getResevStart() != null && r.getResevEnd() != null) {
             adjustInventory(r.getRoom().getId(), r.getResevStart(), r.getResevEnd().minusDays(1), +1);
         }
-//
-        //
-        // 쿠폰 조회후 쿠폰 상태 복구
+
+        // 쿠폰 복구
         if(r.getGuest().getUsers()!=null) {
-log.info("Finding coupon history for reservation: {}", r.getReservationId());
+            log.info("Finding coupon history for reservation: {}", r.getReservationId());
             couponHistoryRepository.findByReservation_idWithUsed(r.getReservationId()).ifPresent(ch -> {
                 log.info("Cancelling coupon history: {}", ch.getId());
                 ch.setStatus(CouponHistoryEntity.CouponStatus.refunded);
-                UserCouponEntity userCouponEntity = userCouponRepository.findByUserIdAndCouponId(r.getGuest().getUsers().getId(), ch.getUserCoupon().getCoupon().getId()).orElseThrow(() -> new ApiException(
+                UserCouponEntity userCouponEntity = userCouponRepository.findByUserIdAndCouponId(
+                        r.getGuest().getUsers().getId(),
+                        ch.getUserCoupon().getCoupon().getId()
+                ).orElseThrow(() -> new ApiException(
                         HttpStatus.NOT_FOUND,
                         "UserCoupon Not Found",
                         "해당 쿠폰을 찾을 수 없습니다."
@@ -251,23 +256,43 @@ log.info("Finding coupon history for reservation: {}", r.getReservationId());
                 userCouponEntity.setUsed(false);
             });
         }
+
         Reservation saved = reservationRepository.save(r);
         backupPoint(r, r.getGuest() != null && r.getGuest().getUsers() != null ? r.getGuest().getUsers() : null);
 
-
-        // ✅ 알림 생성 (회원일 경우에만)
+        // ✅ 알림 생성 및 FCM 전송 (회원일 경우에만)
         if (r.getGuest() != null && r.getGuest().getUsers() != null) {
+            Users user = r.getGuest().getUsers();
+
+            String title = "예약이 취소되었습니다";
+            String content = "예약번호 " + r.getReservationId() + "번이 취소 및 환불 처리되었습니다.";
+
+            // FCM 푸시 알림 전송
+            userFcmRepository.findByUserId(user.getId()).ifPresent(userFcm -> {
+                String token = userFcm.getToken();
+                if (token != null && !token.isEmpty()) {
+                    try {
+                        fcmService.sendToToken(token, title, content, null);
+                    } catch (Exception e) {
+                        log.error("FCM 알림 전송 실패 - userId: {}, reservationId: {}, error: {}",
+                                user.getId(), r.getReservationId(), e.getMessage());
+                    }
+                }
+            });
+
+            // DB에 알림 저장
             NotificationEntity notification = NotificationEntity.builder()
-                    .title("예약이 취소되었습니다")
-                    .content("예약번호 " + r.getReservationId() + "번이 취소 및 환불 처리되었습니다.")
+                    .title(title)
+                    .content(content)
                     .notificationType(NotificationEntity.NotificationType.RESERVATION)
-                    .user(r.getGuest().getUsers())
+                    .user(user)
                     .build();
             notificationRepository.save(notification);
         }
-        return toDetailDTO(saved);
 
+        return toDetailDTO(saved);
     }
+
     public void backupPoint(Reservation r,Users users){
         // 로그인 안한 유저면 패스
         // 포인트 적립된값 차감
