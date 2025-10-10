@@ -59,3 +59,9 @@ server:
 
 file:
   upload-dir: C:\Users\11261\Pictures\full
+springdoc:
+  swagger-ui:
+    # swagger-ui 기본 URL 비활성화 (필요 없는 Source Map 요청 방지)
+    disable-swagger-default-url: true
+    # Swagger UI에서 Path Mapping 사용하지 않음 (map 요청 방지)
+    use-path-mapping: false
