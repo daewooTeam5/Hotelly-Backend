@@ -1,9 +1,11 @@
 package daewoo.team5.hotelreservation.domain.place.controller;
 
+import daewoo.team5.hotelreservation.domain.payment.entity.Reservation;
 import daewoo.team5.hotelreservation.domain.place.dto.*;
 import daewoo.team5.hotelreservation.domain.place.service.ReservationService;
 import daewoo.team5.hotelreservation.domain.users.projection.UserProjection;
 import daewoo.team5.hotelreservation.global.aop.annotation.AuthUser;
+import daewoo.team5.hotelreservation.global.core.common.ApiResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -49,6 +52,30 @@ public class PlaceOwnerController {
                 reservationService.getReservationById(reservationId, projection.getId());
         return reservationDTO.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PatchMapping("/{id}/validate/checkin")
+    @AuthUser
+    public ApiResult<CheckInResultDto> validateCheckIn(
+            @PathVariable(name = "id") String reservationId) {
+        CheckInResultDto result = reservationService.validateCheckin(reservationId);
+        return ApiResult.ok(result);
+    }
+    @PatchMapping("/{id}/checkin")
+    @AuthUser
+    public  ApiResult<Boolean> checkIn(
+            @PathVariable(name = "id") String reservationId) {
+        Boolean result = reservationService.checkIn(reservationId);
+        return ApiResult.ok(result);
+    }
+
+    @GetMapping("/today")
+    @AuthUser
+    public ApiResult<List<Reservation>> getTodayReservation(
+            UserProjection user
+            ) {
+        List<Reservation> todayReservation = reservationService.getTodayReservation(user.getId());
+        return ApiResult.ok(todayReservation);
     }
 
     /**
