@@ -30,7 +30,7 @@ jobs:
           mkdir -p src/main/resources/properties
           echo "${{ secrets.ENV }}" > src/main/resources/properties/.env.properties
 
-      # 🔹 Firebase service JSON 생성
+      # 🔹 Firebase service JSON 생성 (빌드용)
       - name: Create firebase-service.json
         run: |
           mkdir -p src/main/resources/config
@@ -53,16 +53,11 @@ jobs:
       - name: Build with Maven
         run: mvn clean package -DskipTests
 
-      - name: Upload build artifact
+      - name: Upload build artifact (JAR만)
         uses: actions/upload-artifact@v4
         with:
           name: build-artifact
           path: target/*.jar
-
-      - name: Download build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: build-artifact
 
   cd:
     name: Run CD (배포)
@@ -86,25 +81,17 @@ jobs:
           chmod 600 ~/.ssh/aws_key.pem
           ssh-keyscan -H ${{ secrets.AWS_URL }} >> ~/.ssh/known_hosts
 
-      # 🔹 EC2 /config 디렉토리 생성
-      - name: Create /config on EC2
-        run: |
-          ssh -i ~/.ssh/aws_key.pem ubuntu@${{ secrets.AWS_URL }} "sudo mkdir -p /config && sudo chown ubuntu:ubuntu /config"
-
-      - name: Upload JAR and Firebase config
+      - name: Upload JAR to EC2
         run: |
           JAR_NAME=$(ls *.jar | head -n 1)
           echo "✅ JAR 파일: $JAR_NAME"
-          echo "🚀 EC2에 JAR와 Firebase config 업로드 중..."
+          echo "🚀 EC2에 JAR 업로드 중..."
           scp -i ~/.ssh/aws_key.pem "$JAR_NAME" ubuntu@${{ secrets.AWS_URL }}:/home/ubuntu/
-          scp -i ~/.ssh/aws_key.pem src/main/resources/config/firebase-service.json ubuntu@${{ secrets.AWS_URL }}:/config/firebase-service.json
 
       - name: Run app on EC2
         run: |
           ssh -i ~/.ssh/aws_key.pem ubuntu@${{ secrets.AWS_URL }} << EOF
             pkill -f "$JAR_NAME" || true
-            nohup java -jar /home/ubuntu/$JAR_NAME \
-              --spring.config.additional-location=file:/config/firebase-service.json \
-              > app.log 2>&1 &
+            nohup java -jar /home/ubuntu/$JAR_NAME > app.log 2>&1 &
             echo "✅ 서버에서 앱 실행됨!"
           EOF
