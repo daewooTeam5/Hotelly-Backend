@@ -620,4 +620,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long>,
                                                                                   @Param("lastName") String lastName,
                                                                                   @Param("firstName") String firstName,
                                                                                   @Param("email") String email);
+
+    List<Reservation> findByRoomPlaceIdAndResevStart(Long placeId, LocalDate resevStart);
 }

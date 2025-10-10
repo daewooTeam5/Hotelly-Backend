@@ -25,11 +25,8 @@ import daewoo.team5.hotelreservation.domain.payment.repository.PointHistoryRepos
 import daewoo.team5.hotelreservation.domain.payment.service.TossPaymentService;
 import daewoo.team5.hotelreservation.domain.place.dto.*;
 import daewoo.team5.hotelreservation.domain.place.entity.DailyPlaceReservation;
-import daewoo.team5.hotelreservation.domain.place.entity.Room;
-import daewoo.team5.hotelreservation.domain.place.repository.DailyPlaceReservationRepository;
-import daewoo.team5.hotelreservation.domain.place.repository.PaymentRepository;
-import daewoo.team5.hotelreservation.domain.place.repository.ReservationRepository;
-import daewoo.team5.hotelreservation.domain.place.repository.RoomRepository;
+import daewoo.team5.hotelreservation.domain.place.entity.Places;
+import daewoo.team5.hotelreservation.domain.place.repository.*;
 import daewoo.team5.hotelreservation.domain.place.specification.ReservationSpecification;
 import daewoo.team5.hotelreservation.domain.payment.entity.Reservation;
 import daewoo.team5.hotelreservation.domain.users.entity.Users;
@@ -37,10 +34,7 @@ import daewoo.team5.hotelreservation.domain.users.projection.UserProjection;
 import daewoo.team5.hotelreservation.domain.users.repository.UsersRepository;
 import daewoo.team5.hotelreservation.global.exception.ApiException;
 import daewoo.team5.hotelreservation.infrastructure.firebasefcm.FcmService;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -48,6 +42,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -59,7 +54,6 @@ import java.util.Optional;
 @Slf4j
 public class ReservationService {
 
-    private static final Logger log = LoggerFactory.getLogger(ReservationService.class);
     private final ReservationRepository reservationRepository;
     private final PaymentRepository paymentRepository;
     private final RoomRepository roomRepository;
@@ -76,6 +70,7 @@ public class ReservationService {
     private final NotificationRepository notificationRepository;
     private final UserFcmRepository userFcmRepository;
     private final FcmService fcmService;
+    private final PlaceRepository placeRepository;
 
     /**
      * ✅ [추가] 리뷰 작성 가능한 예약 목록을 조회하는 서비스 로직
@@ -437,4 +432,61 @@ public class ReservationService {
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "예약 정보를 찾을 수 없습니다.", "입력하신 정보와 일치하는 예약 내역이 없습니다."));
     }
 
+
+    @Transactional(readOnly = true)
+    public CheckInResultDto validateCheckin(String orderId) {
+        Reservation reservation = reservationRepository.findByOrderId(orderId).orElseThrow(() -> new ApiException(
+                HttpStatus.NOT_FOUND,
+                "Not Found",
+                "해당 예약을 찾을 수 없습니다."
+        ));
+        if(reservation.getStatus()!=Reservation.ReservationStatus.confirmed){
+            throw new ApiException(
+                    HttpStatus.BAD_REQUEST,
+                    "Bad Request",
+                    "체크인 가능한 상태가 아닙니다."
+            );
+        }
+        if(reservation.getResevStart().isBefore(LocalDate.now())){
+            throw new ApiException(
+                    HttpStatus.BAD_REQUEST,
+                    "Bad Request",
+                    "체크인 가능한 상태가 아닙니다."
+            );
+        }
+        if(reservation.getRoom().getPlace().getCheckIn().isAfter(LocalDateTime.now().toLocalTime())){
+            throw new ApiException(
+                    HttpStatus.BAD_REQUEST,
+                    "체크인 가능한 시간이 아닙니다",
+                    String.format("숙소 체크인 시간 : %s 현재 시간 %s",reservation.getRoom().getPlace().getCheckIn(),LocalDateTime.now().toLocalTime())
+            );
+        }
+        return new CheckInResultDto(
+                reservation.getGuest(),
+                reservation.getRoom().getPlace().getName(),
+                reservation.getRoom().getBedType(),
+                reservation.getRoom().getRoomType(),
+                reservation.getResevStart(),
+                reservation.getResevEnd()
+        );
+    }
+
+    public List<Reservation> getTodayReservation(Long userId) {
+        List<Places> allByOwnerId = placeRepository.findAllByOwnerId(userId);
+        if(allByOwnerId.isEmpty()){
+            throw new ApiException(
+                    HttpStatus.NOT_FOUND,
+                    "Not Found",
+                    "해당 소유자의 보유 숙소가 존재하지 않습니다."
+            );
+        }
+        return reservationRepository.findByRoomPlaceIdAndResevStart(allByOwnerId.get(0).getId(),LocalDate.now());
+    }
+
+    @Transactional
+    public Boolean checkIn(String reservationId) {
+        Reservation reservation = reservationRepository.findByOrderId(reservationId).orElseThrow();
+        reservation.setStatus(Reservation.ReservationStatus.checked_in);
+        return true;
+    }
 }
