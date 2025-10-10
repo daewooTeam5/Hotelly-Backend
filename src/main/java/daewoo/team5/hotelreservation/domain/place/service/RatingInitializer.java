@@ -26,24 +26,23 @@ public class RatingInitializer implements CommandLineRunner {
     @Transactional
     public void run(String... args) throws Exception {
         log.info("서버 시작 시 숙소별 평균 평점 계산을 시작합니다...");
-
-        List<Places> places = placeRepository.findAll();
-
-        for (Places place : places) {
-            List<Review> reviews = reviewRepository.findByPlaceId(place.getId(), null);
-            if (reviews.isEmpty()) {
-                place.setAvgRating(BigDecimal.ZERO);
-                place.setReviewCount(0);
-            } else {
-                double average = reviews.stream()
-                        .mapToInt(Review::getRating)
-                        .average()
-                        .orElse(0.0);
-                place.setAvgRating(BigDecimal.valueOf(average).setScale(2, RoundingMode.HALF_UP));
-                place.setReviewCount(reviews.size());
-            }
-            placeRepository.save(place);
-        }
-        log.info("숙소별 평균 평점 계산 및 업데이트가 완료되었습니다.");
+//List<Places> places = placeRepository.findAll();
+//
+//        for (Places place : places) {
+//            List<Review> reviews = reviewRepository.findByPlaceId(place.getId(), null);
+//            if (reviews.isEmpty()) {
+//                place.setAvgRating(BigDecimal.ZERO);
+//                place.setReviewCount(0);
+//            } else {
+//                double average = reviews.stream()
+//                        .mapToInt(Review::getRating)
+//                        .average()
+//                        .orElse(0.0);
+//                place.setAvgRating(BigDecimal.valueOf(average).setScale(2, RoundingMode.HALF_UP));
+//                place.setReviewCount(reviews.size());
+//            }
+//            placeRepository.save(place);
+//        }
+//        log.info("숙소별 평균 평점 계산 및 업데이트가 완료되었습니다.");
     }
 }
