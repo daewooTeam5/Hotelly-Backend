@@ -49,13 +49,13 @@ public class SecurityConfiguration {
                         .requestMatchers(
                                 "/",
                                 "/uploads/*",
-                                "/signup",
-                                "/admin/login",
-                                "/auth",
-                                "/auth/code",
-                                "/auth/token",
-                                "/auth/google",
-                                "/auth/kakao",
+                                "/api/v1/auth/signup",
+                                "/api/v1/auth/admin/login",
+                                "/api/v1/auth",
+                                "/api/v1/auth/code",
+                                "/api/v1/auth/token",
+                                "/api/v1/auth/google",
+                                "/api/v1/auth/kakao",
                                 "/test",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
@@ -73,7 +73,7 @@ public class SecurityConfiguration {
                                 "/api/v1/amenities/*",
                                 "/api/v1/owner/coupons",
                                 "/images/**",
-                                "/fcm/*",
+                                "/api/v1/auth/fcm/*",
                                 "/api/v1/kakao/map-key"
                         ).permitAll()
                         .requestMatchers("/api/v1/reservations/**", "/api/v1/statistics/**", "/api/v1/dashboard/**", "/api/v1/owner/coupons/**", "/api/v1/owner/inventory/**", "/api/v1/owner/rooms/**")
@@ -106,7 +106,7 @@ public class SecurityConfiguration {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOriginPatterns(List.of("http://localhost:5173", "https://127.0.0.1:5173", "http://192.168.0.25:5173", DEPLOY_URL)); // 모든 Origin 허용
+        configuration.setAllowedOriginPatterns(List.of("http://localhost:5173", "https://127.0.0.1:5173", "http://192.168.0.25:5173","http://192.168.194.224:5173", DEPLOY_URL)); // 모든 Origin 허용
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")); // 모든 HTTP 메서드 허용
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true); // 쿠키/Authorization 헤더 허용

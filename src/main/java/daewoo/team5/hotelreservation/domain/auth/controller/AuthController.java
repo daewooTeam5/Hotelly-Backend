@@ -25,13 +25,14 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
+@RequestMapping("/api/v1/auth")
 public class AuthController implements AuthSwagger {
     private final AuthService authService;
     private final JwtProvider jwtProvider;
     private final CookieProvider cookieProvider;
     private final FcmService fcmService;
 
-    @PostMapping("/auth")
+    @PostMapping
     public ApiResult<Boolean> emailLogin(@RequestBody @Valid EmailLoginDto emailLoginDto) {
         log.info("Email Login Request Received: {}", emailLoginDto);
         authService.sendOtpCode(emailLoginDto.getEmail());
@@ -50,7 +51,7 @@ public class AuthController implements AuthSwagger {
         return ApiResult.ok(true, "로그아웃 되었습니다.");
     }
 
-    @PostMapping("/auth/code")
+    @PostMapping("/code")
     public ApiResult<LoginSuccessDto> authOtpCode(
             @RequestBody
             @Valid
@@ -70,7 +71,7 @@ public class AuthController implements AuthSwagger {
         return ApiResult.ok(loginSuccessDto, "인증 성공");
     }
 
-    @PostMapping("auth/token")
+    @PostMapping("/token")
     public ApiResult<Map<String, String>> reissueToken(
             @CookieValue(name = "refreshToken", required = false) String refreshToken,
             HttpServletResponse response
@@ -106,7 +107,7 @@ public class AuthController implements AuthSwagger {
         return ApiResult.ok(loginSuccessDto, "관리자 로그인 성공");
     }
 
-    @PostMapping("/auth/fcm-token")
+    @PostMapping("/fcm-token")
     @AuthUser
     public ApiResult<Boolean> saveFcmToken(
              UserProjection user,
@@ -118,7 +119,7 @@ public class AuthController implements AuthSwagger {
         return ApiResult.ok(true, "FCM 토큰 저장 성공");
     }
 
-    @PostMapping("/auth/google")
+    @PostMapping("/google")
     public ApiResult<LoginSuccessDto> googleLogin(
             @RequestBody GoogleLoginRequest request,
             HttpServletResponse response
@@ -127,7 +128,7 @@ public class AuthController implements AuthSwagger {
         return ApiResult.ok(loginSuccessDto, "Google 로그인 성공");
     }
 
-    @PostMapping("/auth/kakao")
+    @PostMapping("/kakao")
     public ApiResult<LoginSuccessDto> kakaoLogin(
             @RequestBody KakaoLoginRequest request,
             HttpServletResponse response
