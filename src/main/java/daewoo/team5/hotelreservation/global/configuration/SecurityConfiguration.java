@@ -5,10 +5,10 @@ import daewoo.team5.hotelreservation.global.core.security.CustomAuthenticationEn
 import daewoo.team5.hotelreservation.global.core.security.CustomUserDetailsService;
 import daewoo.team5.hotelreservation.global.core.security.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -27,11 +27,14 @@ public class SecurityConfiguration {
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
     private final CustomAccessDeniedHandler accessDeniedHandler;
     private final CustomUserDetailsService userDetailsService;
+    @Value("${DEPLOY_URL}")
+    private String DEPLOY_URL;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
+
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -73,7 +76,7 @@ public class SecurityConfiguration {
                                 "/fcm/*",
                                 "/api/v1/kakao/map-key"
                         ).permitAll()
-                        .requestMatchers("/api/v1/reservations/**","/api/v1/statistics/**","/api/v1/dashboard/**","/api/v1/owner/coupons/**", "/api/v1/owner/inventory/**", "/api/v1/owner/rooms/**")
+                        .requestMatchers("/api/v1/reservations/**", "/api/v1/statistics/**", "/api/v1/dashboard/**", "/api/v1/owner/coupons/**", "/api/v1/owner/inventory/**", "/api/v1/owner/rooms/**")
                         .hasAnyRole("admin", "hotel_owner")
                         .requestMatchers("/api/v1/payment/dashboard/**")
                         .hasAnyRole("admin", "user_admin", "place_admin")
@@ -81,7 +84,7 @@ public class SecurityConfiguration {
                         .hasAnyRole("admin", "place_admin")
                         .requestMatchers("/api/v1/admin/**")
                         .hasAnyRole("admin", "user_admin")
-                        .requestMatchers("/api/v1/reservations/**","/api/v1/statistics/**","/api/v1/dashboard/**","/api/v1/owner/coupons/**", "/api/v1/owner/inventory/**", "/api/v1/owner/rooms/**")
+                        .requestMatchers("/api/v1/reservations/**", "/api/v1/statistics/**", "/api/v1/dashboard/**", "/api/v1/owner/coupons/**", "/api/v1/owner/inventory/**", "/api/v1/owner/rooms/**")
                         .hasAnyRole("admin", "hotel_owner")
                         .anyRequest().authenticated()
                 )
@@ -89,7 +92,7 @@ public class SecurityConfiguration {
                 .exceptionHandling(ex ->
                         ex.authenticationEntryPoint(authenticationEntryPoint)
                                 .accessDeniedHandler(accessDeniedHandler))
-                .oauth2Login(oauth->oauth
+                .oauth2Login(oauth -> oauth
                         .defaultSuccessUrl("http://localhost:5173/oauth2/success")
                         .failureUrl("http://localhost:5173/oauth2/failure"))
                 .formLogin(AbstractHttpConfigurer::disable)
@@ -103,8 +106,8 @@ public class SecurityConfiguration {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOriginPatterns(List.of("http://localhost:5173","https://127.0.0.1:5173","http://192.168.0.25:5173")); // 모든 Origin 허용
-        configuration.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS","PATCH")); // 모든 HTTP 메서드 허용
+        configuration.setAllowedOriginPatterns(List.of("http://localhost:5173", "https://127.0.0.1:5173", "http://192.168.0.25:5173", DEPLOY_URL)); // 모든 Origin 허용
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")); // 모든 HTTP 메서드 허용
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true); // 쿠키/Authorization 헤더 허용
 

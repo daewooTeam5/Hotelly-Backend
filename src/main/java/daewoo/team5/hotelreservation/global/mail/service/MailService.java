@@ -7,6 +7,7 @@ import daewoo.team5.hotelreservation.global.exception.ApiException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -23,6 +24,8 @@ import java.time.format.DateTimeFormatter;
 public class MailService {
     private final JavaMailSender javaMailSender;
     private final ReservationRepository reservationRepository; // ReservationRepository 주입
+    @Value("${DEPLOY_URL}")
+    private String DEPLOY_URL;
 
     @Async
     public void sendOtpCode(String email, String code) {
@@ -67,9 +70,9 @@ public class MailService {
 
             String reservationDetailUrl;
             if (isMember) {
-                reservationDetailUrl = "http://localhost:5173/profile/payments/" + paymentDetail.getPaymentId();
+                reservationDetailUrl = DEPLOY_URL+":5173/profile/payments/" + paymentDetail.getPaymentId();
             } else {
-                reservationDetailUrl = "http://localhost:5173/guest/reservation-search" +
+                reservationDetailUrl = DEPLOY_URL+":5173/guest/reservation-search" +
                         "?reservationId=" + paymentDetail.getReservationId() +
                         "&lastName=" + URLEncoder.encode(lastName, StandardCharsets.UTF_8) +
                         "&firstName=" + URLEncoder.encode(firstName, StandardCharsets.UTF_8) +
