@@ -103,7 +103,7 @@ public class SecurityConfiguration {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOriginPatterns(List.of("http://localhost:5173","https://127.0.0.1:5173")); // 모든 Origin 허용
+        configuration.setAllowedOriginPatterns(List.of("http://localhost:5173","https://127.0.0.1:5173","http://192.168.0.25:5173")); // 모든 Origin 허용
         configuration.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS","PATCH")); // 모든 HTTP 메서드 허용
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true); // 쿠키/Authorization 헤더 허용
