@@ -9,7 +9,7 @@ public abstract class FileUploader {
     protected String extractExtension(String filename) {
         if (filename == null) return null;
         int idx = filename.lastIndexOf('.');
-        if (idx == -1 || idx == filename.length() - 1) return null;
+        if (idx == -1 || idx == filename.length() - 1) return "";
         return filename.substring(idx + 1).toLowerCase();
     }
 
