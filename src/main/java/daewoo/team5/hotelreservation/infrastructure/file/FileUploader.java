@@ -7,21 +7,21 @@ public abstract class FileUploader {
     abstract public UploadResult uploadFile(MultipartFile file, String fileName);
 
     protected String extractExtension(String filename) {
-        if (filename == null) return null;
+        if (filename == null) return "";
         int idx = filename.lastIndexOf('.');
         if (idx == -1 || idx == filename.length() - 1) return "";
         return filename.substring(idx + 1).toLowerCase();
     }
 
     protected String removeExtensionSafe(String filename) {
-        if (filename == null) return null;
+        if (filename == null) return "";
         int idx = filename.lastIndexOf('.');
         if (idx <= 0) return filename; // no dot or hidden file like .env
         return filename.substring(0, idx);
     }
 
     protected String guessExtensionFromContentType(String contentType) {
-        if (contentType == null) return null;
+        if (contentType == null) return "";
         return switch (contentType) {
             case "image/jpeg" -> "jpg";
             case "image/png" -> "png";
