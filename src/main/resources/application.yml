@@ -56,9 +56,17 @@ logging:
     org.hibernate.orm.jdbc.bind: trace
 server:
   port: 8080
-
-file:
-  upload-dir: C:\Users\11261\Pictures\full
+cloud:
+  aws:
+    credentials:
+      access-key: ${AWS_ACCESS_KEY}
+      secret-key: ${AWS_SECRET_KEY}
+    region:
+      static: ap-northeast-2
+    s3:
+      bucket: ${AWS_S3_BUCKET}
+cloudfront:
+  domain: ${AWS_CLOUDFRONT_DOMAIN}
 springdoc:
   swagger-ui:
     # swagger-ui 기본 URL 비활성화 (필요 없는 Source Map 요청 방지)
