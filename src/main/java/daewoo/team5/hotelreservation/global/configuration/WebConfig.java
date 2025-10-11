@@ -11,17 +11,11 @@ import java.nio.file.Paths;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-    private final String uploadPath = "file:///" + Paths.get(System.getProperty("user.dir"), "uploads").toString() + "/";
-
-    @Value("${file.upload-dir}")
-    private String uploadDir;
-
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         // 주석: /uploads/** URL 요청이 오면, 실제 디스크의 uploadPath 경로에서 파일을 찾아 제공합니다.
         registry.addResourceHandler("/uploads/**")
-                .addResourceLocations("file:" + uploadDir + "/")
                 .addResourceLocations("file:" + System.getProperty("user.home") + "/hotelUploader/");
 
     }

@@ -25,7 +25,8 @@ public class FileUploadService {
     private final Path fileStorageLocation;
 
     // 생성자를 통해 의존성 주입 및 경로 초기화
-    public FileUploadService(@Value("${file.upload-dir}") String uploadDir, FileRepository fileRepository) {
+    @Deprecated
+    public FileUploadService(@Value("${file.upload-dir:data}") String uploadDir, FileRepository fileRepository) {
         this.fileRepository = fileRepository;
         this.fileStorageLocation = Paths.get(uploadDir).toAbsolutePath().normalize();
         try {

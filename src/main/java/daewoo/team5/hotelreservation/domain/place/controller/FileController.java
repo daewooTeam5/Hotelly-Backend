@@ -24,8 +24,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class FileController {
 
-    @Value("${file.upload-dir}")
-    private String uploadDir;
 
     // 실제 서비스에서는 @Value 등을 통해 외부 설정 파일에서 경로를 관리하는 것이 좋습니다.
   //  private final String uploadDir = Paths.get(System.getProperty("user.dir"), "uploads").toString();
@@ -37,37 +35,38 @@ public class FileController {
      * @return 서버에서 접근 가능한 이미지 URL 목록
      */
     @PostMapping("/upload")
+    @Deprecated
     public ApiResult<List<String>> uploadImages(@RequestParam("files") MultipartFile[] files, HttpServletRequest request) {
 
-        File uploadPath = new File(uploadDir);
-        if (!uploadPath.exists()) {
-            uploadPath.mkdirs(); // 업로드 디렉토리가 없으면 생성
-        }
-
-        // [수정] 서버의 기본 URL (http://localhost:8080)을 동적으로 가져옵니다.
-        String baseUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
-
-        List<String> imageUrls = Arrays.stream(files).map(file -> {
-            String originalName = file.getOriginalFilename();
-            // 파일 확장자 추출 로직 개선
-            String extension = "";
-            if (originalName != null && originalName.contains(".")) {
-                extension = originalName.substring(originalName.lastIndexOf("."));
-            }
-            String savedName = UUID.randomUUID().toString() + extension;
-            File target = new File(uploadDir, savedName);
-
-            try {
-                file.transferTo(target); // 파일을 실제 디스크에 저장
-                // [수정] 상대 경로가 아닌 전체 URL을 반환합니다.
-                return baseUrl + "/uploads/" + savedName;
-            } catch (IOException e) {
-                // 실제로는 로깅 및 예외 처리를 더 견고하게 해야 합니다.
-                e.printStackTrace();
-                return null;
-            }
-        }).collect(Collectors.toList());
-
-        return ApiResult.ok(imageUrls, "이미지 업로드 성공");
+//        File uploadPath = new File(uploadDir);
+//        if (!uploadPath.exists()) {
+//            uploadPath.mkdirs(); // 업로드 디렉토리가 없으면 생성
+//        }
+//
+//        // [수정] 서버의 기본 URL (http://localhost:8080)을 동적으로 가져옵니다.
+//        String baseUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
+//
+//        List<String> imageUrls = Arrays.stream(files).map(file -> {
+//            String originalName = file.getOriginalFilename();
+//            // 파일 확장자 추출 로직 개선
+//            String extension = "";
+//            if (originalName != null && originalName.contains(".")) {
+//                extension = originalName.substring(originalName.lastIndexOf("."));
+//            }
+//            String savedName = UUID.randomUUID().toString() + extension;
+//            File target = new File(uploadDir, savedName);
+//
+//            try {
+//                file.transferTo(target); // 파일을 실제 디스크에 저장
+//                // [수정] 상대 경로가 아닌 전체 URL을 반환합니다.
+//                return baseUrl + "/uploads/" + savedName;
+//            } catch (IOException e) {
+//                // 실제로는 로깅 및 예외 처리를 더 견고하게 해야 합니다.
+//                e.printStackTrace();
+//                return null;
+//            }
+//        }).collect(Collectors.toList());
+//
+        return ApiResult.ok(null, "이미지 업로드 성공");
     }
 }
