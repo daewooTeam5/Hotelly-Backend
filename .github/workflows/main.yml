@@ -85,13 +85,22 @@ jobs:
         run: |
           JAR_NAME=$(ls *.jar | head -n 1)
           echo "✅ JAR 파일: $JAR_NAME"
-          echo "🚀 EC2에 JAR 업로드 중..."
           scp -i ~/.ssh/aws_key.pem "$JAR_NAME" ubuntu@${{ secrets.AWS_URL }}:/home/ubuntu/
 
       - name: Run app on EC2
         run: |
-          ssh -i ~/.ssh/aws_key.pem ubuntu@${{ secrets.AWS_URL }} << EOF
-            pkill -f "$JAR_NAME" || true
+          JAR_NAME=$(ls *.jar | head -n 1)
+          ssh -t -i ~/.ssh/aws_key.pem ubuntu@${{ secrets.AWS_URL }} << EOF
+            # 기존 앱만 안전하게 종료
+            PKILLED=\$(pgrep -f "$JAR_NAME")
+            if [ -n "\$PKILLED" ]; then
+              echo "🛑 기존 앱 종료: \$PKILLED"
+              kill -9 \$PKILLED
+            fi
+
+            # 앱 실행
             nohup java -jar /home/ubuntu/$JAR_NAME > app.log 2>&1 &
+            sleep 3
             echo "✅ 서버에서 앱 실행됨!"
+            tail -n 20 app.log
           EOF
