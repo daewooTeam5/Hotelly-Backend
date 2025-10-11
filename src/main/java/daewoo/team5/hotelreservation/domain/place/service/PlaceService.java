@@ -13,6 +13,7 @@ import daewoo.team5.hotelreservation.domain.place.projection.*;
 import daewoo.team5.hotelreservation.domain.place.repository.PlaceCategoryRepository;
 import daewoo.team5.hotelreservation.domain.place.repository.PlaceRepository;
 import daewoo.team5.hotelreservation.domain.users.entity.Users;
+import daewoo.team5.hotelreservation.domain.users.projection.UserContactProjection;
 import daewoo.team5.hotelreservation.global.exception.ApiException;
 import daewoo.team5.hotelreservation.infrastructure.firebasefcm.FcmService;
 import jakarta.transaction.Transactional;
@@ -178,5 +179,12 @@ public class PlaceService {
     public List<PlaceCategory> getAllPlaceCategories() {
         return placeCategoryRepository.findAll();
     }
-}
 
+    /**
+     * placeId로 해당 숙소의 owner 정보를 연락/프로필 프로젝션으로 반환
+     */
+    public UserContactProjection getPlaceOwner(Long placeId) {
+        return placeRepository.findOwnerByPlaceId(placeId)
+                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "숙소 소유자를 찾을 수 없습니다.", "placeId: " + placeId));
+    }
+}

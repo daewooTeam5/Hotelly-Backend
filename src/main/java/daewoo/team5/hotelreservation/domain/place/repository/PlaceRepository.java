@@ -3,6 +3,7 @@ package daewoo.team5.hotelreservation.domain.place.repository;
 import daewoo.team5.hotelreservation.domain.place.dto.PlaceInfoProjection;
 import daewoo.team5.hotelreservation.domain.place.entity.Places;
 import daewoo.team5.hotelreservation.domain.place.projection.*;
+import daewoo.team5.hotelreservation.domain.users.projection.UserContactProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -284,6 +285,7 @@ public interface PlaceRepository extends JpaRepository<Places, Long> {
             WHERE p.id = :placeId
             """)
     PlaceInfoProjection findPlaceInfo(@Param("placeId") Long placeId);
+
     List<Places> findAllByOwnerId(Long ownerId);
 
     @Query(value = """
@@ -296,6 +298,19 @@ public interface PlaceRepository extends JpaRepository<Places, Long> {
 //    List<Places> findByAmenities_Id(Long amenityId);
 
     Optional<Places> findByOwner_Id(Long ownerId);
+
+    @Query("""
+            SELECT u.name AS name,
+                   u.phone AS phone,
+                   u.email AS email,
+                   f.url AS profileUrl
+            FROM Places p
+            JOIN p.owner u
+            LEFT JOIN u.profileImage f
+            WHERE p.id = :placeId
+            """)
+    Optional<UserContactProjection> findOwnerByPlaceId(@Param("placeId") Long placeId);
+
 }
 
 

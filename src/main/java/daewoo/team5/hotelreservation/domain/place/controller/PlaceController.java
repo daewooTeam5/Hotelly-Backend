@@ -8,6 +8,7 @@ import daewoo.team5.hotelreservation.domain.place.dto.PlaceDetailResponse;
 import daewoo.team5.hotelreservation.domain.place.entity.PlaceCategory;
 import daewoo.team5.hotelreservation.domain.place.projection.PlaceItemInfomation;
 import daewoo.team5.hotelreservation.domain.place.service.PlaceService;
+import daewoo.team5.hotelreservation.domain.users.projection.UserContactProjection;
 import daewoo.team5.hotelreservation.domain.users.projection.UserProjection;
 import daewoo.team5.hotelreservation.domain.wishlist.service.WishListService;
 import daewoo.team5.hotelreservation.global.aop.annotation.AuthUser;
@@ -56,6 +57,17 @@ public class PlaceController {
             @RequestParam(required = false) String address,
             Authentication authentication
     ) {
+        LocalDate today = LocalDate.now();
+
+        // checkIn 기본값: 오늘
+        LocalDate checkInDate = (checkIn != null && !checkIn.isEmpty())
+                ? LocalDate.parse(checkIn)
+                : today;
+
+        // checkOut 기본값: 오늘 + 1
+        LocalDate checkOutDate = (checkOut != null && !checkOut.isEmpty())
+                ? LocalDate.parse(checkOut)
+                : today.plusDays(1);
         Long userId = extractUserId(authentication);
         int people = (adults != null ? adults : 0) + (children != null ? children : 0);
         int roomCount = rooms != null ? rooms : 1;
@@ -66,7 +78,7 @@ public class PlaceController {
 
         return ApiResult.ok(
                 placeService.AllSearchPlaces(
-                        start, name, checkIn, checkOut, people, roomCount,
+                        start, name, checkInDate.toString(), checkOutDate.toString(), people, roomCount,
                         placeCategory, minRating, minPrice, maxPrice,
                         address,
                         userId
@@ -163,5 +175,13 @@ public class PlaceController {
     @GetMapping("/category")
     public ApiResult<List<PlaceCategory>> getAllPlaceCategories() {
         return ApiResult.ok(placeService.getAllPlaceCategories(), "숙소 카테고리 조회 성공");
+    }
+
+    /**
+     * 숙소 ID로 해당 숙소의 소유자 정보 조회
+     */
+    @GetMapping("/{placeId}/owner")
+    public ApiResult<UserContactProjection> getPlaceOwner(@PathVariable Long placeId) {
+        return ApiResult.ok(placeService.getPlaceOwner(placeId), "숙소 소유자 정보 조회 성공");
     }
 }

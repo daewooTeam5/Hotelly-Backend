@@ -84,6 +84,7 @@ public class FileService {
         if (fileDomain == null || fileDomain.isBlank()) throw new IllegalArgumentException("fileDomain은 필수입니다.");
 
         UploadResult result = fileUploader.uploadFile(file, fileName);
+        log.info("파일 업로드 완료: {}", result);
 
         File entity = File.builder()
                 .userId(userId)

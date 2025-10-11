@@ -48,7 +48,7 @@ public class LocalFileUploader extends FileUploader {
         }
 
         String filetype = toGeneralFileType(file.getContentType());
-        String url = finalFileName; // file:// URL 형태
+        String url = "http://localhost:8080/uploads/"+finalFileName; // file:// URL 형태
 
         return new UploadResult(url, finalFileName, ext != null ? ext : "", filetype);
     }
