@@ -88,9 +88,9 @@ public class MailService {
 
             String reservationDetailUrl;
             if (isMember) {
-                reservationDetailUrl = DEPLOY_URL + ":5173/profile/payments/" + paymentDetail.getPaymentId();
+                reservationDetailUrl = DEPLOY_URL + "/profile/payments/" + paymentDetail.getPaymentId();
             } else {
-                reservationDetailUrl = DEPLOY_URL + ":5173/guest/reservation-search" +
+                reservationDetailUrl = DEPLOY_URL + "/guest/reservation-search" +
                         "?reservationId=" + paymentDetail.getReservationId() +
                         "&lastName=" + URLEncoder.encode(lastName, StandardCharsets.UTF_8) +
                         "&firstName=" + URLEncoder.encode(firstName, StandardCharsets.UTF_8) +
