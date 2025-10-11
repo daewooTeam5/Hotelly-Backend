@@ -22,22 +22,15 @@ public abstract class FileUploader {
 
     protected String guessExtensionFromContentType(String contentType) {
         if (contentType == null) return null;
-        switch (contentType) {
-            case "image/jpeg":
-                return "jpg";
-            case "image/png":
-                return "png";
-            case "image/gif":
-                return "gif";
-            case "image/webp":
-                return "webp";
-            case "video/mp4":
-                return "mp4";
-            case "application/pdf":
-                return "pdf";
-            default:
-                return null;
-        }
+        return switch (contentType) {
+            case "image/jpeg" -> "jpg";
+            case "image/png" -> "png";
+            case "image/gif" -> "gif";
+            case "image/webp" -> "webp";
+            case "video/mp4" -> "mp4";
+            case "application/pdf" -> "pdf";
+            default -> "file";
+        };
     }
 
     protected String toGeneralFileType(String contentType) {
