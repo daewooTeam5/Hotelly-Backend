@@ -9,11 +9,11 @@ spring:
             scope:
               - profile
               - email
-            redirect-uri: "${DEPLOY_URL}:5173/oauth/google"
+            redirect-uri: "${DEPLOY_URL}/oauth/google"
           kakao:
             client-id: ${KAKAO_OAUTH_CLIENT_ID}
             client-secret: ${KAKAO_OAUTH_CLIENT_SECRET}
-            redirect-uri: "${DEPLOY_URL}:5173/oauth/kakao"
+            redirect-uri: "${DEPLOY_URL}/oauth/kakao"
             authorization-grant-type: authorization_code
             client-authentication-method: client_secret_post
         provider:
