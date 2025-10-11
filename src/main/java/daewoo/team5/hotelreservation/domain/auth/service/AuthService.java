@@ -140,7 +140,7 @@ public class AuthService {
         if (!isValid) {
             throw new ApiException(HttpStatus.UNAUTHORIZED, "인증 실패", "유효하지 않은 인증 코드입니다.");
         }
-        Optional<Users> findUser = userRepository.findByEmail(email);
+        Optional<Users> findUser = userRepository.findByEmailAndUserType(email, Users.UserType.email);
         Random random = new Random();
         Users users = findUser.orElseGet(() -> userRepository.save(
                 Users.builder()
