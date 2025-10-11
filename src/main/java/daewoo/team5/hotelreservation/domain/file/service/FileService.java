@@ -46,7 +46,8 @@ public class FileService {
 
         // 업로드 수행
         UploadResult result = fileUploader.uploadFile(file, fileName);
-        String newUrl = "http://localhost:8080/uploads/" + result.getUrl();
+        log.info("파일 업로드 완료: {}", result);
+        String newUrl = result.getUrl();
 
         if (existingFile != null) {
             // 기존 파일이 있으면 정보만 업데이트
@@ -91,7 +92,7 @@ public class FileService {
                 .filetype(result.getFiletype())
                 .domainFileId(domainId)
                 .domain(fileDomain)
-                .url("http://localhost:8080/uploads/"+result.getUrl())
+                .url(result.getUrl())
                 .build();
         fileRepository.save(entity);
         return entity.getUrl();

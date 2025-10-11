@@ -12,10 +12,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
 
-@Component
-@RequiredArgsConstructor
-@Primary
-public class LocalFileUploader implements FileUploader {
+public class LocalFileUploader extends FileUploader {
     // 파일 저장만 담당하므로 레포지토리 의존 제거
 
     @Override
@@ -56,44 +53,5 @@ public class LocalFileUploader implements FileUploader {
         return new UploadResult(url, finalFileName, ext != null ? ext : "", filetype);
     }
 
-    private String extractExtension(String filename) {
-        if (filename == null) return null;
-        int idx = filename.lastIndexOf('.');
-        if (idx == -1 || idx == filename.length() - 1) return null;
-        return filename.substring(idx + 1).toLowerCase();
-    }
 
-    private String removeExtensionSafe(String filename) {
-        if (filename == null) return null;
-        int idx = filename.lastIndexOf('.');
-        if (idx <= 0) return filename; // no dot or hidden file like .env
-        return filename.substring(0, idx);
-    }
-
-    private String guessExtensionFromContentType(String contentType) {
-        if (contentType == null) return null;
-        switch (contentType) {
-            case "image/jpeg":
-                return "jpg";
-            case "image/png":
-                return "png";
-            case "image/gif":
-                return "gif";
-            case "image/webp":
-                return "webp";
-            case "video/mp4":
-                return "mp4";
-            case "application/pdf":
-                return "pdf";
-            default:
-                return null;
-        }
-    }
-
-    private String toGeneralFileType(String contentType) {
-        if (contentType == null) return "document";
-        if (contentType.startsWith("image/")) return "image";
-        if (contentType.startsWith("video/")) return "video";
-        return "document";
-    }
 }
