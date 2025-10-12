@@ -74,10 +74,22 @@ public class PaymentService {
     @PersistenceContext
     private EntityManager entityManager;
 
+    @Transactional(readOnly = true)
     public Page<PaymentSummaryProjection> getPaymentsByUser(UserProjection user, int page) {
-        Users users = usersRepository.findById(user.getId()).orElseThrow(UserNotFoundException::new);
-        GuestEntity guestEntity = guestRepository.findByUsersId(users.getId()).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "투숙객 정보가 없습니다.", "투숙객 정보가 없습니다."));
-        Page<PaymentSummaryProjection> summaries = paymentRepository.findPaymentSummariesByGuestId(guestEntity.getId(), PageRequest.of(page, 10));
+        Users users = usersRepository.findById(user.getId())
+                .orElseThrow(UserNotFoundException::new);
+
+        Optional<GuestEntity> guestEntityOpt = guestRepository.findByUsersId(users.getId());
+
+        if (guestEntityOpt.isEmpty()) {
+            // ⭐️ 게스트 정보가 없을 경우 빈 페이지 반환
+            return Page.empty(PageRequest.of(page, 10));
+        }
+
+        GuestEntity guestEntity = guestEntityOpt.get();
+        Page<PaymentSummaryProjection> summaries = paymentRepository
+                .findPaymentSummariesByGuestId(guestEntity.getId(), PageRequest.of(page, 10));
+
         return summaries;
     }
 

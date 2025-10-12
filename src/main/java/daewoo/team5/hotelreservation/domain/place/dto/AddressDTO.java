@@ -21,4 +21,8 @@ public class AddressDTO {    //주소 추가 입력
 
     private String detailAddress;
 
+    private Double latitude;
+
+    private Double longitude;
+
 }

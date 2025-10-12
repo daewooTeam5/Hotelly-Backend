@@ -7,4 +7,5 @@ public interface UserProjection {
     Long getId();
     String getRole();
     String getStatus();
+    String getProfileImageUrl();
 }

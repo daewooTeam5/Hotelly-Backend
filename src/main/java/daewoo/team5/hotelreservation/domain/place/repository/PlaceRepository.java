@@ -59,6 +59,7 @@ public interface PlaceRepository extends JpaRepository<Places, Long> {
                   AND dr.date BETWEEN d.start_date AND d.end_date
             WHERE
                   (:name IS NULL OR p.name LIKE CONCAT('%', :name, '%'))
+                AND p.status = 'approved'
                 AND (:address IS NULL OR pa.sido = :address)
                 AND r.capacity_people >= CEIL(CAST(:people AS DECIMAL) / :room)
                 AND r.price BETWEEN COALESCE(:minPrice, 0) AND COALESCE(:maxPrice, 999999999)
@@ -99,6 +100,7 @@ public interface PlaceRepository extends JpaRepository<Places, Long> {
                         (:name IS NULL OR p.name LIKE CONCAT('%', :name, '%'))
                         AND r.capacity_people >= CEIL(CAST(:people AS DECIMAL) / :room)
                         AND r.price BETWEEN COALESCE(:minPrice, 0) AND COALESCE(:maxPrice, 999999999)
+                        AND p.status = 'approved'
                         AND (:placeCategory IS NULL OR pc.name = :placeCategory)
                         AND (:minRating IS NULL OR p.avg_rating >= :minRating)
                         AND COALESCE(
@@ -145,7 +147,9 @@ public interface PlaceRepository extends JpaRepository<Places, Long> {
                 pa.sido AS sido,
                 pa.sigungu AS sigungu,
                 pa.road_name AS roadName,
-                pa.detail_address AS detailAddress
+                pa.detail_address AS detailAddress,
+                pa.lat AS latitude,
+                pa.lng AS longitude
             FROM places p
             INNER JOIN place_address pa ON p.id = pa.place_id
             WHERE p.id = :placeId

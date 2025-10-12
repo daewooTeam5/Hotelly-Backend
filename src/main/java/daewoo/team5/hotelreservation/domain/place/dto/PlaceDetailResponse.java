@@ -21,6 +21,8 @@ public class PlaceDetailResponse {
     private String sigungu;
     private String roadName;
     private String detailAddress;
+    private Double latitude;
+    private Double longitude;
 
     private List<String> fileUrls;
     private List<RoomInfoDto> rooms;
@@ -30,6 +32,8 @@ public class PlaceDetailResponse {
                                List<String> fileUrls,
                                List<RoomInfoDto> rooms,
                                List<PlaceServiceProjection> services) {
+        this.latitude = detail.getLatitude();
+        this.longitude = detail.getLongitude();
         this.name = detail.getName();
         this.description = detail.getDescription();
         this.avgRating = detail.getAvgRating();

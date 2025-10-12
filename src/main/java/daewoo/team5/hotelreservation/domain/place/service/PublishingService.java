@@ -84,6 +84,7 @@ public class PublishingService {
                     .bedType(roomDto.getBedType())
                     .price(BigDecimal.valueOf(roomDto.getMinPrice()))
                     .capacityPeople(roomDto.getCapacityPeople())
+                    .capacityRoom(roomDto.getCapacityRoom())
                     .status(Room.Status.AVAILABLE)
                     .place(place)
                     .build();
@@ -130,8 +131,8 @@ public class PublishingService {
                             .roadName(a.getRoadName())
                             .postalCode(a.getPostalCode())
                             .detailAddress(a.getDetailAddress())
-                            .lat(BigDecimal.valueOf(221)) // TODO: 실제 좌표 반영
-                            .lng(BigDecimal.valueOf(213))
+                            .lat(BigDecimal.valueOf(a.getLatitude()))
+                            .lng(BigDecimal.valueOf(a.getLongitude()))
                             .build())
                     .toList();
             placeAddressRepository.saveAll(addresses);

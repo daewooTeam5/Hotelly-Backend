@@ -15,6 +15,8 @@ public interface PlaceDetailProjection {
     String getSigungu();
     String getRoadName();
     String getDetailAddress();
+    Double getLatitude();
+    Double getLongitude();
 
     List<String> getFileUrls();
 
