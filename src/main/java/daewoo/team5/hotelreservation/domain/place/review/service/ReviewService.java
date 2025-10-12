@@ -43,6 +43,7 @@ public class ReviewService {
     private final PlaceRepository placeRepository;
     private final ReviewImageRepository reviewImageRepository;
 
+    @Transactional
     public ReviewResponse createReview(Long placeId, CreateReviewRequest request, UserProjection userProjection) {
         Users user = usersRepository.findById(userProjection.getId())
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다.", "존재하지 않는 사용자입니다."));

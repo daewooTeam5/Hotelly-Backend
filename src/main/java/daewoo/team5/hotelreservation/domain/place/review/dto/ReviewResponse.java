@@ -15,6 +15,8 @@ import java.util.stream.Collectors;
 public class ReviewResponse {
     private final Long reviewId;
     private final String userName;
+    private final String userProfileUrl;
+    private final String userEmail;
     private final Long userId; // <-- [추가] 사용자 ID 필드
     private final Integer rating;
     private final String comment;
@@ -30,6 +32,8 @@ public class ReviewResponse {
         this.reviewId = review.getReviewId();
         this.userName = review.getUser().getName();
         this.userId = review.getUser().getId(); // <-- [추가] 생성자에서 userId 값 할당
+        this.userEmail = review.getUser().getEmail();
+        this.userProfileUrl = review.getUser().getProfileImage()!=null?review.getUser().getProfileImage().getUrl():null;
         this.rating = review.getRating();
         this.comment = review.getComment();
         this.createdAt = review.getCreatedAt();
