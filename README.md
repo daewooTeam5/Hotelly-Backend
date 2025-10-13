@@ -1,8 +1,10 @@
 # HotelResrvation-Backend
 
 # 아키텍쳐    
-<img width="3211" height="1580" alt="daewoo hotel architecture diagram drawio" src="https://github.com/user-attachments/assets/029baf01-6bc8-47ba-8216-04b6fdd76ce6" />
-## ⚙️ 개요
+<img width="3211" height="1580" alt="daewoo hotel architecture diagram drawio" src="https://github.com/user-attachments/assets/029baf01-6bc8-47ba-8216-04b6fdd76ce6" />   
+
+
+## ⚙️ 개요  
 AWS 기반의 웹 서비스 인프라로,  
 **Nginx 리버스 프록시**, **Spring Boot 백엔드**, **Vue.js 프론트엔드**를 중심으로  
 데이터베이스, 캐시, 스토리지, 알림 시스템을 통합 구성하였습니다.
