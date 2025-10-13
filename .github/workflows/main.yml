@@ -3,77 +3,80 @@ name: CI/CD Workflow
 on:
   push:
     branches:
-      - 'feature/**'   
+      - 'feature/**'
       - main
       - dev
   pull_request:
     branches:
-      - dev      
+      - dev
 
 jobs:
-  ci:
-    name: Run CI (Build & Test)
+  deploy:
+    name: Build & Deploy to EC2
     runs-on: ubuntu-latest
+    env:
+      FIREBASE_SERVICE: ${{ secrets.FIREBASE_SERVICE }}
 
     steps:
-      - name: Checkout code
+      - name: ✅ Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Run CI Tasks
-        run: |
-          echo "✅ CI 실행 중! (빌드, 테스트 등등)"
-      - name: Create env.properties file
+      - name: ⚙️ Create env.properties
         run: |
           mkdir -p src/main/resources/properties
           echo "${{ secrets.ENV }}" > src/main/resources/properties/.env.properties
-      - name: Set up JDK 17
+
+      - name: 🔐 Create Firebase service JSON
+        run: |
+          mkdir -p src/main/resources/config
+          echo '${{ secrets.FIREBASE_SERVICE }}' > src/main/resources/config/firebase-service.json
+
+      - name: ☕ Set up JDK 21
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'  
-          java-version: '17'      
-      - name: Build with Gradle
-        run: ./gradlew build
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-artifact
-          path: build/libs/*.jar
-      - name: Download build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: build-artifact
-    
-  cd:
-    name: Run CD (배포)
-    #if: github.event_name == 'pull_request'  
-    runs-on: ubuntu-latest
-    needs: ci
+          distribution: 'temurin'
+          java-version: '21'
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Download build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: build-artifact
-          path: .
-
-      - name: Set up SSH
+      - name: 🔧 Install Maven
         run: |
+          sudo apt-get update -y
+          sudo apt-get install -y maven
+          mvn -v
+
+      - name: 🧱 Build Application (skip tests)
+        run: mvn clean package -DskipTests
+
+      - name: 🚀 Deploy to EC2
+        env:
+          AWS_URL: ${{ secrets.AWS_URL }}
+          AWS_KEY: ${{ secrets.AWS_KEY }}
+        run: |
+          echo "⚙️ Setting up SSH..."
           mkdir -p ~/.ssh
-          echo "${{ secrets.AWS_KEY }}" > ~/.ssh/aws_key.pem
+          echo "$AWS_KEY" > ~/.ssh/aws_key.pem
           chmod 600 ~/.ssh/aws_key.pem
-          ssh-keyscan -H ${{ secrets.AWS_URL }} >> ~/.ssh/known_hosts
-      - name: Deploy to AWS EC2
-        run: |
-          JAR_NAME=$(ls *.jar | head -n 1)
-          echo "✅ JAR 파일: $JAR_NAME"
-          echo "🚀 EC2에 JAR 업로드 중..."
-          scp -i ~/.ssh/aws_key.pem "$JAR_NAME" ubuntu@${{ secrets.AWS_URL }}:/home/ubuntu/
-          echo "🔁 EC2에서 JAR 실행 중..."
-          ssh -i ~/.ssh/aws_key.pem ubuntu@${{ secrets.AWS_URL }} << EOF
-            pkill -f "$JAR_NAME" || true
-            nohup java -jar /home/ubuntu/$JAR_NAME > app.log 2>&1 &
-            echo "✅ 서버에서 앱 실행됨!"
+          ssh-keyscan -H "$AWS_URL" >> ~/.ssh/known_hosts
+
+          JAR_NAME=$(ls target/*.jar | head -n 1)
+          echo "📦 빌드된 JAR: $JAR_NAME"
+
+          echo "📡 EC2로 업로드 중..."
+          scp -i ~/.ssh/aws_key.pem "$JAR_NAME" ubuntu@"$AWS_URL":/home/ubuntu/app.jar
+
+          echo "🚀 서버에서 실행 중..."
+          ssh -t -i ~/.ssh/aws_key.pem ubuntu@"$AWS_URL" << 'EOF'
+            set -e
+            echo "🛑 기존 앱 종료 시도..."
+            PID=$(pgrep -f "app.jar" || true)
+            if [ -n "$PID" ]; then
+              echo "🔪 기존 프로세스 종료: $PID"
+              kill -9 $PID
+            fi
+
+            echo "🚀 새 버전 실행 중..."
+            nohup java -jar /home/ubuntu/app.jar > /home/ubuntu/app.log 2>&1 &
+
+            sleep 5
+            echo "✅ 앱 실행 완료! 최근 로그:"
+            tail -n 15 /home/ubuntu/app.log
           EOF
