@@ -3,6 +3,7 @@ package daewoo.team5.hotelreservation.domain.auth.controller;
 import daewoo.team5.hotelreservation.domain.auth.controller.swagger.AuthSwagger;
 import daewoo.team5.hotelreservation.domain.auth.dto.*;
 import daewoo.team5.hotelreservation.domain.auth.service.AuthService;
+import daewoo.team5.hotelreservation.domain.auth.service.RecaptchaService;
 import daewoo.team5.hotelreservation.domain.users.entity.Users;
 import daewoo.team5.hotelreservation.domain.users.projection.UserProjection;
 import daewoo.team5.hotelreservation.global.aop.annotation.AuthUser;
@@ -31,7 +32,11 @@ public class AuthController implements AuthSwagger {
     private final JwtProvider jwtProvider;
     private final CookieProvider cookieProvider;
     private final FcmService fcmService;
+    private final RecaptchaService recaptchaService;
 
+    /**
+     * 이메일 로그인 - OTP 코드 전송
+     */
     @PostMapping
     public ApiResult<Boolean> emailLogin(@RequestBody @Valid EmailLoginDto emailLoginDto) {
         log.info("Email Login Request Received: {}", emailLoginDto);
@@ -46,18 +51,31 @@ public class AuthController implements AuthSwagger {
     ) {
         // refreshToken 쿠키 삭제
         cookieProvider.removeCookie("refreshToken", response);
-
         authService.logout(refreshToken);
         return ApiResult.ok(true, "로그아웃 되었습니다.");
     }
 
     @PostMapping("/code")
     public ApiResult<LoginSuccessDto> authOtpCode(
-            @RequestBody
-            @Valid
-            AuthCodeDto authCodeDto,
+            @RequestBody @Valid AuthCodeDto authCodeDto,
             HttpServletResponse response
     ) {
+        log.info("OTP Code Verification Request: {}", authCodeDto.getEmail());
+
+        // reCAPTCHA 검증
+        if (authCodeDto.getRecaptchaToken() == null || authCodeDto.getRecaptchaToken().isEmpty()) {
+            log.warn("reCAPTCHA 토큰이 없습니다 - Email: {}", authCodeDto.getEmail());
+            throw new ApiException(HttpStatus.BAD_REQUEST.value(), "reCAPTCHA 실패", "reCAPTCHA 토큰이 없습니다.");
+        }
+
+        boolean isVerified = recaptchaService.verifyToken(authCodeDto.getRecaptchaToken());
+        if (!isVerified) {
+            log.warn("reCAPTCHA 검증 실패 - Email: {}", authCodeDto.getEmail());
+            throw new ApiException(HttpStatus.BAD_REQUEST.value(), "reCAPTCHA 실패", "reCAPTCHA 검증에 실패했습니다. 다시 시도해주세요.");
+        }
+
+        log.info("reCAPTCHA 검증 성공 - Email: {}", authCodeDto.getEmail());
+
         UserProjection users = authService.authLogInOtpCode(authCodeDto.getEmail(), authCodeDto.getCode());
         String accessToken = jwtProvider.generateToken(users, JwtProvider.TokenType.ACCESS);
         String refreshToken = jwtProvider.generateToken(users.getId(), JwtProvider.TokenType.REFRESH);
@@ -85,9 +103,7 @@ public class AuthController implements AuthSwagger {
 
     @AuthUser
     @GetMapping("/test1")
-    public ApiResult<UserProjection> test(
-            UserProjection user
-    ) {
+    public ApiResult<UserProjection> test(UserProjection user) {
         return ApiResult.ok(user, "테스트 성공");
     }
 
@@ -98,11 +114,30 @@ public class AuthController implements AuthSwagger {
         return ApiResult.ok(data, "회원가입 성공");
     }
 
+    /**
+     * 관리자 로그인
+     * reCAPTCHA 검증을 통해 브루트포스 공격 방지
+     */
     @PostMapping("/admin/login")
     public ApiResult<LoginSuccessDto> adminLogin(
             @RequestBody @Valid AdminLoginDto adminLoginDto,
             HttpServletResponse response
     ) {
+        log.info("Admin Login Request Received: {}", adminLoginDto.getAdminId());
+
+        // reCAPTCHA 검증
+        if (adminLoginDto.getRecaptchaToken() == null || adminLoginDto.getRecaptchaToken().isEmpty()) {
+            log.warn("reCAPTCHA 토큰이 없습니다 - AdminId: {}", adminLoginDto.getAdminId());
+            throw new ApiException(HttpStatus.BAD_REQUEST.value(), "reCAPTCHA 실패", "reCAPTCHA 토큰이 없습니다.");
+        }
+
+        boolean isVerified = recaptchaService.verifyToken(adminLoginDto.getRecaptchaToken());
+        if (!isVerified) {
+            log.warn("reCAPTCHA 검증 실패 - AdminId: {}", adminLoginDto.getAdminId());
+            throw new ApiException(HttpStatus.BAD_REQUEST.value(), "reCAPTCHA 실패", "reCAPTCHA 검증에 실패했습니다. 다시 시도해주세요.");
+        }
+
+        log.info("reCAPTCHA 검증 성공 - AdminId: {}", adminLoginDto.getAdminId());
         LoginSuccessDto loginSuccessDto = authService.adminLogin(adminLoginDto, response);
         return ApiResult.ok(loginSuccessDto, "관리자 로그인 성공");
     }
@@ -110,9 +145,8 @@ public class AuthController implements AuthSwagger {
     @PostMapping("/fcm-token")
     @AuthUser
     public ApiResult<Boolean> saveFcmToken(
-             UserProjection user,
-             @RequestBody
-             SaveFcmTokenDto dto
+            UserProjection user,
+            @RequestBody SaveFcmTokenDto dto
     ){
         String firebaseToken = authService.saveFcmToken(user.getId(), dto.getFcmToken());
         fcmService.subscribeToTopic("all", firebaseToken);
