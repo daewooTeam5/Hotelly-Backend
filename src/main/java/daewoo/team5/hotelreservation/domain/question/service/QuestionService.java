@@ -100,13 +100,21 @@ public class QuestionService {
     }
     // 관리자 문의 검색
     @Transactional(readOnly = true)
-    public List<QuestionResponse> searchQuestions(Long placeId, QuestionSearchRequest searchRequest) { // placeId 파라미터 추가
-        // TODO: 로그인한 사용자가 placeId에 대한 소유권을 가지고 있는지 확인하는 로직 추가 권장
-        Specification<Question> spec = QuestionSpecification.filterBy(placeId, searchRequest);
-        return questionRepository.findAll(spec).stream()
-                .map(QuestionResponse::new)
-                .collect(Collectors.toList());
-    }
+    public List<QuestionResponse> searchQuestions(Long placeId, QuestionSearchRequest searchRequest, UserProjection userProjection) { // UserProjection 파라미터 추가
+        // 1. 숙소 정보 조회 및 소유자 확인
+        Places place = placeRepository.findById(placeId)
+                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "숙소를 찾을 수 없습니다.", "존재하지 않는 숙소입니다."));
+    
+        if (!place.getOwner().getId().equals(userProjection.getId())) {
+            throw new ApiException(HttpStatus.FORBIDDEN, "권한 없음", "해당 숙소에 대한 조회 권한이 없습니다.");
+        }
+
+    // 2. 기존 검색 로직 수행
+    Specification<Question> spec = QuestionSpecification.filterBy(placeId, searchRequest);
+    return questionRepository.findAll(spec).stream()
+            .map(QuestionResponse::new)
+            .collect(Collectors.toList());
+}
 
     public List<QuestionProjection> getUserQuestions(Long userId) {
         return questionRepository.findQuestionsByUserId(userId);
