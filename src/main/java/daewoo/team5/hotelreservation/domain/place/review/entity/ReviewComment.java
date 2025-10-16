@@ -1,4 +1,3 @@
-// src/main/java/daewoo/team5/hotelreservation/domain/place/review/entity/ReviewComment.java
 package daewoo.team5.hotelreservation.domain.place.review.entity;
 
 import daewoo.team5.hotelreservation.domain.users.entity.Users;
@@ -36,5 +35,10 @@ public class ReviewComment extends BaseTimeEntity {
         this.comment = comment;
         this.review = review;
         this.user = user;
+    }
+
+    // ✅ 댓글 수정 메서드 추가
+    public void updateComment(String newComment) {
+        this.comment = newComment;
     }
 }
