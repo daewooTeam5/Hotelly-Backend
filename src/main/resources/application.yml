@@ -45,6 +45,11 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: ${REDIS_PASSWORD}
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
     url: ${DB_URL}
