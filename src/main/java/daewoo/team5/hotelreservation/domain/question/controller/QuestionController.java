@@ -62,12 +62,14 @@ public class QuestionController {
     }
 
     // 관리자 문의 검색
-    @PostMapping("/owner/places/{placeId}/questions/search") // 👈 엔드포인트 변경
+    @PostMapping("/owner/places/{placeId}/questions/search")
+    @AuthUser // 👈 [수정] 인증 정보 추가
     public ApiResult<List<QuestionResponse>> searchQuestions(
-            @PathVariable Long placeId, // 👈 @PathVariable 추가
-            @RequestBody QuestionSearchRequest request
+            @PathVariable Long placeId,
+            @RequestBody QuestionSearchRequest request,
+            UserProjection user // 👈 [수정] 사용자 정보 파라미터 추가
     ) {
-        return ApiResult.ok(questionService.searchQuestions(placeId, request));
+        return ApiResult.ok(questionService.searchQuestions(placeId, request, user)); // 👈 [수정] user 정보 전달
     }
 
     @GetMapping("/questions/my-questions")
