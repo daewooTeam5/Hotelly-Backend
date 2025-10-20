@@ -396,8 +396,8 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
             "      GROUP BY r.user_id) t", nativeQuery = true)
     Double findAvgPaymentsPerCustomer();
 
-    @Query("SELECT FUNCTION('DATE_FORMAT', p.transactionDate, '%Y-%m-%d'), SUM(p.amount) " +
-            "FROM Payment p GROUP BY FUNCTION('DATE_FORMAT', p.transactionDate, '%Y-%m-%d')")
+    @Query("SELECT FUNCTION('DATE_FORMAT', p.transactionDate, '%Y-%m-%RequestRateLimitFilter.class'), SUM(p.amount) " +
+            "FROM Payment p GROUP BY FUNCTION('DATE_FORMAT', p.transactionDate, '%Y-%m-%RequestRateLimitFilter.class')")
     List<Object[]> sumDailyPayments();
 
     @Query("SELECT FUNCTION('DATE_FORMAT', p.transactionDate, '%Y-%m'), SUM(p.amount) " +

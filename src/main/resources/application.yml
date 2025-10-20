@@ -59,6 +59,10 @@ logging:
   level:
     org.hibernate.SQL: debug
     org.hibernate.orm.jdbc.bind: trace
+    SUSPICIOUS: WARN
+
+  file:
+    name: logs/security.log
 server:
   port: 8080
 cloud:
@@ -77,3 +81,4 @@ springdoc:
     path: /swagger-ui.html
   api-docs:
     path: /v3/api-docs
+
