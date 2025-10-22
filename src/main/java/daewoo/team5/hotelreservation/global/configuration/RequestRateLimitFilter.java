@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class RequestRateLimitFilter extends OncePerRequestFilter {
 
-    private static final int MAX_REQUESTS = 20;
+    private static final int MAX_REQUESTS = 3000;
     private static final long TIME_WINDOW_MS = 10 * 60 * 1000; // 10분
 //10분에 20번 이상 요청을 보내면 발동되어 10분 동안 막아두기
 
