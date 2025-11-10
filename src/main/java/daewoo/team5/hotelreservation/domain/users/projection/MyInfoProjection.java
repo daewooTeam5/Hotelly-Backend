@@ -21,4 +21,5 @@ public interface MyInfoProjection {
     Long getPoint();
     String getProfileImageUrl();
 
+
 }

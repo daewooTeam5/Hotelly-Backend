@@ -529,8 +529,8 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long>,
     Double findAvgReservationsPerCustomer();
 
 
-    @Query("SELECT FUNCTION('DATE_FORMAT', r.resevStart, '%Y-%m-%d'), COUNT(r) " +
-            "FROM Reservation r GROUP BY FUNCTION('DATE_FORMAT', r.resevStart, '%Y-%m-%d')")
+    @Query("SELECT FUNCTION('DATE_FORMAT', r.resevStart, '%Y-%m-%RequestRateLimitFilter.class'), COUNT(r) " +
+            "FROM Reservation r GROUP BY FUNCTION('DATE_FORMAT', r.resevStart, '%Y-%m-%RequestRateLimitFilter.class')")
     List<Object[]> countDailyReservations();
 
     @Query("SELECT FUNCTION('DATE_FORMAT', r.resevStart, '%Y-%m'), COUNT(r) " +

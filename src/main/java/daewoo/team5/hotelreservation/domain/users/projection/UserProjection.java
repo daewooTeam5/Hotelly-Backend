@@ -8,4 +8,5 @@ public interface UserProjection {
     String getRole();
     String getStatus();
     String getProfileImageUrl();
+    String getPhone();
 }

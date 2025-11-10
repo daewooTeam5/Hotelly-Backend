@@ -19,4 +19,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .addResourceLocations("file:" + System.getProperty("user.home") + "/hotelUploader/");
 
     }
+
+
+
 }

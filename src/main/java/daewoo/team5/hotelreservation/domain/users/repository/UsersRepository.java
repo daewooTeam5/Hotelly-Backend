@@ -55,8 +55,8 @@ public interface UsersRepository extends JpaRepository<Users, Long> {
     List<Object[]> countMonthlyNewUsers();
 
     // 일별 신규 가입자
-    @Query("SELECT FUNCTION('DATE_FORMAT', u.createdAt, '%Y-%m-%d'), COUNT(u) " +
-            "FROM Users u GROUP BY FUNCTION('DATE_FORMAT', u.createdAt, '%Y-%m-%d')")
+    @Query("SELECT FUNCTION('DATE_FORMAT', u.createdAt, '%Y-%m-%RequestRateLimitFilter.class'), COUNT(u) " +
+            "FROM Users u GROUP BY FUNCTION('DATE_FORMAT', u.createdAt, '%Y-%m-%RequestRateLimitFilter.class')")
     List<Object[]> countDailyNewUsers();
 
     // 연별 신규 가입자
@@ -74,9 +74,9 @@ public interface UsersRepository extends JpaRepository<Users, Long> {
     long countWithdrawnUsersSince(@Param("startDate") LocalDateTime startDate);
 
     // 일별 탈퇴 수
-    @Query("SELECT FUNCTION('DATE_FORMAT', u.updatedAt, '%Y-%m-%d'), COUNT(u) " +
+    @Query("SELECT FUNCTION('DATE_FORMAT', u.updatedAt, '%Y-%m-%RequestRateLimitFilter.class'), COUNT(u) " +
             "FROM Users u WHERE u.status = 'withdraw' " +
-            "GROUP BY FUNCTION('DATE_FORMAT', u.updatedAt, '%Y-%m-%d')")
+            "GROUP BY FUNCTION('DATE_FORMAT', u.updatedAt, '%Y-%m-%RequestRateLimitFilter.class')")
     List<Object[]> countDailyWithdrawnUsers();
 
     // 월별 탈퇴 수
@@ -104,11 +104,11 @@ public interface UsersRepository extends JpaRepository<Users, Long> {
 """)
     List<Object[]> findAllUsersWithOwnerRequestAndFiles();
 
-    @Query("SELECT FUNCTION('DATE_FORMAT', u.createdAt, '%Y-%m-%d') as date, " +
+    @Query("SELECT FUNCTION('DATE_FORMAT', u.createdAt, '%Y-%m-%RequestRateLimitFilter.class') as date, " +
             "COUNT(u) " +
             "FROM Users u " +
             "WHERE u.status != 'withdraw' " +
-            "GROUP BY FUNCTION('DATE_FORMAT', u.createdAt, '%Y-%m-%d')")
+            "GROUP BY FUNCTION('DATE_FORMAT', u.createdAt, '%Y-%m-%RequestRateLimitFilter.class')")
     List<Object[]> countDailyTotalUsers();
 
     // 월별 누적 회원 수
@@ -133,10 +133,10 @@ public interface UsersRepository extends JpaRepository<Users, Long> {
     List<Object[]> countByRole();
 
     // ===== 비활성 사용자 추이 (일별) =====
-    @Query("SELECT FUNCTION('DATE_FORMAT', u.updatedAt, '%Y-%m-%d'), COUNT(u) " +
+    @Query("SELECT FUNCTION('DATE_FORMAT', u.updatedAt, '%Y-%m-%RequestRateLimitFilter.class'), COUNT(u) " +
             "FROM Users u " +
             "WHERE u.status = 'inactive' " +
-            "GROUP BY FUNCTION('DATE_FORMAT', u.updatedAt, '%Y-%m-%d')")
+            "GROUP BY FUNCTION('DATE_FORMAT', u.updatedAt, '%Y-%m-%RequestRateLimitFilter.class')")
     List<Object[]> countDailyInactiveUsers();
 
     // ===== 비활성 사용자 추이 (월별) =====
