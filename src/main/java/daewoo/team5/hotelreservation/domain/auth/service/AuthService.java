@@ -3,26 +3,23 @@ package daewoo.team5.hotelreservation.domain.auth.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import daewoo.team5.hotelreservation.domain.auth.dto.AdminLoginDto;
-import daewoo.team5.hotelreservation.domain.auth.dto.GoogleUserInfo;
-import daewoo.team5.hotelreservation.domain.auth.dto.KakaoUserInfo;
-import daewoo.team5.hotelreservation.domain.auth.dto.LoginSuccessDto;
-import daewoo.team5.hotelreservation.domain.auth.dto.SignUpRequest;
+import daewoo.team5.hotelreservation.domain.auth.dto.*;
 import daewoo.team5.hotelreservation.domain.auth.entity.UserFcmEntity;
 import daewoo.team5.hotelreservation.domain.auth.repository.BlackListRepository;
 import daewoo.team5.hotelreservation.domain.auth.repository.FcmCacheRepository;
 import daewoo.team5.hotelreservation.domain.auth.repository.OtpRepository;
 import daewoo.team5.hotelreservation.domain.auth.repository.UserFcmRepository;
-import daewoo.team5.hotelreservation.domain.file.service.FileService;
 import daewoo.team5.hotelreservation.domain.file.entity.FileEntity;
-import daewoo.team5.hotelreservation.domain.users.entity.Users;
+import daewoo.team5.hotelreservation.domain.file.service.FileService;
+import daewoo.team5.hotelreservation.domain.users.entity.UsersEntity;
 import daewoo.team5.hotelreservation.domain.users.projection.UserProjection;
 import daewoo.team5.hotelreservation.domain.users.repository.UsersRepository;
 import daewoo.team5.hotelreservation.global.core.provider.CookieProvider;
 import daewoo.team5.hotelreservation.global.core.provider.JwtProvider;
 import daewoo.team5.hotelreservation.global.exception.ApiException;
 import daewoo.team5.hotelreservation.global.exception.UserNotFoundException;
-import daewoo.team5.hotelreservation.global.mail.service.MailService;
+import daewoo.team5.hotelreservation.infrastructure.mail.EmailTemplate;
+import daewoo.team5.hotelreservation.infrastructure.mail.MailService;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -59,6 +56,7 @@ public class AuthService {
     private final GoogleOAuthService googleOAuthService;
     private final KakaoOAuthService kakaoOAuthService;
     private final FileService fileService;
+    private final EmailTemplate emailTemplate;
 
     // null 이면 비회원, null 아니면 회원
     public UserProjection isAuthUser(Authentication auth) {
@@ -129,9 +127,9 @@ public class AuthService {
     }
 
     public void sendOtpCode(String email) {
-        String optCode = otpRepository.generateOtp(email);
-        log.info("Generated OTP Code: {}", optCode);
-        mailService.sendOtpCode(email, optCode);
+        String otpCode = otpRepository.generateOtp(email);
+        log.info("Generated OTP Code: {}", otpCode);
+        mailService.sendHtmlMailAsync(email,"hotelly 인증 코드 전송",emailTemplate.getVerificationEmailTemplate(otpCode));
     }
 
     @Transactional
