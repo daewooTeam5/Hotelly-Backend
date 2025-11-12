@@ -50,6 +50,7 @@ public class CustomApiHandler implements ResponseBodyAdvice<Object> {
     @ExceptionHandler(ApiException.class)
     public ApiResult<?> handleApiException(ApiException e, HttpServletRequest request, HttpServletResponse response) {
         ErrorDetails error = e.getError();
+        log.error(error.toString());
         if (error.getInstance() == null) {
             error.setInstance(request.getRequestURI());
         }
