@@ -46,19 +46,19 @@ public class PublishingService {
      * 숙소 등록
      */
     @Transactional
-    public Places registerHotel(UserProjection user, PublishingDTO dto,
-                                List<MultipartFile> hotelImages,
-                                Map<Integer, List<MultipartFile>> roomImagesMap) {
+    public PlacesEntity registerHotel(UserProjection user, PublishingDTO dto,
+                                      List<MultipartFile> hotelImages,
+                                      Map<Integer, List<MultipartFile>> roomImagesMap) {
 
-        PlaceCategory placeCategory = placeCategoryRepository.findById(Math.toIntExact(dto.getCategoryId()))
+        PlaceCategoryEntity placeCategory = placeCategoryRepository.findById(Math.toIntExact(dto.getCategoryId()))
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "카테고리 없음", ""));
 
-        Places place = Places.builder()
+        PlacesEntity place = PlacesEntity.builder()
                 .name(dto.getHotelName())
                 .description(dto.getDescription())
                 .checkOut(LocalTime.parse(dto.getCheckOut()))
                 .checkIn(LocalTime.parse(dto.getCheckIn()))
-                .status(Places.Status.PENDING)
+                .status(PlacesEntity.Status.PENDING)
                 .avgRating(BigDecimal.ZERO)
                 .isPublic(true)
                 .owner(usersRepository.findById(user.getId()).orElseThrow(UserNotFoundException::new))
@@ -80,13 +80,13 @@ public class PublishingService {
         for (int i = 0; i < roomDtos.size(); i++) {
             RoomDTO roomDto = roomDtos.get(i);
 
-            Room room = Room.builder()
+            RoomEntity room = RoomEntity.builder()
                     .roomType(roomDto.getRoomType() != null ? roomDto.getRoomType() : "single")
                     .bedType(roomDto.getBedType())
                     .price(BigDecimal.valueOf(roomDto.getMinPrice()))
                     .capacityPeople(roomDto.getCapacityPeople())
                     .capacityRoom(roomDto.getCapacityRoom())
-                    .status(Room.Status.AVAILABLE)
+                    .status(RoomEntity.Status.AVAILABLE)
                     .place(place)
                     .build();
             roomRepository.save(room);
@@ -123,8 +123,8 @@ public class PublishingService {
 
         // 주소 저장
         if (dto.getAddressList() != null) {
-            List<PlaceAddress> addresses = dto.getAddressList().stream()
-                    .map(a -> PlaceAddress.builder()
+            List<PlaceAddressEntity> addresses = dto.getAddressList().stream()
+                    .map(a -> PlaceAddressEntity.builder()
                             .place(place)
                             .sido(a.getSido())
                             .sigungu(a.getSigungu())
@@ -155,14 +155,14 @@ public class PublishingService {
      * 숙소 수정 (컨트롤러에서 호출하는 시그니처)
      */
     @Transactional
-    public Places updateHotel(Long placeId, PublishingDTO dto,
-                              List<MultipartFile> hotelImages,
-                              Map<Integer, List<MultipartFile>> roomImagesMap) {
+    public PlacesEntity updateHotel(Long placeId, PublishingDTO dto,
+                                    List<MultipartFile> hotelImages,
+                                    Map<Integer, List<MultipartFile>> roomImagesMap) {
 
-        Places place = repository.findById(placeId)
+        PlacesEntity place = repository.findById(placeId)
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "수정할 숙소 없음", "ID=" + placeId));
 
-        PlaceCategory placeCategory = placeCategoryRepository.findById(Math.toIntExact(dto.getCategoryId()))
+        PlaceCategoryEntity placeCategory = placeCategoryRepository.findById(Math.toIntExact(dto.getCategoryId()))
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "카테고리 없음", ""));
 
         place.updateDetails(dto.getHotelName(), dto.getDescription(),
@@ -178,7 +178,7 @@ public class PublishingService {
         }
 
         // 기존 Room/이미지/주소 삭제
-        List<Long> existingRoomIds = roomRepository.findByPlaceId(placeId).stream().map(Room::getId).toList();
+        List<Long> existingRoomIds = roomRepository.findByPlaceId(placeId).stream().map(RoomEntity::getId).toList();
         if (!existingRoomIds.isEmpty()) {
             roomAmenityRepository.deleteByRoomIdIn(existingRoomIds);
             fileRepository.deleteByDomainAndDomainFileIdIn("room", existingRoomIds);
@@ -189,14 +189,14 @@ public class PublishingService {
 
         // 새로운 Room 저장
         List<RoomDTO> roomDtos = Optional.ofNullable(dto.getRooms()).orElse(Collections.emptyList());
-        List<Room> savedRooms = roomRepository.saveAll(
+        List<RoomEntity> savedRooms = roomRepository.saveAll(
                 roomDtos.stream()
-                        .map(r -> Room.builder()
+                        .map(r -> RoomEntity.builder()
                                 .roomType(r.getRoomType())
                                 .bedType(r.getBedType())
                                 .price(BigDecimal.valueOf(r.getMinPrice()))
                                 .capacityPeople(r.getCapacityPeople())
-                                .status(Room.Status.AVAILABLE)
+                                .status(RoomEntity.Status.AVAILABLE)
                                 .place(place)
                                 .build())
                         .toList()
@@ -205,7 +205,7 @@ public class PublishingService {
         // 객실 편의시설 저장
         for (int i = 0; i < roomDtos.size(); i++) {
             RoomDTO roomDto = roomDtos.get(i);
-            Room savedRoom = savedRooms.get(i);
+            RoomEntity savedRoom = savedRooms.get(i);
             if (roomDto.getAmenityIds() != null && !roomDto.getAmenityIds().isEmpty()) {
                 List<Amenity> roomAmenities = amenityRepository.findAllById(roomDto.getAmenityIds());
                 roomAmenityRepository.saveAll(
@@ -216,8 +216,8 @@ public class PublishingService {
 
         // 주소 저장
         if (dto.getAddressList() != null) {
-            List<PlaceAddress> addresses = dto.getAddressList().stream()
-                    .map(a -> PlaceAddress.builder()
+            List<PlaceAddressEntity> addresses = dto.getAddressList().stream()
+                    .map(a -> PlaceAddressEntity.builder()
                             .place(place)
                             .sido(a.getSido())
                             .sigungu(a.getSigungu())
@@ -262,12 +262,12 @@ public class PublishingService {
      * 숙소 단건 조회
      */
     public PublishingDTO getHotel(Long id) {
-        Places place = repository.findById(id)
+        PlacesEntity place = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("해당 숙소 없음 id=" + id));
 
-        List<PlaceAddress> addresses = placeAddressRepository.findByPlaceId(id);
+        List<PlaceAddressEntity> addresses = placeAddressRepository.findByPlaceId(id);
         List<FileEntity> placeImage = fileRepository.findByDomainAndDomainFileId("place", place.getId());
-        List<Room> rooms = roomRepository.findByPlaceId(id);
+        List<RoomEntity> rooms = roomRepository.findByPlaceId(id);
 
         List<Long> amenityIds = placeAmenityRepository.findByPlaceId(id).stream()
                 .map(pa -> pa.getAmenity().getId())
@@ -340,7 +340,7 @@ public class PublishingService {
         if (!repository.existsById(placeId)) {
             throw new ApiException(HttpStatus.NOT_FOUND, "삭제할 숙소 없음", "ID=" + placeId);
         }
-        List<Long> roomIds = roomRepository.findByPlaceId(placeId).stream().map(Room::getId).toList();
+        List<Long> roomIds = roomRepository.findByPlaceId(placeId).stream().map(RoomEntity::getId).toList();
         if (!roomIds.isEmpty()) {
             roomAmenityRepository.deleteByRoomIdIn(roomIds);
             fileRepository.deleteByDomainAndDomainFileIdIn("room", roomIds);

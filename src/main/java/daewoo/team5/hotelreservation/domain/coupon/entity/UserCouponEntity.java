@@ -1,6 +1,6 @@
 package daewoo.team5.hotelreservation.domain.coupon.entity;
 
-import daewoo.team5.hotelreservation.domain.users.entity.Users;
+import daewoo.team5.hotelreservation.domain.users.entity.UsersEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -32,7 +32,7 @@ public class UserCouponEntity {
     private LocalDateTime issuedAt; // 발급 받은 날짜
 
     @ManyToOne()
-    private Users user; // 발급받은 유저 ID
+    private UsersEntity user; // 발급받은 유저 ID
 
     @ManyToOne()
     private CouponEntity coupon; // 쿠폰 ID

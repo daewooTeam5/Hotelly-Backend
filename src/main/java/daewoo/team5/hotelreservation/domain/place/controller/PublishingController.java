@@ -2,7 +2,7 @@ package daewoo.team5.hotelreservation.domain.place.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import daewoo.team5.hotelreservation.domain.place.dto.PublishingDTO;
-import daewoo.team5.hotelreservation.domain.place.entity.Places;
+import daewoo.team5.hotelreservation.domain.place.entity.PlacesEntity;
 import daewoo.team5.hotelreservation.domain.place.service.PublishingService;
 import daewoo.team5.hotelreservation.domain.users.projection.UserProjection;
 import daewoo.team5.hotelreservation.global.aop.annotation.AuthUser;
@@ -31,7 +31,7 @@ public class PublishingController {//api리설트는 컨트롤러를 바꿔주�
     // 숙소 등록
     @PostMapping(value = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @AuthUser
-    public ApiResult<Places> registerHotel(
+    public ApiResult<PlacesEntity> registerHotel(
             @RequestPart("data") String data,
             @RequestPart(value = "hotelImages", required = false) List<MultipartFile> hotelImages,
             MultipartHttpServletRequest multipartRequest,
@@ -42,7 +42,7 @@ public class PublishingController {//api리설트는 컨트롤러를 바꿔주�
 
         Map<Integer, List<MultipartFile>> roomImagesMap = extractRoomImagesMap(publishingDTO, multipartRequest);
 
-        Places places = publishingService.registerHotel(user, publishingDTO, hotelImages, roomImagesMap);
+        PlacesEntity places = publishingService.registerHotel(user, publishingDTO, hotelImages, roomImagesMap);
         return ApiResult.created(places, "숙소 등록 성공");
     }
 
@@ -58,7 +58,7 @@ public class PublishingController {//api리설트는 컨트롤러를 바꿔주�
 
         Map<Integer, List<MultipartFile>> roomImagesMap = extractRoomImagesMap(publishingDTO, multipartRequest);
 
-        Places updatedPlace = publishingService.updateHotel(placeId, publishingDTO, hotelImages, roomImagesMap);
+        PlacesEntity updatedPlace = publishingService.updateHotel(placeId, publishingDTO, hotelImages, roomImagesMap);
         return ApiResult.ok(updatedPlace.getId(), "숙소 정보가 성공적으로 수정되었습니다.");
     }
 

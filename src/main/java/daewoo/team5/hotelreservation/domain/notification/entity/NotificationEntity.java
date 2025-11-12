@@ -1,6 +1,6 @@
 package daewoo.team5.hotelreservation.domain.notification.entity;
 
-import daewoo.team5.hotelreservation.domain.users.entity.Users;
+import daewoo.team5.hotelreservation.domain.users.entity.UsersEntity;
 import daewoo.team5.hotelreservation.global.core.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -33,7 +33,7 @@ public class NotificationEntity extends BaseTimeEntity {
     private NotificationType notificationType;
 
     @ManyToOne
-    private Users user;
+    private UsersEntity user;
 
 
     public enum NotificationType {

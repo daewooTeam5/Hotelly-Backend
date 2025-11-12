@@ -18,7 +18,7 @@ public class PlaceAmenity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "place_id", nullable = false)
-    private Places place;
+    private PlacesEntity place;
 
     @ManyToOne(fetch = FetchType.LAZY)
     // 3. Updated the JoinColumn name to reflect the new table name.

@@ -1,6 +1,6 @@
 package daewoo.team5.hotelreservation.domain.notification.entity;
 
-import daewoo.team5.hotelreservation.domain.users.entity.Users;
+import daewoo.team5.hotelreservation.domain.users.entity.UsersEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,7 +24,7 @@ public class NotificationReadEntity {
     private Long id;
 
     @ManyToOne
-    private Users user;
+    private UsersEntity user;
 
     @Column
     private LocalDateTime readAt;

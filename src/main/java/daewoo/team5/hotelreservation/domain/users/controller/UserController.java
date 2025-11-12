@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import daewoo.team5.hotelreservation.domain.coupon.projection.UserCouponProjection;
 import daewoo.team5.hotelreservation.domain.coupon.service.CouponService;
 import daewoo.team5.hotelreservation.domain.payment.entity.GuestEntity;
-import daewoo.team5.hotelreservation.domain.payment.entity.PointHistoryEntity;
 import daewoo.team5.hotelreservation.domain.payment.projection.PaymentDetailProjection;
 import daewoo.team5.hotelreservation.domain.payment.projection.PointHistorySummaryProjection;
 import daewoo.team5.hotelreservation.domain.payment.service.PaymentService;
@@ -16,7 +15,6 @@ import daewoo.team5.hotelreservation.domain.shoppingcart.service.ShoppingCartSer
 import daewoo.team5.hotelreservation.domain.users.dto.OwnerRequestDto;
 import daewoo.team5.hotelreservation.domain.users.dto.request.UserUpdateDTO;
 import daewoo.team5.hotelreservation.domain.users.entity.OwnerRequestEntity;
-import daewoo.team5.hotelreservation.domain.users.entity.Users;
 import daewoo.team5.hotelreservation.domain.users.projection.MyInfoProjection;
 import daewoo.team5.hotelreservation.domain.users.projection.UserProjection;
 import daewoo.team5.hotelreservation.domain.users.service.UsersService;
@@ -32,7 +30,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 

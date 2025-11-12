@@ -7,8 +7,8 @@ import daewoo.team5.hotelreservation.domain.discount.repository.DiscountHistoryR
 import daewoo.team5.hotelreservation.domain.discount.repository.DiscountRepository;
 import daewoo.team5.hotelreservation.domain.discount.repository.ReservationDiscountHistoryRepository;
 import daewoo.team5.hotelreservation.domain.payment.entity.DiscountEntity;
-import daewoo.team5.hotelreservation.domain.place.entity.Places;
-import daewoo.team5.hotelreservation.domain.place.entity.Room;
+import daewoo.team5.hotelreservation.domain.place.entity.PlacesEntity;
+import daewoo.team5.hotelreservation.domain.place.entity.RoomEntity;
 import daewoo.team5.hotelreservation.domain.place.repository.PlaceRepository;
 import daewoo.team5.hotelreservation.global.exception.ApiException;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +34,7 @@ public class DiscountService {
     private final ReservationDiscountHistoryRepository reservationDiscountHistoryRepository;
     private final DiscountHistoryRepository discountHistoryRepository;
 
-    public Integer calculateDiscountAmount(Room room, LocalDate checkIn, LocalDate checkOut) {
+    public Integer calculateDiscountAmount(RoomEntity room, LocalDate checkIn, LocalDate checkOut) {
         List<DiscountEntity> discounts =
                 discountRepository.findByPlaceIdAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
                         room.getPlace().getId(),
@@ -65,7 +65,7 @@ public class DiscountService {
     }
 
     public DiscountResponseDto createDiscount(Long ownerId, DiscountCreateDto dto) {
-        Places place = placeRepository.findByOwnerId(ownerId)
+        PlacesEntity place = placeRepository.findByOwnerId(ownerId)
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "해당 관리자의 숙소를 찾을 수 없습니다.", "ID: " + ownerId));
 
         DiscountEntity discount = DiscountEntity.builder()
@@ -82,7 +82,7 @@ public class DiscountService {
     }
     @Transactional(readOnly = true) // [!code ++]
     public DiscountDetailDto getDiscountDetail(Long ownerId, Long discountId) { // [!code ++]
-        Places place = placeRepository.findByOwnerId(ownerId) // [!code ++]
+        PlacesEntity place = placeRepository.findByOwnerId(ownerId) // [!code ++]
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "해당 관리자의 숙소를 찾을 수 없습니다.", "ID: " + ownerId)); // [!code ++]
         // [!code ++]
         DiscountEntity discount = discountRepository.findById(discountId) // [!code ++]
@@ -115,7 +115,7 @@ public class DiscountService {
 
     @Transactional(readOnly = true)
     public List<DiscountResponseDto> getDiscounts(Long ownerId) {
-        Places place = placeRepository.findByOwnerId(ownerId)
+        PlacesEntity place = placeRepository.findByOwnerId(ownerId)
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "해당 관리자의 숙소를 찾을 수 없습니다.", "ID: " + ownerId));
         return discountRepository.findByPlaceId(place.getId()).stream()
                 .map(DiscountResponseDto::new)
@@ -123,7 +123,7 @@ public class DiscountService {
     }
 
     public void deleteDiscount(Long ownerId, Long discountId) {
-        Places place = placeRepository.findByOwnerId(ownerId)
+        PlacesEntity place = placeRepository.findByOwnerId(ownerId)
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "해당 관리자의 숙소를 찾을 수 없습니다.", "ID: " + ownerId));
 
         DiscountEntity discount = discountRepository.findById(discountId)

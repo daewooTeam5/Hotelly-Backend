@@ -1,7 +1,6 @@
 package daewoo.team5.hotelreservation.domain.auth.entity;
 
-import daewoo.team5.hotelreservation.domain.notification.entity.NotificationEntity;
-import daewoo.team5.hotelreservation.domain.users.entity.Users;
+import daewoo.team5.hotelreservation.domain.users.entity.UsersEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,7 +22,7 @@ public class UserFcmEntity {
     private Long id;
 
     @ManyToOne
-    private Users user;
+    private UsersEntity user;
 
     private String token;
 

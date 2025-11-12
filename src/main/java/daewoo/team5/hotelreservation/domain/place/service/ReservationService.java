@@ -24,12 +24,12 @@ import daewoo.team5.hotelreservation.domain.payment.repository.GuestRepository;
 import daewoo.team5.hotelreservation.domain.payment.repository.PointHistoryRepository;
 import daewoo.team5.hotelreservation.domain.payment.service.TossPaymentService;
 import daewoo.team5.hotelreservation.domain.place.dto.*;
-import daewoo.team5.hotelreservation.domain.place.entity.DailyPlaceReservation;
-import daewoo.team5.hotelreservation.domain.place.entity.Places;
+import daewoo.team5.hotelreservation.domain.place.entity.DailyPlaceReservationEntity;
+import daewoo.team5.hotelreservation.domain.place.entity.PlacesEntity;
 import daewoo.team5.hotelreservation.domain.place.repository.*;
 import daewoo.team5.hotelreservation.domain.place.specification.ReservationSpecification;
 import daewoo.team5.hotelreservation.domain.payment.entity.ReservationEntity;
-import daewoo.team5.hotelreservation.domain.users.entity.Users;
+import daewoo.team5.hotelreservation.domain.users.entity.UsersEntity;
 import daewoo.team5.hotelreservation.domain.users.projection.UserProjection;
 import daewoo.team5.hotelreservation.domain.users.repository.UsersRepository;
 import daewoo.team5.hotelreservation.global.exception.ApiException;
@@ -257,7 +257,7 @@ public class ReservationService {
 
         // ✅ 알림 생성 및 FCM 전송 (회원일 경우에만)
         if (r.getGuest() != null && r.getGuest().getUsers() != null) {
-            Users user = r.getGuest().getUsers();
+            UsersEntity user = r.getGuest().getUsers();
 
             String title = "예약이 취소되었습니다";
             String content = "예약번호 " + r.getReservationId() + "번이 취소 및 환불 처리되었습니다.";
@@ -288,7 +288,7 @@ public class ReservationService {
         return toDetailDTO(saved);
     }
 
-    public void backupPoint(ReservationEntity r, Users users){
+    public void backupPoint(ReservationEntity r, UsersEntity users){
         // 로그인 안한 유저면 패스
         // 포인트 적립된값 차감
         PointHistoryEntity pointHistory = pointHistoryRepository.findByReservationAndType(r,PointHistoryEntity.PointType.EARN).orElseThrow(() -> new ApiException(
@@ -361,7 +361,7 @@ public class ReservationService {
         while (!date.isAfter(end)) {
             LocalDate currentDate = date; // 🔑 새 변수로 캡처
 
-            DailyPlaceReservation dpr = dailyPlaceReservationRepository
+            DailyPlaceReservationEntity dpr = dailyPlaceReservationRepository
                     .findByRoomIdAndDateForUpdate(roomId, currentDate)
                     .orElseThrow(() -> new ApiException(
                             HttpStatus.NOT_FOUND,
@@ -472,7 +472,7 @@ public class ReservationService {
     }
 
     public List<ReservationEntity> getTodayReservation(Long userId) {
-        List<Places> allByOwnerId = placeRepository.findAllByOwnerId(userId);
+        List<PlacesEntity> allByOwnerId = placeRepository.findAllByOwnerId(userId);
         if(allByOwnerId.isEmpty()){
             throw new ApiException(
                     HttpStatus.NOT_FOUND,

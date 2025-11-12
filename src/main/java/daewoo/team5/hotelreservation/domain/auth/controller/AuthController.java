@@ -4,7 +4,7 @@ import daewoo.team5.hotelreservation.domain.auth.controller.swagger.AuthSwagger;
 import daewoo.team5.hotelreservation.domain.auth.dto.*;
 import daewoo.team5.hotelreservation.domain.auth.service.AuthService;
 import daewoo.team5.hotelreservation.domain.auth.service.RecaptchaService;
-import daewoo.team5.hotelreservation.domain.users.entity.Users;
+import daewoo.team5.hotelreservation.domain.users.entity.UsersEntity;
 import daewoo.team5.hotelreservation.domain.users.projection.UserProjection;
 import daewoo.team5.hotelreservation.global.aop.annotation.AuthUser;
 import daewoo.team5.hotelreservation.global.core.common.ApiResult;
@@ -108,8 +108,8 @@ public class AuthController implements AuthSwagger {
     }
 
     @PostMapping("/signup")
-    public ApiResult<Users> signUp(@RequestBody SignUpRequest signUpRequest) {
-        Users data = authService.adminSignUp(signUpRequest);
+    public ApiResult<UsersEntity> signUp(@RequestBody SignUpRequest signUpRequest) {
+        UsersEntity data = authService.adminSignUp(signUpRequest);
         data.setPassword(null);
         return ApiResult.ok(data, "회원가입 성공");
     }

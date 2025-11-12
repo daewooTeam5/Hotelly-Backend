@@ -7,12 +7,12 @@ import daewoo.team5.hotelreservation.domain.place.dto.AmenityDto;
 import daewoo.team5.hotelreservation.domain.place.dto.PlaceDetailResponse;
 import daewoo.team5.hotelreservation.domain.place.dto.PlaceInfoProjection;
 import daewoo.team5.hotelreservation.domain.place.dto.RoomInfoDto;
-import daewoo.team5.hotelreservation.domain.place.entity.PlaceCategory;
-import daewoo.team5.hotelreservation.domain.place.entity.Places;
+import daewoo.team5.hotelreservation.domain.place.entity.PlaceCategoryEntity;
+import daewoo.team5.hotelreservation.domain.place.entity.PlacesEntity;
 import daewoo.team5.hotelreservation.domain.place.projection.*;
 import daewoo.team5.hotelreservation.domain.place.repository.PlaceCategoryRepository;
 import daewoo.team5.hotelreservation.domain.place.repository.PlaceRepository;
-import daewoo.team5.hotelreservation.domain.users.entity.Users;
+import daewoo.team5.hotelreservation.domain.users.entity.UsersEntity;
 import daewoo.team5.hotelreservation.domain.users.projection.UserContactProjection;
 import daewoo.team5.hotelreservation.global.exception.ApiException;
 import daewoo.team5.hotelreservation.infrastructure.firebasefcm.FcmService;
@@ -25,7 +25,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -106,24 +105,24 @@ public class PlaceService {
     ) {
         Pageable pageable = PageRequest.of(start, 20);
 
-        Places.Status status = null;
+        PlacesEntity.Status status = null;
         if (approvalStatus != null && !approvalStatus.isEmpty()) {
-            status = Places.Status.valueOf(approvalStatus.toUpperCase());
+            status = PlacesEntity.Status.valueOf(approvalStatus.toUpperCase());
         }
 
         return placeRepository.searchAdminPlaces(sido, sigungu, status, ownerName, placeName, pageable);
     }
 
     @Transactional
-    public void updatePlaceStatus(Long placeId, Places.Status status) {
-        Places place = placeRepository.findById(placeId)
+    public void updatePlaceStatus(Long placeId, PlacesEntity.Status status) {
+        PlacesEntity place = placeRepository.findById(placeId)
                 .orElseThrow(() -> new IllegalArgumentException("숙소를 찾을 수 없습니다. ID=" + placeId));
 
         place.setStatus(status);
         placeRepository.save(place);
 
         // === 알림 발송 및 저장 ===
-        Users owner = place.getOwner(); // 숙소 주인
+        UsersEntity owner = place.getOwner(); // 숙소 주인
         if (owner != null) {
             userFcmRepository.findByUserId(owner.getId()).ifPresent(userFcm -> {
                 String token = userFcm.getToken();
@@ -176,7 +175,7 @@ public class PlaceService {
                 .toList();
     }
 
-    public List<PlaceCategory> getAllPlaceCategories() {
+    public List<PlaceCategoryEntity> getAllPlaceCategories() {
         return placeCategoryRepository.findAll();
     }
 

@@ -1,6 +1,6 @@
 package daewoo.team5.hotelreservation.domain.shoppingcart.repository;
 
-import daewoo.team5.hotelreservation.domain.shoppingcart.entity.ShoppingCart;
+import daewoo.team5.hotelreservation.domain.shoppingcart.entity.ShoppingCartEntity;
 import daewoo.team5.hotelreservation.domain.shoppingcart.projection.CartProjection;
 import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,8 +10,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-public interface ShoppingCartRepository extends JpaRepository<ShoppingCart, Long> {
-    Optional<ShoppingCart> findByUser_IdAndRoom_IdAndStartDateAndEndDate(
+public interface ShoppingCartRepository extends JpaRepository<ShoppingCartEntity, Long> {
+    Optional<ShoppingCartEntity> findByUser_IdAndRoom_IdAndStartDateAndEndDate(
             Long userId,
             Long roomId,
             LocalDate checkIn,

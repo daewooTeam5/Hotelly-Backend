@@ -16,7 +16,7 @@ import daewoo.team5.hotelreservation.domain.question.repository.QuestionReposito
 import daewoo.team5.hotelreservation.domain.users.dto.request.OwnerRequestDto;
 import daewoo.team5.hotelreservation.domain.users.dto.request.UserAllDataDTO;
 import daewoo.team5.hotelreservation.domain.users.entity.OwnerRequestEntity;
-import daewoo.team5.hotelreservation.domain.users.entity.Users;
+import daewoo.team5.hotelreservation.domain.users.entity.UsersEntity;
 import daewoo.team5.hotelreservation.domain.users.repository.OwnerRequestRepository;
 import daewoo.team5.hotelreservation.domain.users.repository.UsersRepository;
 import daewoo.team5.hotelreservation.global.exception.ApiException;
@@ -68,7 +68,7 @@ public class AdminUserService {
         Map<Long, OwnerRequestDto> dtoMap = new LinkedHashMap<>();
 
         for (Object[] row : results) {
-            Users user = (Users) row[0];
+            UsersEntity user = (UsersEntity) row[0];
             OwnerRequestEntity orq = (OwnerRequestEntity) row[1]; // 이제 null이 아님
             FileEntity file = (FileEntity) row[2];
 
@@ -105,8 +105,8 @@ public class AdminUserService {
         request.setRejectionReason(null);
 
         // 유저 권한을 hotel_owner로 변경
-        Users user = request.getUser();
-        user.setRole(Users.Role.hotel_owner);
+        UsersEntity user = request.getUser();
+        user.setRole(UsersEntity.Role.hotel_owner);
         usersRepository.save(user);
 
         ownerRequestRepository.save(request);
@@ -121,10 +121,10 @@ public class AdminUserService {
     }
 
     public void updateUserStatus(Long userId, String newStatus) {
-        Users user = usersRepository.findById(userId)
+        UsersEntity user = usersRepository.findById(userId)
                 .orElseThrow(); // 유저 없으면 NoSuchElementException 발생
 
-        Users.Status statusEnum = Users.Status.valueOf(newStatus);
+        UsersEntity.Status statusEnum = UsersEntity.Status.valueOf(newStatus);
 
         user.setStatus(statusEnum);
         usersRepository.save(user); // DB 반영
@@ -132,7 +132,7 @@ public class AdminUserService {
 
     @Transactional
     public void addPoints(Long userId, long amount, String reason) {
-        Users user = usersRepository.findById(userId)
+        UsersEntity user = usersRepository.findById(userId)
                 .orElseThrow();
 
         long currentPoints = user.getPoint() != null ? user.getPoint() : 0L;
@@ -183,7 +183,7 @@ public class AdminUserService {
             throw new ApiException(HttpStatus.BAD_REQUEST, "", "차감할 포인트는 0보다 커야 합니다.");
         }
 
-        Users user = usersRepository.findById(userId)
+        UsersEntity user = usersRepository.findById(userId)
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "", "유저를 찾을 수 없습니다."));
 
         long currentPoints = user.getPoint() != null ? user.getPoint() : 0L;

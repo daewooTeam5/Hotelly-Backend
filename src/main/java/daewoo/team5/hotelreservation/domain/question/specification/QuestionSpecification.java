@@ -1,8 +1,8 @@
 package daewoo.team5.hotelreservation.domain.question.specification;
 
 import daewoo.team5.hotelreservation.domain.question.dto.QuestionSearchRequest;
-import daewoo.team5.hotelreservation.domain.question.entity.Question;
-import daewoo.team5.hotelreservation.domain.users.entity.Users;
+import daewoo.team5.hotelreservation.domain.question.entity.QuestionEntity;
+import daewoo.team5.hotelreservation.domain.users.entity.UsersEntity;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class QuestionSpecification {
-    public static Specification<Question> filterBy(Long placeId, QuestionSearchRequest searchRequest) { // placeId 파라미터 추가
+    public static Specification<QuestionEntity> filterBy(Long placeId, QuestionSearchRequest searchRequest) { // placeId 파라미터 추가
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
 
@@ -19,7 +19,7 @@ public class QuestionSpecification {
             predicates.add(criteriaBuilder.equal(root.get("place").get("id"), placeId));
             // ===== 👆 [추가된 부분] =====
 
-            Join<Question, Users> userJoin = root.join("user");
+            Join<QuestionEntity, UsersEntity> userJoin = root.join("user");
 
             if (searchRequest.getUserId() != null) {
                 predicates.add(criteriaBuilder.equal(userJoin.get("id"), searchRequest.getUserId()));

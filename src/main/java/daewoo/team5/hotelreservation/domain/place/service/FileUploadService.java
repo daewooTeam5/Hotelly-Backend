@@ -2,7 +2,7 @@ package daewoo.team5.hotelreservation.domain.place.service;
 
 import daewoo.team5.hotelreservation.domain.file.entity.FileEntity;
 import daewoo.team5.hotelreservation.domain.place.repository.FileRepository;
-import daewoo.team5.hotelreservation.domain.users.entity.Users;
+import daewoo.team5.hotelreservation.domain.users.entity.UsersEntity;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -37,7 +37,7 @@ public class FileUploadService {
     }
 
     @Transactional
-    public FileEntity storeProfileImage(MultipartFile multipartFile, Users user, HttpServletRequest request) {
+    public FileEntity storeProfileImage(MultipartFile multipartFile, UsersEntity user, HttpServletRequest request) {
         // 1. 새 파일의 물리적 저장부터 먼저 수행합니다.
         String originalFileName = StringUtils.cleanPath(multipartFile.getOriginalFilename());
         String extension = originalFileName.substring(originalFileName.lastIndexOf("."));

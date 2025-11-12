@@ -1,18 +1,12 @@
 package daewoo.team5.hotelreservation.domain.place.service;
 
-import daewoo.team5.hotelreservation.domain.place.entity.Places;
 import daewoo.team5.hotelreservation.domain.place.repository.PlaceRepository;
-import daewoo.team5.hotelreservation.domain.place.review.entity.Review;
 import daewoo.team5.hotelreservation.domain.place.review.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor

@@ -11,7 +11,7 @@ import daewoo.team5.hotelreservation.domain.users.dto.request.LogInUserDto;
 import daewoo.team5.hotelreservation.domain.users.dto.request.UserResponse;
 import daewoo.team5.hotelreservation.domain.users.dto.request.UserUpdateDTO;
 import daewoo.team5.hotelreservation.domain.users.entity.OwnerRequestEntity;
-import daewoo.team5.hotelreservation.domain.users.entity.Users;
+import daewoo.team5.hotelreservation.domain.users.entity.UsersEntity;
 import daewoo.team5.hotelreservation.domain.users.projection.MyInfoProjection;
 import daewoo.team5.hotelreservation.domain.users.projection.UserProjection;
 import daewoo.team5.hotelreservation.domain.users.repository.OwnerRequestRepository;
@@ -63,7 +63,7 @@ public class UsersService {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(dto.getUsername(), dto.getPassword())
         );
-        Users loginUsers = usersRepository.findByName(dto.getUsername()).orElseThrow(() -> new ApiException(400, "로그인 실패", "아이디 또는 비밀번호가 일치하지 않습니다."));
+        UsersEntity loginUsers = usersRepository.findByName(dto.getUsername()).orElseThrow(() -> new ApiException(400, "로그인 실패", "아이디 또는 비밀번호가 일치하지 않습니다."));
         String accessToken = jwtProvider.generateToken(loginUsers, JwtProvider.TokenType.ACCESS);
         String refreshToken = jwtProvider.generateToken(loginUsers.getId(), JwtProvider.TokenType.REFRESH);
 
@@ -74,13 +74,13 @@ public class UsersService {
 
     }
 
-    public Users registerUser(CreateUserDto dto) {
-        Users users = usersRepository.save(
-                Users
+    public UsersEntity registerUser(CreateUserDto dto) {
+        UsersEntity users = usersRepository.save(
+                UsersEntity
                         .builder()
                         .password(passwordEncoder.encode(dto.getPassword()))
                         .name(dto.getUsername())
-                        .role(Users.Role.valueOf(dto.getRole()))
+                        .role(UsersEntity.Role.valueOf(dto.getRole()))
                         .build()
         );
         return users;
@@ -92,7 +92,7 @@ public class UsersService {
     }
 
     public Page<UserResponse> getAllUsers(int start, int size) {
-        Page<Users> usersPage = usersRepository.findAll(PageRequest.of(start, size));
+        Page<UsersEntity> usersPage = usersRepository.findAll(PageRequest.of(start, size));
         return usersPage.map(u ->
                 new UserResponse(
                         u.getId(),
@@ -112,10 +112,10 @@ public class UsersService {
 
     @Transactional
     public void allowUser(Long id) {
-        Users user = usersRepository.findById(id)
+        UsersEntity user = usersRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저 ID: " + id));
-        if (user.getStatus() == Users.Status.inactive) {
-            user.setStatus(Users.Status.active);
+        if (user.getStatus() == UsersEntity.Status.inactive) {
+            user.setStatus(UsersEntity.Status.active);
             usersRepository.save(user);
         }
     }
@@ -123,17 +123,17 @@ public class UsersService {
     // 취소
     @Transactional
     public void cancelUser(Long id) {
-        Users user = usersRepository.findById(id)
+        UsersEntity user = usersRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저 ID: " + id));
-        if (user.getStatus() == Users.Status.inactive) {
-            user.setStatus(Users.Status.banned);
+        if (user.getStatus() == UsersEntity.Status.inactive) {
+            user.setStatus(UsersEntity.Status.banned);
             usersRepository.save(user);
         }
     }
 
     @Transactional
     public OwnerRequestEntity createOwnerRequest(Long userId, OwnerRequestDto requestDto, List<MultipartFile> documents) {
-        Users users = usersRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        UsersEntity users = usersRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         users.setPhone(requestDto.getPhone());
         users.setName(requestDto.getHotelName());
 
@@ -157,7 +157,7 @@ public class UsersService {
 
     @Transactional
     public UserUpdateDTO updateUser(Long userId, UserUpdateDTO dto, MultipartFile file, HttpServletRequest request) { // ✅ 반환 타입을 DTO로 변경
-        Users user = usersRepository.findById(userId)
+        UsersEntity user = usersRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
 
         if (file != null && !file.isEmpty()) {

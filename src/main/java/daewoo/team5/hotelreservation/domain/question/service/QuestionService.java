@@ -1,12 +1,12 @@
 package daewoo.team5.hotelreservation.domain.question.service;
 
-import daewoo.team5.hotelreservation.domain.place.entity.Places;
+import daewoo.team5.hotelreservation.domain.place.entity.PlacesEntity;
 import daewoo.team5.hotelreservation.domain.place.repository.PlaceRepository;
 import daewoo.team5.hotelreservation.domain.question.dto.*;
-import daewoo.team5.hotelreservation.domain.question.entity.Question;
+import daewoo.team5.hotelreservation.domain.question.entity.QuestionEntity;
 import daewoo.team5.hotelreservation.domain.question.projection.QuestionProjection;
 import daewoo.team5.hotelreservation.domain.question.repository.QuestionRepository;
-import daewoo.team5.hotelreservation.domain.users.entity.Users;
+import daewoo.team5.hotelreservation.domain.users.entity.UsersEntity;
 import daewoo.team5.hotelreservation.domain.users.projection.UserProjection;
 import daewoo.team5.hotelreservation.domain.users.repository.UsersRepository;
 import daewoo.team5.hotelreservation.global.exception.ApiException;
@@ -34,13 +34,13 @@ public class QuestionService {
 
     // 문의 등록
     public QuestionResponse createQuestion(Long placeId, CreateQuestionRequest request, UserProjection userProjection) {
-        Users user = usersRepository.findById(userProjection.getId())
+        UsersEntity user = usersRepository.findById(userProjection.getId())
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다.", "존재하지 않는 사용자입니다."));
 
-        Places place = placeRepository.findById(placeId)
+        PlacesEntity place = placeRepository.findById(placeId)
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "숙소를 찾을 수 없습니다.", "존재하지 않는 숙소입니다."));
 
-        Question question = Question.builder()
+        QuestionEntity question = QuestionEntity.builder()
                 .place(place)
                 .user(user)
                 .title(request.getTitle())
@@ -61,10 +61,10 @@ public class QuestionService {
 
     // 문의 답변 등록 (숙소 주인)
     public void addAnswer(Long questionId, CreateAnswerRequest request, UserProjection userProjection) {
-        Users owner = usersRepository.findById(userProjection.getId())
+        UsersEntity owner = usersRepository.findById(userProjection.getId())
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다.", "존재하지 않는 사용자입니다."));
 
-        Question question = questionRepository.findByIdWithOwner(questionId)
+        QuestionEntity question = questionRepository.findByIdWithOwner(questionId)
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "문의를 찾을 수 없습니다.", "존재하지 않는 문의입니다."));
 
         if (!question.getPlace().getOwner().getId().equals(owner.getId())) {
@@ -75,10 +75,10 @@ public class QuestionService {
     }
     // 문의 삭제 (숙소 주인)
     public void deleteQuestion(Long questionId, UserProjection userProjection) {
-        Users owner = usersRepository.findById(userProjection.getId())
+        UsersEntity owner = usersRepository.findById(userProjection.getId())
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다.", "존재하지 않는 사용자입니다."));
 
-        Question question = questionRepository.findByIdWithOwner(questionId)
+        QuestionEntity question = questionRepository.findByIdWithOwner(questionId)
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "문의를 찾을 수 없습니다.", "존재하지 않는 문의입니다."));
 
         if (!question.getPlace().getOwner().getId().equals(owner.getId())) {
@@ -102,7 +102,7 @@ public class QuestionService {
     @Transactional(readOnly = true)
     public List<QuestionResponse> searchQuestions(Long placeId, QuestionSearchRequest searchRequest, UserProjection userProjection) { // UserProjection 파라미터 추가
         // 1. 숙소 정보 조회 및 소유자 확인
-        Places place = placeRepository.findById(placeId)
+        PlacesEntity place = placeRepository.findById(placeId)
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "숙소를 찾을 수 없습니다.", "존재하지 않는 숙소입니다."));
     
         if (!place.getOwner().getId().equals(userProjection.getId())) {
@@ -110,7 +110,7 @@ public class QuestionService {
         }
 
     // 2. 기존 검색 로직 수행
-    Specification<Question> spec = QuestionSpecification.filterBy(placeId, searchRequest);
+    Specification<QuestionEntity> spec = QuestionSpecification.filterBy(placeId, searchRequest);
     return questionRepository.findAll(spec).stream()
             .map(QuestionResponse::new)
             .collect(Collectors.toList());
@@ -122,12 +122,12 @@ public class QuestionService {
 
     public Page<MyQuestionResponse> getMyQuestions(Long userId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Question> questions = questionRepository.findByUserIdWithDetails(userId, pageable);
+        Page<QuestionEntity> questions = questionRepository.findByUserIdWithDetails(userId, pageable);
 
         return questions.map(this::convertToMyQuestionResponse);
     }
 
-    private MyQuestionResponse convertToMyQuestionResponse(Question question) {
+    private MyQuestionResponse convertToMyQuestionResponse(QuestionEntity question) {
         return MyQuestionResponse.builder()
                 .questionId(question.getId())
                 .place(MyQuestionResponse.PlaceInfo.builder()
@@ -142,7 +142,7 @@ public class QuestionService {
                 .build();
     }
 
-    private MyQuestionResponse.AnswerInfo convertToAnswerInfo(Question question) {
+    private MyQuestionResponse.AnswerInfo convertToAnswerInfo(QuestionEntity question) {
         if (question.getAnswer() == null || question.getAnswer().isEmpty()) {
             return null;
         }

@@ -6,9 +6,9 @@ import daewoo.team5.hotelreservation.domain.coupon.projection.CouponIssuedProjec
 import daewoo.team5.hotelreservation.domain.coupon.projection.UserCouponProjection;
 import daewoo.team5.hotelreservation.domain.coupon.repository.CouponRepository;
 import daewoo.team5.hotelreservation.domain.coupon.repository.UserCouponRepository;
-import daewoo.team5.hotelreservation.domain.place.entity.Places;
+import daewoo.team5.hotelreservation.domain.place.entity.PlacesEntity;
 import daewoo.team5.hotelreservation.domain.place.repository.PlaceRepository;
-import daewoo.team5.hotelreservation.domain.users.entity.Users;
+import daewoo.team5.hotelreservation.domain.users.entity.UsersEntity;
 import daewoo.team5.hotelreservation.domain.users.projection.UserProjection;
 import daewoo.team5.hotelreservation.domain.users.repository.UsersRepository;
 import daewoo.team5.hotelreservation.global.exception.ApiException;
@@ -32,7 +32,7 @@ public class CouponService {
     private final PlaceRepository placeRepository;
 
     public UserCouponEntity issueCoupon(String couponCode, UserProjection user) {
-        Users couponIssuer = usersRepository.findById(user.getId()).orElseThrow(UserNotFoundException::new);
+        UsersEntity couponIssuer = usersRepository.findById(user.getId()).orElseThrow(UserNotFoundException::new);
         CouponEntity couponEntity = couponRepository.findByCouponCode(couponCode)
                 .orElseThrow(
                         () -> new ApiException(HttpStatus.BAD_REQUEST, "존재하지 않는 쿠폰 코드입니다.", "쿠폰 코드를 확인해주세요.")
@@ -71,7 +71,7 @@ public class CouponService {
         return 0;
     }
     // 해당 숙박업소에 사용 가능한 쿠폰인지 확인
-    public Boolean validateCouponWithPlace(Long userId,CouponEntity couponEntity,Places places,Integer orderAmount) {
+    public Boolean validateCouponWithPlace(Long userId, CouponEntity couponEntity, PlacesEntity places, Integer orderAmount) {
         UserCouponEntity userCouponEntity = userCouponRepository.findByUserIdAndCouponId(userId, couponEntity.getId()).orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "해당 유저가 발급받지 않은 쿠폰입니다.", "userId와 couponId를 확인해주세요."));
         // 숙박업소와 쿠폰의 숙박업소가 같은지 확인
         if(!couponEntity.getPlace().getId().equals(places.getId())){

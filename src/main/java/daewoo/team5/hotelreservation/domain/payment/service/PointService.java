@@ -5,7 +5,7 @@ import daewoo.team5.hotelreservation.domain.payment.entity.ReservationEntity;
 import daewoo.team5.hotelreservation.domain.payment.projection.PointHistorySummaryProjection;
 import daewoo.team5.hotelreservation.domain.payment.repository.PointHistoryRepository;
 import daewoo.team5.hotelreservation.domain.place.repository.ReservationRepository;
-import daewoo.team5.hotelreservation.domain.users.entity.Users;
+import daewoo.team5.hotelreservation.domain.users.entity.UsersEntity;
 import daewoo.team5.hotelreservation.domain.users.repository.UsersRepository;
 import daewoo.team5.hotelreservation.global.exception.ApiException;
 import daewoo.team5.hotelreservation.global.exception.UserNotFoundException;
@@ -39,7 +39,7 @@ public class PointService {
     @Transactional
     public void earnPoint(Long userId, Long finalAmount,String orderId) {
         ReservationEntity reservation = reservationRepository.findByOrderId(orderId).orElseThrow(() -> new ApiException(404, "예약 정보 없음", "해당 예약 정보가 존재하지 않습니다."));
-        Users myInfo = usersRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        UsersEntity myInfo = usersRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         Long points = calculatePoints(finalAmount);
         LocalDateTime createdAt = LocalDateTime.now();
         LocalDateTime expireAt = createdAt.plusYears(1);

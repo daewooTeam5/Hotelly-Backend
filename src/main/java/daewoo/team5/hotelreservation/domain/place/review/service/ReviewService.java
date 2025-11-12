@@ -3,7 +3,7 @@ package daewoo.team5.hotelreservation.domain.place.review.service;
 
 import daewoo.team5.hotelreservation.domain.payment.entity.ReservationEntity;
 import daewoo.team5.hotelreservation.domain.payment.repository.GuestRepository;
-import daewoo.team5.hotelreservation.domain.place.entity.Places;
+import daewoo.team5.hotelreservation.domain.place.entity.PlacesEntity;
 import daewoo.team5.hotelreservation.domain.place.repository.PlaceRepository;
 import daewoo.team5.hotelreservation.domain.place.repository.ReservationRepository;
 import daewoo.team5.hotelreservation.domain.place.review.dto.*;
@@ -14,7 +14,7 @@ import daewoo.team5.hotelreservation.domain.place.review.projection.ReviewImageP
 import daewoo.team5.hotelreservation.domain.place.review.projection.ReviewProjection;
 import daewoo.team5.hotelreservation.domain.place.review.repository.ReviewImageRepository;
 import daewoo.team5.hotelreservation.domain.place.review.repository.ReviewRepository;
-import daewoo.team5.hotelreservation.domain.users.entity.Users;
+import daewoo.team5.hotelreservation.domain.users.entity.UsersEntity;
 import daewoo.team5.hotelreservation.domain.users.projection.UserProjection;
 import daewoo.team5.hotelreservation.domain.users.repository.UsersRepository;
 import daewoo.team5.hotelreservation.global.exception.ApiException;
@@ -44,7 +44,7 @@ public class ReviewService {
 
     @Transactional
     public ReviewResponse createReview(Long placeId, CreateReviewRequest request, UserProjection userProjection) {
-        Users user = usersRepository.findById(userProjection.getId())
+        UsersEntity user = usersRepository.findById(userProjection.getId())
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다.", "존재하지 않는 사용자입니다."));
 
         var currentGuest = guestRepository.findByUsersId(user.getId())
@@ -68,7 +68,7 @@ public class ReviewService {
             throw new ApiException(HttpStatus.BAD_REQUEST, "리뷰 작성 불가", "체크아웃이 완료된 예약에 대해서만 리뷰를 작성할 수 있습니다.");
         }
 
-        Places places = reservation.getRoom().getPlace();
+        PlacesEntity places = reservation.getRoom().getPlace();
         Review review = Review.createReview(places, user, reservation, request.getRating(), request.getComment());
 
         if (request.getImageUrls() != null && !request.getImageUrls().isEmpty()) {
@@ -107,7 +107,7 @@ public class ReviewService {
         }
 
         // ===== ✅ 평균 평점 및 리뷰 수 업데이트 로직 추가 =====
-        Places places = review.getPlace();
+        PlacesEntity places = review.getPlace();
         places.removeReviewStats(review.getRating());
         placeRepository.save(places);
 

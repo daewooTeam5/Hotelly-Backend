@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import daewoo.team5.hotelreservation.domain.coupon.entity.CouponEntity;
 import daewoo.team5.hotelreservation.domain.payment.service.PaymentService;
 import daewoo.team5.hotelreservation.domain.place.dto.PlaceDetailResponse;
-import daewoo.team5.hotelreservation.domain.place.entity.PlaceCategory;
+import daewoo.team5.hotelreservation.domain.place.entity.PlaceCategoryEntity;
 import daewoo.team5.hotelreservation.domain.place.projection.PlaceItemInfomation;
 import daewoo.team5.hotelreservation.domain.place.service.PlaceService;
 import daewoo.team5.hotelreservation.domain.users.projection.UserContactProjection;
@@ -173,7 +173,7 @@ public class PlaceController {
     }
 
     @GetMapping("/category")
-    public ApiResult<List<PlaceCategory>> getAllPlaceCategories() {
+    public ApiResult<List<PlaceCategoryEntity>> getAllPlaceCategories() {
         return ApiResult.ok(placeService.getAllPlaceCategories(), "숙소 카테고리 조회 성공");
     }
 

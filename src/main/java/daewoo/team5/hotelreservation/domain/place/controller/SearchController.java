@@ -1,7 +1,7 @@
 package daewoo.team5.hotelreservation.domain.place.controller;
 
 
-import daewoo.team5.hotelreservation.domain.place.entity.Places;
+import daewoo.team5.hotelreservation.domain.place.entity.PlacesEntity;
 import daewoo.team5.hotelreservation.domain.place.repository.PlaceRepository;
 import daewoo.team5.hotelreservation.global.core.common.ApiResult;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +21,7 @@ public class SearchController {
 
     // 모든 호텔(서비스 여부 상관없이 전부)
     @GetMapping("/all")
-    public ApiResult<List<Places>> getAllHotels() {
+    public ApiResult<List<PlacesEntity>> getAllHotels() {
         return ApiResult.ok(placeRepository.findAll());
     }
 

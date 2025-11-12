@@ -83,29 +83,29 @@ public class AuthService {
         blackListRepository.addToBlackList(refreshToken, expirationTime);
     }
 
-    public Users adminSignUp(SignUpRequest signUpRequest) {
+    public UsersEntity adminSignUp(SignUpRequest signUpRequest) {
         signUpRequest.setAdminPassword(passwordEncoder.encode(signUpRequest.getAdminPassword()));
 
-        Users.Role role;
+        UsersEntity.Role role;
         try {
-            role = Users.Role.valueOf(signUpRequest.getAdminRole());
+            role = UsersEntity.Role.valueOf(signUpRequest.getAdminRole());
         } catch (IllegalArgumentException e) {
-            role = Users.Role.admin;
+            role = UsersEntity.Role.admin;
         }
 
-        return userRepository.save(Users.builder()
+        return userRepository.save(UsersEntity.builder()
                 .email(signUpRequest.getAdminId() + "@daewoo.ac.kr")
                 .name(signUpRequest.getAdminName())
                 .userId(signUpRequest.getAdminId())
                 .password(signUpRequest.getAdminPassword())
                 .role(role)
-                .userType(Users.UserType.admin)
-                .status(Users.Status.inactive)
+                .userType(UsersEntity.UserType.admin)
+                .status(UsersEntity.Status.inactive)
                 .build());
     }
 
     public LoginSuccessDto adminLogin(AdminLoginDto adminLoginDto, HttpServletResponse response) {
-        Users admin = userRepository.findByUserId(adminLoginDto.getAdminId()).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "사용자 없음", "해당 관리자가 존재하지 않습니다."));
+        UsersEntity admin = userRepository.findByUserId(adminLoginDto.getAdminId()).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "사용자 없음", "해당 관리자가 존재하지 않습니다."));
         if (!passwordEncoder.matches(adminLoginDto.getAdminPassword(), admin.getPassword())) {
             throw new ApiException(HttpStatus.UNAUTHORIZED, "로그인 실패", "비밀번호가 일치하지 않습니다.");
         }
@@ -138,17 +138,17 @@ public class AuthService {
         if (!isValid) {
             throw new ApiException(HttpStatus.UNAUTHORIZED, "인증 실패", "유효하지 않은 인증 코드입니다.");
         }
-        Optional<Users> findUser = userRepository.findByEmailAndUserType(email, Users.UserType.email);
+        Optional<UsersEntity> findUser = userRepository.findByEmailAndUserType(email, UsersEntity.UserType.email);
         Random random = new Random();
-        Users users = findUser.orElseGet(() -> userRepository.save(
-                Users.builder()
+        UsersEntity users = findUser.orElseGet(() -> userRepository.save(
+                UsersEntity.builder()
                         .email(email)
                         .point(0L)
                         .name("Guest" + random.nextInt())
                         .userId(UUID.randomUUID().toString())
-                        .role(Users.Role.customer)
-                        .status(Users.Status.active)
-                        .userType(Users.UserType.email)
+                        .role(UsersEntity.Role.customer)
+                        .status(UsersEntity.Status.active)
+                        .userType(UsersEntity.UserType.email)
                         .build()
 
         ));
@@ -219,21 +219,21 @@ public class AuthService {
         GoogleUserInfo googleUserInfo = googleOAuthService.getUserInfo(accessToken);
 
         // 3. DB에서 사용자 조회 또는 생성
-        Optional<Users> findUser = userRepository.findByEmailAndUserType(googleUserInfo.getEmail(), Users.UserType.google);
+        Optional<UsersEntity> findUser = userRepository.findByEmailAndUserType(googleUserInfo.getEmail(), UsersEntity.UserType.google);
 
 
-        Users user = findUser.orElseGet(() -> {
+        UsersEntity user = findUser.orElseGet(() -> {
             // 신규 사용자 생성
-            Users newUser = Users.builder()
+            UsersEntity newUser = UsersEntity.builder()
                     .email(googleUserInfo.getEmail())
                     .name(googleUserInfo.getName())
                     .userId("google_" + googleUserInfo.getSub())
-                    .role(Users.Role.customer)
-                    .status(Users.Status.active)
-                    .userType(Users.UserType.google)
+                    .role(UsersEntity.Role.customer)
+                    .status(UsersEntity.Status.active)
+                    .userType(UsersEntity.UserType.google)
                     .point(0L)
                     .build();
-            Users saveUser = userRepository.save(newUser);
+            UsersEntity saveUser = userRepository.save(newUser);
             if (googleUserInfo.getPicture() != null) {
                 FileEntity profileImage = fileService.save(googleUserInfo.getPicture(), saveUser.getId(), saveUser.getId(), "profile");
                 saveUser.setProfileImage(profileImage);
@@ -262,26 +262,26 @@ public class AuthService {
 
         // 2. Access Token으로 사용자 정보 가져오기
         KakaoUserInfo kakaoUserInfo = kakaoOAuthService.getUserInfo(accessToken);
-        log.info("kakao: "+kakaoUserInfo.toString());
+        log.info("kakao: " + kakaoUserInfo.toString());
 
         // 3. DB에서 사용자 조회 또는 생성
-        Optional<Users> findUser = userRepository.findByUserIdAndUserType(
-            "kakao_" + kakaoUserInfo.getId(),
-            Users.UserType.kakao
+        Optional<UsersEntity> findUser = userRepository.findByUserIdAndUserType(
+                "kakao_" + kakaoUserInfo.getId(),
+                UsersEntity.UserType.kakao
         );
 
-        Users user = findUser.orElseGet(() -> {
+        UsersEntity user = findUser.orElseGet(() -> {
             // 신규 사용자 생성
-            Users newUser = Users.builder()
+            UsersEntity newUser = UsersEntity.builder()
                     .email(kakaoUserInfo.getEmail())
                     .name(kakaoUserInfo.getNickname() != null ? kakaoUserInfo.getNickname() : "Kakao User")
                     .userId("kakao_" + kakaoUserInfo.getId())
-                    .role(Users.Role.customer)
-                    .status(Users.Status.active)
-                    .userType(Users.UserType.kakao)
+                    .role(UsersEntity.Role.customer)
+                    .status(UsersEntity.Status.active)
+                    .userType(UsersEntity.UserType.kakao)
                     .point(0L)
                     .build();
-            Users saveUser = userRepository.save(newUser);
+            UsersEntity saveUser = userRepository.save(newUser);
             if (kakaoUserInfo.getProfileImage() != null) {
                 FileEntity profileImage = fileService.save(kakaoUserInfo.getProfileImage(), saveUser.getId(), saveUser.getId(), "profile");
                 saveUser.setProfileImage(profileImage);

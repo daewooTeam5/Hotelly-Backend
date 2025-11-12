@@ -1,6 +1,6 @@
 package daewoo.team5.hotelreservation.domain.payment.entity;
 
-import daewoo.team5.hotelreservation.domain.users.entity.Users;
+import daewoo.team5.hotelreservation.domain.users.entity.UsersEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -23,5 +23,5 @@ public class GuestEntity {
     private String phone;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    private Users users;
+    private UsersEntity users;
 }

@@ -1,7 +1,7 @@
 package daewoo.team5.hotelreservation.domain.place.repository;
 
 import daewoo.team5.hotelreservation.domain.place.dto.PlaceInfoProjection;
-import daewoo.team5.hotelreservation.domain.place.entity.Places;
+import daewoo.team5.hotelreservation.domain.place.entity.PlacesEntity;
 import daewoo.team5.hotelreservation.domain.place.projection.*;
 import daewoo.team5.hotelreservation.domain.users.projection.UserContactProjection;
 import org.springframework.data.domain.Page;
@@ -18,7 +18,7 @@ import java.util.Optional;
 //rooms -> room으로 수정
 
 @Repository
-public interface PlaceRepository extends JpaRepository<Places, Long> {
+public interface PlaceRepository extends JpaRepository<PlacesEntity, Long> {
 
     @Query(value = """
             WITH RECURSIVE date_range AS (
@@ -244,7 +244,7 @@ public interface PlaceRepository extends JpaRepository<Places, Long> {
             """, nativeQuery = true)
     List<PlaceServiceProjection> findPlaceServices(@Param("placeId") Long placeId);
 
-    Optional<Places> findByOwnerId(Long ownerId);
+    Optional<PlacesEntity> findByOwnerId(Long ownerId);
 
     @Query("""
             SELECT p.id AS id,
@@ -269,7 +269,7 @@ public interface PlaceRepository extends JpaRepository<Places, Long> {
     Page<AdminPlaceProjection> searchAdminPlaces(
             @Param("sido") String sido,
             @Param("sigungu") String sigungu,
-            @Param("approvalStatus") Places.Status approvalStatus,
+            @Param("approvalStatus") PlacesEntity.Status approvalStatus,
             @Param("ownerName") String ownerName,
             @Param("placeName") String placeName,
             Pageable pageable
@@ -290,7 +290,7 @@ public interface PlaceRepository extends JpaRepository<Places, Long> {
             """)
     PlaceInfoProjection findPlaceInfo(@Param("placeId") Long placeId);
 
-    List<Places> findAllByOwnerId(Long ownerId);
+    List<PlacesEntity> findAllByOwnerId(Long ownerId);
 
     @Query(value = """
             SELECT p.*
@@ -298,10 +298,10 @@ public interface PlaceRepository extends JpaRepository<Places, Long> {
             JOIN place_amenity pa ON p.id = pa.place_id
             WHERE pa.amenity_id = :amenityId
             """, nativeQuery = true)
-    List<Places> findByAmenityId(@Param("amenityId") Long amenityId);
+    List<PlacesEntity> findByAmenityId(@Param("amenityId") Long amenityId);
 //    List<Places> findByAmenities_Id(Long amenityId);
 
-    Optional<Places> findByOwner_Id(Long ownerId);
+    Optional<PlacesEntity> findByOwner_Id(Long ownerId);
 
     @Query("""
             SELECT u.name AS name,

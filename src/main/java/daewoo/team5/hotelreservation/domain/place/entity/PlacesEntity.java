@@ -1,6 +1,6 @@
 package daewoo.team5.hotelreservation.domain.place.entity;
 
-import daewoo.team5.hotelreservation.domain.users.entity.Users;
+import daewoo.team5.hotelreservation.domain.users.entity.UsersEntity;
 import daewoo.team5.hotelreservation.global.core.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -9,27 +9,26 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.List;
 
-@Entity
+@Entity(name = "Places")
 @Table(name = "places")   // 실제 DB 테이블명
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Places extends BaseTimeEntity {
+public class PlacesEntity extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;   // 숙소 아이디
 
     @ManyToOne
-    private Users owner;  // 숙소 주인 ID
+    private UsersEntity owner;  // 숙소 주인 ID
 
     @ManyToOne
     @JoinColumn(name = "category_id", referencedColumnName = "id")
-    private PlaceCategory category;
+    private PlaceCategoryEntity category;
 
     @Column(name = "name", length = 100, nullable = false)
     private String name;  // 호텔 이름
@@ -68,7 +67,7 @@ public class Places extends BaseTimeEntity {
 
     // 기본값을 true로 설정
 
-    public void updateDetails(String name, String description, LocalTime checkIn, LocalTime checkOut, PlaceCategory category) {
+    public void updateDetails(String name, String description, LocalTime checkIn, LocalTime checkOut, PlaceCategoryEntity category) {
         this.name = name;
         this.description = description;
         this.checkIn = checkIn;

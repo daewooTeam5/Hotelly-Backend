@@ -1,6 +1,6 @@
 package daewoo.team5.hotelreservation.domain.question.dto;
 
-import daewoo.team5.hotelreservation.domain.question.entity.Question;
+import daewoo.team5.hotelreservation.domain.question.entity.QuestionEntity;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -14,7 +14,7 @@ public class QuestionResponse {
     private final String userName;
     private final LocalDateTime createdAt;
 
-    public QuestionResponse(Question question) {
+    public QuestionResponse(QuestionEntity question) {
         this.questionId = question.getId();
         this.title = question.getTitle();
         this.content = question.getContent();

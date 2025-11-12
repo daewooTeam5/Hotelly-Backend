@@ -5,14 +5,14 @@ import lombok.*;
 
 import java.time.LocalDate;
 
-@Entity
+@Entity(name = "DailyPlaceReservation")
 @Table(name = "daily_place_reservation")
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class DailyPlaceReservation {
+public class DailyPlaceReservationEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,7 +20,7 @@ public class DailyPlaceReservation {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_id", nullable = false)
-    private Room room;
+    private RoomEntity room;
 
     @Column(nullable = false)
     private LocalDate date;
