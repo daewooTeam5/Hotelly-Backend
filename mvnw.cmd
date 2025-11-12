@@ -1,11 +1,11 @@
 <# : batch portion
 @REM ----------------------------------------------------------------------------
 @REM Licensed to the Apache Software Foundation (ASF) under one
-@REM or more contributor license agreements.  See the NOTICE file
+@REM or more contributor license agreements.  See the NOTICE fileEntity
 @REM distributed with this work for additional information
-@REM regarding copyright ownership.  The ASF licenses this file
+@REM regarding copyright ownership.  The ASF licenses this fileEntity
 @REM to you under the Apache License, Version 2.0 (the
-@REM "License"); you may not use this file except in compliance
+@REM "License"); you may not use this fileEntity except in compliance
 @REM with the License.  You may obtain a copy of the License at
 @REM
 @REM    http://www.apache.org/licenses/LICENSE-2.0
@@ -134,7 +134,7 @@ if ($env:MVNW_USERNAME -and $env:MVNW_PASSWORD) {
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 $webclient.DownloadFile($distributionUrl, "$TMP_DOWNLOAD_DIR/$distributionUrlName") | Out-Null
 
-# If specified, validate the SHA-256 sum of the Maven distribution zip file
+# If specified, validate the SHA-256 sum of the Maven distribution zip fileEntity
 $distributionSha256Sum = (Get-Content -Raw "$scriptDir/.mvn/wrapper/maven-wrapper.properties" | ConvertFrom-StringData).distributionSha256Sum
 if ($distributionSha256Sum) {
   if ($USE_MVND) {
