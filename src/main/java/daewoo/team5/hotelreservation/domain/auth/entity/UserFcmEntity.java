@@ -15,7 +15,8 @@ import lombok.Builder;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Entity
+@Entity(name = "userFcm")
+@Table(name = "user_fcm")
 public class UserFcmEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
