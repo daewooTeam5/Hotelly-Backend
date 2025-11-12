@@ -2,8 +2,8 @@
 package daewoo.team5.hotelreservation.domain.place.review.entity;
 
 import daewoo.team5.hotelreservation.domain.payment.entity.ReservationEntity;
-import daewoo.team5.hotelreservation.domain.place.entity.Places;
-import daewoo.team5.hotelreservation.domain.users.entity.Users;
+import daewoo.team5.hotelreservation.domain.place.entity.PlacesEntity;
+import daewoo.team5.hotelreservation.domain.users.entity.UsersEntity;
 import daewoo.team5.hotelreservation.global.core.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -26,11 +26,11 @@ public class Review extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "place_id", nullable = false)
-    private Places place;
+    private PlacesEntity place;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private Users user;
+    private UsersEntity user;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reservation_id", nullable = false, unique = true)
@@ -50,7 +50,7 @@ public class Review extends BaseTimeEntity {
     @OneToOne(mappedBy = "review", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private ReviewComment commentByOwner;
 
-    public static Review createReview(Places place, Users user, ReservationEntity reservation, Integer rating, String comment) {
+    public static Review createReview(PlacesEntity place, UsersEntity user, ReservationEntity reservation, Integer rating, String comment) {
         Review review = new Review();
         review.place = place;
         review.user = user;

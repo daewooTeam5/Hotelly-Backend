@@ -4,7 +4,7 @@ import daewoo.team5.hotelreservation.domain.payment.entity.PaymentEntity;
 import daewoo.team5.hotelreservation.domain.payment.entity.PaymentEntity.PaymentStatus;
 import daewoo.team5.hotelreservation.domain.payment.projection.*;
 import daewoo.team5.hotelreservation.domain.place.dto.ChartDataResponse;
-import daewoo.team5.hotelreservation.domain.place.entity.Places;
+import daewoo.team5.hotelreservation.domain.place.entity.PlacesEntity;
 import daewoo.team5.hotelreservation.domain.place.repository.projection.PaymentSummaryProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,7 +33,7 @@ public interface PaymentRepository extends JpaRepository<PaymentEntity, Long> {
     java.util.List<PaymentEntity> findAllByReservationIdOrderByTransactionDateDesc(Long reservationId);
 
     @Query("SELECT p FROM Places p WHERE p.owner.id = :ownerId")
-    Optional<Places> findByOwnerId(@Param("ownerId") Long ownerId);
+    Optional<PlacesEntity> findByOwnerId(@Param("ownerId") Long ownerId);
 
     Optional<PaymentEntity> findByOrderId(String orderId);
 

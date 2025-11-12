@@ -2,7 +2,7 @@ package daewoo.team5.hotelreservation.domain.file.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import daewoo.team5.hotelreservation.domain.users.entity.Users;
+import daewoo.team5.hotelreservation.domain.users.entity.UsersEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -44,5 +44,5 @@ public class FileEntity {
 
     @OneToOne(mappedBy = "profileImage", fetch = FetchType.LAZY)
     @JsonBackReference
-    private Users user;
+    private UsersEntity user;
 }

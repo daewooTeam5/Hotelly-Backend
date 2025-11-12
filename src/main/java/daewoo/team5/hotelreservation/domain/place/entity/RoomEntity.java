@@ -13,14 +13,14 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Room extends BaseTimeEntity {
+public class RoomEntity extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // 방 ID
 
     @ManyToOne
-    private Places place; // 숙소 ID (FK: Place 테이블)
+    private PlacesEntity place; // 숙소 ID (FK: Place 테이블)
 
     @Column(name = "room_type", length = 50, nullable = false)
     private String roomType; // 방 유형

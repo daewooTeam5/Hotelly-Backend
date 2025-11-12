@@ -1,16 +1,14 @@
 package daewoo.team5.hotelreservation.domain.shoppingcart.entity;
 
-import daewoo.team5.hotelreservation.domain.place.entity.Places;
-import daewoo.team5.hotelreservation.domain.place.entity.Room;
-import daewoo.team5.hotelreservation.domain.users.entity.Users;
+import daewoo.team5.hotelreservation.domain.place.entity.RoomEntity;
+import daewoo.team5.hotelreservation.domain.users.entity.UsersEntity;
 import daewoo.team5.hotelreservation.global.core.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 
-@Entity
+@Entity(name = "ShoppingCart")
 @Table(
         name = "shopping",   // 실제 DB 테이블명
         uniqueConstraints = {
@@ -22,7 +20,7 @@ import java.time.LocalTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ShoppingCart extends BaseTimeEntity {
+public class ShoppingCartEntity extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,11 +28,11 @@ public class ShoppingCart extends BaseTimeEntity {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private Users user;
+    private UsersEntity user;
 
     @ManyToOne
     @JoinColumn(name = "room_id", nullable = false)
-    private Room room;
+    private RoomEntity room;
 
     @Column(name = "check_in")
     private LocalDate startDate;

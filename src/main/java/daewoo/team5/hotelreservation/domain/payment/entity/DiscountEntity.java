@@ -1,6 +1,6 @@
 package daewoo.team5.hotelreservation.domain.payment.entity;
 
-import daewoo.team5.hotelreservation.domain.place.entity.Places;
+import daewoo.team5.hotelreservation.domain.place.entity.PlacesEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,5 +29,5 @@ public class DiscountEntity {
     private Integer discountValue;
     private Integer maxDiscountAmount;
     @ManyToOne
-    private Places place;
+    private PlacesEntity place;
 }

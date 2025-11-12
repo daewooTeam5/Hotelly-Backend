@@ -5,8 +5,8 @@ import daewoo.team5.hotelreservation.domain.place.dto.RoomDTO;
 import daewoo.team5.hotelreservation.domain.place.dto.RoomOwnerDTO;
 import daewoo.team5.hotelreservation.domain.place.dto.RoomUpdateDTO;
 import daewoo.team5.hotelreservation.domain.place.entity.Amenity;
-import daewoo.team5.hotelreservation.domain.place.entity.Places;
-import daewoo.team5.hotelreservation.domain.place.entity.Room;
+import daewoo.team5.hotelreservation.domain.place.entity.PlacesEntity;
+import daewoo.team5.hotelreservation.domain.place.entity.RoomEntity;
 import daewoo.team5.hotelreservation.domain.place.entity.RoomAmenityEntity;
 import daewoo.team5.hotelreservation.domain.place.repository.AmenityRepository;
 import daewoo.team5.hotelreservation.domain.place.repository.PlaceRepository;
@@ -41,7 +41,7 @@ public class RoomOwnerService {
     }
 
     public RoomOwnerDTO getRoom(Long ownerId, Long roomId) {
-        Room room = roomRepository.findByIdAndOwnerId(roomId, ownerId)
+        RoomEntity room = roomRepository.findByIdAndOwnerId(roomId, ownerId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 객실 유형을 찾을 수 없거나 권한이 없습니다."));
         return toDTO(room);
     }
@@ -49,17 +49,17 @@ public class RoomOwnerService {
     @Transactional
     public RoomDTO createRoom(Long ownerId, RoomUpdateDTO dto, List<MultipartFile> roomImages) {
         // ✅ ownerId로 Place 조회
-        Places place = placeRepository.findByOwner_Id(ownerId)
+        PlacesEntity place = placeRepository.findByOwner_Id(ownerId)
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "숙소 없음", "ownerId=" + ownerId));
 
         // ✅ Room 엔티티 생성
-        Room room = Room.builder()
+        RoomEntity room = RoomEntity.builder()
                 .roomType(dto.getRoomType())
                 .bedType(dto.getBedType())
                 .capacityPeople(dto.getCapacityPeople())
                 .capacityRoom(dto.getCapacityRoom())
                 .price(BigDecimal.valueOf(dto.getMinPrice()))
-                .status(Room.Status.AVAILABLE)
+                .status(RoomEntity.Status.AVAILABLE)
                 .place(place)  // 🔑 ownerId로 매핑된 place
                 .build();
         roomRepository.save(room);
@@ -101,7 +101,7 @@ public class RoomOwnerService {
 
 
     public RoomOwnerDTO updateRoom(Long ownerId, Long roomId, RoomOwnerDTO dto) {
-        Room room = roomRepository.findByIdAndOwnerId(roomId, ownerId)
+        RoomEntity room = roomRepository.findByIdAndOwnerId(roomId, ownerId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 객실 유형을 찾을 수 없거나 권한이 없습니다."));
 
         room.setRoomType(dto.getRoomType());
@@ -115,12 +115,12 @@ public class RoomOwnerService {
     }
 
     public void deleteRoom(Long ownerId, Long roomId) {
-        Room room = roomRepository.findByIdAndOwnerId(roomId, ownerId)
+        RoomEntity room = roomRepository.findByIdAndOwnerId(roomId, ownerId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 객실 유형을 찾을 수 없거나 권한이 없습니다."));
         roomRepository.delete(room);
     }
 
-    private RoomOwnerDTO toDTO(Room room) {
+    private RoomOwnerDTO toDTO(RoomEntity room) {
         return RoomOwnerDTO.builder()
                 .id(room.getId())
                 .placeId(room.getPlace().getId())
@@ -133,8 +133,8 @@ public class RoomOwnerService {
                 .build();
     }
 
-    private Room toEntity(RoomOwnerDTO dto, Places place) {
-        return Room.builder()
+    private RoomEntity toEntity(RoomOwnerDTO dto, PlacesEntity place) {
+        return RoomEntity.builder()
                 .place(place)
                 .roomType(dto.getRoomType())
                 .bedType(dto.getBedType())

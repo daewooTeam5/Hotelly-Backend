@@ -1,6 +1,6 @@
 package daewoo.team5.hotelreservation.domain.coupon.entity;
 
-import daewoo.team5.hotelreservation.domain.place.entity.Places;
+import daewoo.team5.hotelreservation.domain.place.entity.PlacesEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,7 +20,7 @@ public class CouponEntity {
     private Long id;   // 쿠폰 ID
 
     @ManyToOne
-    private Places place;  // 쿠폰 발급 숙소
+    private PlacesEntity place;  // 쿠폰 발급 숙소
 
     @Column(name = "coupon_name", length = 100, nullable = false)
     private String couponName; // 쿠폰명

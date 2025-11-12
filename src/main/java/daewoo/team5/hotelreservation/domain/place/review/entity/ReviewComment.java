@@ -1,6 +1,6 @@
 package daewoo.team5.hotelreservation.domain.place.review.entity;
 
-import daewoo.team5.hotelreservation.domain.users.entity.Users;
+import daewoo.team5.hotelreservation.domain.users.entity.UsersEntity;
 import daewoo.team5.hotelreservation.global.core.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -28,10 +28,10 @@ public class ReviewComment extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private Users user; // 댓글 작성자 (호텔 관리자)
+    private UsersEntity user; // 댓글 작성자 (호텔 관리자)
 
     @Builder
-    public ReviewComment(String comment, Review review, Users user) {
+    public ReviewComment(String comment, Review review, UsersEntity user) {
         this.comment = comment;
         this.review = review;
         this.user = user;

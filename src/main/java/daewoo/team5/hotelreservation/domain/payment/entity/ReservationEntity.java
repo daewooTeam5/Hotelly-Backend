@@ -1,6 +1,6 @@
 package daewoo.team5.hotelreservation.domain.payment.entity;
 
-import daewoo.team5.hotelreservation.domain.place.entity.Room;
+import daewoo.team5.hotelreservation.domain.place.entity.RoomEntity;
 import daewoo.team5.hotelreservation.global.core.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -29,7 +29,7 @@ public class ReservationEntity extends BaseTimeEntity {
     private GuestEntity guest;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    private Room room;
+    private RoomEntity room;
 
     @Column
     private Long resevAmount;

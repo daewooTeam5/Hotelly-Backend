@@ -2,8 +2,8 @@ package daewoo.team5.hotelreservation.domain.place.specification;
 
 import daewoo.team5.hotelreservation.domain.payment.entity.ReservationEntity;
 import daewoo.team5.hotelreservation.domain.place.dto.ReservationSearchRequest;
-import daewoo.team5.hotelreservation.domain.place.entity.Places;
-import daewoo.team5.hotelreservation.domain.place.entity.Room;
+import daewoo.team5.hotelreservation.domain.place.entity.PlacesEntity;
+import daewoo.team5.hotelreservation.domain.place.entity.RoomEntity;
 import daewoo.team5.hotelreservation.domain.payment.entity.GuestEntity;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
@@ -23,10 +23,10 @@ public class ReservationSpecification {
             Join<ReservationEntity, GuestEntity> guest = root.join("guest", JoinType.LEFT);
 
             // Join: Room
-            Join<ReservationEntity, Room> room = root.join("room", JoinType.LEFT);
+            Join<ReservationEntity, RoomEntity> room = root.join("room", JoinType.LEFT);
 
             // Join: Place (room → place)
-            Join<Room, Places> place = room.join("place", JoinType.LEFT);
+            Join<RoomEntity, PlacesEntity> place = room.join("place", JoinType.LEFT);
 
             // 소유자(ownerId)
             predicates.add(cb.equal(place.get("owner").get("id"), ownerId));

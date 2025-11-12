@@ -1,6 +1,6 @@
 package daewoo.team5.hotelreservation.domain.payment.entity;
 
-import daewoo.team5.hotelreservation.domain.users.entity.Users;
+import daewoo.team5.hotelreservation.domain.users.entity.UsersEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,7 +21,7 @@ public class PointHistoryEntity {
     private Long id; // 포인트 내역 ID
 
     @ManyToOne
-    private Users user; // 지급받은 유저 ID
+    private UsersEntity user; // 지급받은 유저 ID
 
     @ManyToOne
     private ReservationEntity reservation; // 예약 ID (null 가능)

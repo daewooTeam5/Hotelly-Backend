@@ -1,6 +1,6 @@
 package daewoo.team5.hotelreservation.domain.users.dto.request;
 
-import daewoo.team5.hotelreservation.domain.users.entity.Users;
+import daewoo.team5.hotelreservation.domain.users.entity.UsersEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,8 +14,8 @@ public class UserResponse {
     private String email;
     private String name;
     private String phone;
-    private Users.Role role;
-    private Users.Status status;
+    private UsersEntity.Role role;
+    private UsersEntity.Status status;
     private Long point;
 
 

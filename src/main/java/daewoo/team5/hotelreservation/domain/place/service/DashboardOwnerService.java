@@ -1,7 +1,7 @@
 package daewoo.team5.hotelreservation.domain.place.service;
 
 import daewoo.team5.hotelreservation.domain.place.dto.*;
-import daewoo.team5.hotelreservation.domain.place.entity.Room;
+import daewoo.team5.hotelreservation.domain.place.entity.RoomEntity;
 import daewoo.team5.hotelreservation.domain.place.repository.DailyPlaceReservationRepository;
 import daewoo.team5.hotelreservation.domain.place.repository.PlaceRepository;
 import daewoo.team5.hotelreservation.domain.place.repository.ReservationRepository;
@@ -59,12 +59,12 @@ public class DashboardOwnerService {
     public OccupancyRateDTO getOccupancyRate(Long ownerId) {
         LocalDate today = LocalDate.now();
 
-        List<Room> rooms = roomRepository.findAllByOwnerId(ownerId);
+        List<RoomEntity> rooms = roomRepository.findAllByOwnerId(ownerId);
 
         int totalRooms = 0;
         int usedRooms = 0;
 
-        for (Room room : rooms) {
+        for (RoomEntity room : rooms) {
             int capacity = room.getCapacityRoom(); // 총 객실 수
             int available = dailyPlaceReservationRepository
                     .findByRoomIdAndDate(room.getId(), today)

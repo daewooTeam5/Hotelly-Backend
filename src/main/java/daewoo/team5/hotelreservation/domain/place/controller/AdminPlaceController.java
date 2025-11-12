@@ -1,18 +1,16 @@
 package daewoo.team5.hotelreservation.domain.place.controller;
 
-import daewoo.team5.hotelreservation.domain.place.entity.Places;
+import daewoo.team5.hotelreservation.domain.place.entity.PlacesEntity;
 import daewoo.team5.hotelreservation.domain.place.projection.AdminPlaceProjection;
 import daewoo.team5.hotelreservation.domain.place.service.PlaceDetailService;
 import daewoo.team5.hotelreservation.domain.place.service.PlaceService;
-import daewoo.team5.hotelreservation.domain.users.entity.Users;
-import daewoo.team5.hotelreservation.domain.users.projection.UserProjection;
+import daewoo.team5.hotelreservation.domain.users.entity.UsersEntity;
 import daewoo.team5.hotelreservation.domain.users.repository.UsersRepository;
 import daewoo.team5.hotelreservation.global.core.common.ApiResult;
 import daewoo.team5.hotelreservation.global.exception.ApiException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -37,9 +35,9 @@ public class AdminPlaceController {
         System.out.println("principal = " + principal);
         System.out.println("principal class = " + principal.getClass().getName());
         if (principal instanceof Long userId) {
-            Users user = usersRepository.findById(userId)
+            UsersEntity user = usersRepository.findById(userId)
                     .orElseThrow(() -> new ApiException(404, "존재하지 않는 유저", "유저가 존재하지 않습니다."));
-            if (user.getStatus() != Users.Status.active) {
+            if (user.getStatus() != UsersEntity.Status.active) {
                 throw new ApiException(403, "승인 필요", "관리자 승인이 필요합니다.");
             }
         }
@@ -52,25 +50,25 @@ public class AdminPlaceController {
 
     @PatchMapping("/{placeId}/approve")
     public ApiResult<?> approvePlace(@PathVariable Long placeId) {
-        placeService.updatePlaceStatus(placeId, Places.Status.APPROVED);
+        placeService.updatePlaceStatus(placeId, PlacesEntity.Status.APPROVED);
         return ApiResult.ok(null, "숙소 승인 성공!!");
     }
 
     @PatchMapping("/{placeId}/reject")
     public ApiResult<?> rejectPlace(@PathVariable Long placeId) {
-        placeService.updatePlaceStatus(placeId, Places.Status.REJECTED);
+        placeService.updatePlaceStatus(placeId, PlacesEntity.Status.REJECTED);
         return ApiResult.ok(null, "숙소 거절 성공!!");
     }
 
     @PatchMapping("/{placeId}/pending")
     public ApiResult<?> pendingPlace(@PathVariable Long placeId) {
-        placeService.updatePlaceStatus(placeId, Places.Status.PENDING);
+        placeService.updatePlaceStatus(placeId, PlacesEntity.Status.PENDING);
         return ApiResult.ok(null, "숙소 승인 성공!!");
     }
 
     @PatchMapping("/{placeId}/inactive")
     public ApiResult<?> inactivePlace(@PathVariable Long placeId) {
-        placeService.updatePlaceStatus(placeId, Places.Status.INACTIVE);
+        placeService.updatePlaceStatus(placeId, PlacesEntity.Status.INACTIVE);
         return ApiResult.ok(null, "숙소 거절 성공!!");
     }
 

@@ -1,6 +1,6 @@
 package daewoo.team5.hotelreservation.domain.place.dto;
 
-import daewoo.team5.hotelreservation.domain.place.entity.Room;
+import daewoo.team5.hotelreservation.domain.place.entity.RoomEntity;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -18,5 +18,5 @@ public class RoomOwnerDTO {
     private Integer capacityPeople;
     private Integer capacityRoom;
     private BigDecimal price;
-    private Room.Status status;
+    private RoomEntity.Status status;
 }

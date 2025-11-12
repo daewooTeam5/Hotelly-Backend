@@ -1,7 +1,6 @@
 package daewoo.team5.hotelreservation.domain.place.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
@@ -20,7 +19,7 @@ public class RoomAmenityEntity {
     private Long id;
 
     @ManyToOne
-    private Room room;
+    private RoomEntity room;
 
     @ManyToOne
     private Amenity amenity;

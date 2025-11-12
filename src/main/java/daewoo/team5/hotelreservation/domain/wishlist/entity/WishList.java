@@ -1,14 +1,11 @@
 package daewoo.team5.hotelreservation.domain.wishlist.entity;
 
-import daewoo.team5.hotelreservation.domain.place.entity.Places;
-import daewoo.team5.hotelreservation.domain.users.entity.Users;
+import daewoo.team5.hotelreservation.domain.place.entity.PlacesEntity;
+import daewoo.team5.hotelreservation.domain.users.entity.UsersEntity;
 import daewoo.team5.hotelreservation.global.core.common.BaseTimeEntity;
 import jakarta.persistence.*;
-import jdk.jfr.Timestamp;
 import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
 
-import java.time.LocalDateTime;
 @Entity
 @Table(
         name = "wishlist",   // 실제 DB 테이블명
@@ -29,9 +26,9 @@ public class WishList extends BaseTimeEntity {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private Users user;
+    private UsersEntity user;
 
     @ManyToOne
     @JoinColumn(name = "place_id", nullable = false)
-    private Places place;
+    private PlacesEntity place;
 }

@@ -1,6 +1,5 @@
 package daewoo.team5.hotelreservation.domain.auth.dto;
 
-import daewoo.team5.hotelreservation.domain.users.entity.Users;
 import daewoo.team5.hotelreservation.domain.users.projection.UserProjection;
 import lombok.Getter;
 import lombok.Setter;

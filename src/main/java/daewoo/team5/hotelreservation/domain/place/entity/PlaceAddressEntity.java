@@ -5,14 +5,14 @@ import lombok.*;
 
 import java.math.BigDecimal;
 
-@Entity
+@Entity(name = "PlaceAddress")
 @Table(name = "place_address")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PlaceAddress {
+public class PlaceAddressEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,7 +20,7 @@ public class PlaceAddress {
 
     @OneToOne
     @JoinColumn(name = "place_id", nullable = false, unique = true)
-    private Places place; // 숙소 (FK: Places 테이블)
+    private PlacesEntity place; // 숙소 (FK: Places 테이블)
 
     @Column(name = "postal_code", length = 5, nullable = false)
     private String postalCode; // 우편번호

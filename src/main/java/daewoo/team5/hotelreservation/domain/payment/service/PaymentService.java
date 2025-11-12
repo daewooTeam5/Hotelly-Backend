@@ -20,12 +20,12 @@ import daewoo.team5.hotelreservation.domain.payment.projection.*;
 import daewoo.team5.hotelreservation.domain.payment.repository.GuestRepository;
 import daewoo.team5.hotelreservation.domain.payment.repository.PaymentHistoryRepository;
 import daewoo.team5.hotelreservation.domain.payment.repository.PointHistoryRepository;
-import daewoo.team5.hotelreservation.domain.place.entity.DailyPlaceReservation;
-import daewoo.team5.hotelreservation.domain.place.entity.Places;
-import daewoo.team5.hotelreservation.domain.place.entity.Room;
+import daewoo.team5.hotelreservation.domain.place.entity.DailyPlaceReservationEntity;
+import daewoo.team5.hotelreservation.domain.place.entity.PlacesEntity;
+import daewoo.team5.hotelreservation.domain.place.entity.RoomEntity;
 import daewoo.team5.hotelreservation.domain.place.repository.*;
 import daewoo.team5.hotelreservation.domain.place.repository.projection.PaymentSummaryProjection;
-import daewoo.team5.hotelreservation.domain.users.entity.Users;
+import daewoo.team5.hotelreservation.domain.users.entity.UsersEntity;
 import daewoo.team5.hotelreservation.domain.users.projection.MyInfoProjection;
 import daewoo.team5.hotelreservation.domain.users.projection.UserProjection;
 import daewoo.team5.hotelreservation.domain.users.repository.UsersRepository;
@@ -76,7 +76,7 @@ public class PaymentService {
 
     @Transactional(readOnly = true)
     public Page<PaymentSummaryProjection> getPaymentsByUser(UserProjection user, int page) {
-        Users users = usersRepository.findById(user.getId())
+        UsersEntity users = usersRepository.findById(user.getId())
                 .orElseThrow(UserNotFoundException::new);
 
         Optional<GuestEntity> guestEntityOpt = guestRepository.findByUsersId(users.getId());
@@ -136,7 +136,7 @@ public class PaymentService {
             }
             // 로그인 한 유저이면서 포인트 사용 금액이 0원이 아닐경우 포인트 차감기록에 추가
             if (user != null && reservation.getPointDiscountAmount() != 0) {
-                Users users = usersRepository.findById(user.getId()).orElseThrow(UserNotFoundException::new);
+                UsersEntity users = usersRepository.findById(user.getId()).orElseThrow(UserNotFoundException::new);
                 long balanceAfter = users.getPoint() - reservation.getPointDiscountAmount();
                 pointHistoryRepository.save(
                         PointHistoryEntity.builder()
@@ -222,7 +222,7 @@ public class PaymentService {
             if (loginGuest.isEmpty()) {
                 log.info("guest is empty");
                 // 없을 경우 guest 에 유저 연결 후 저장
-                Users users = usersRepository.findById(user.getId())
+                UsersEntity users = usersRepository.findById(user.getId())
                         .orElseThrow(UserNotFoundException::new);
                 GuestEntity guest = guestRepository.save(
                         GuestEntity.builder()
@@ -243,22 +243,22 @@ public class PaymentService {
     @Transactional
     public ReservationEntity reservationPlace(UserProjection user, ReservationRequestDto dto) {
         GuestEntity guest = getGuest(user, dto.getEmail(), dto.getFirstName(), dto.getLastName(), dto.getPhone());
-        Room room = roomRepository.findById(dto.getRoomId())
+        RoomEntity room = roomRepository.findById(dto.getRoomId())
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "존재 하지 않는 방입니다.", "존재하지 않는 방입니다."));
-        Places places = placeRepository.findById(room.getPlace().getId()).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "존재 하지 않는 숙소입니다.", "존재하지 않는 숙소입니다."));
+        PlacesEntity places = placeRepository.findById(room.getPlace().getId()).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "존재 하지 않는 숙소입니다.", "존재하지 않는 숙소입니다."));
         LocalDate checkin = dto.getCheckIn();
         LocalDate checkout = dto.getCheckOut();
 
         // 선점형 예약 방식
         // 날짜별로 객실수가 0개가 있는지 확인 -> 있으면 예약 불가
         for (LocalDate date = checkin; !date.isAfter(checkout.minusDays(1)); date = date.plusDays(1)) {
-            Optional<DailyPlaceReservation> byRoomIdAndDate = dailyPlaceReservationRepository.findByRoomIdAndDate(dto.getRoomId(), date);
+            Optional<DailyPlaceReservationEntity> byRoomIdAndDate = dailyPlaceReservationRepository.findByRoomIdAndDate(dto.getRoomId(), date);
             if (byRoomIdAndDate.isEmpty()) {
                 if (dto.getRoomCount() > room.getCapacityRoom()) {
                     throw new ApiException(HttpStatus.BAD_REQUEST, "예약 불가", "선택하신 객실의 최대 예약 가능 인원을 초과하였습니다. 인원수를 확인해주세요.");
                 }
                 dailyPlaceReservationRepository.save(
-                        DailyPlaceReservation.builder()
+                        DailyPlaceReservationEntity.builder()
                                 .room(room)
                                 .date(date)
                                 .availableRoom(room.getCapacityRoom() - dto.getRoomCount())

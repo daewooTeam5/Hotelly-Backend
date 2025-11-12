@@ -1,7 +1,6 @@
 package daewoo.team5.hotelreservation.domain.users.repository;
 
-import daewoo.team5.hotelreservation.domain.place.review.entity.Review;
-import daewoo.team5.hotelreservation.domain.users.entity.Users;
+import daewoo.team5.hotelreservation.domain.users.entity.UsersEntity;
 import daewoo.team5.hotelreservation.domain.users.projection.MyInfoProjection;
 import daewoo.team5.hotelreservation.domain.users.projection.UserProjection;
 import io.lettuce.core.dynamic.annotation.Param;
@@ -15,18 +14,18 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-public interface UsersRepository extends JpaRepository<Users, Long> {
-    Optional<Users> findByNameAndPassword(String username, String password);
+public interface UsersRepository extends JpaRepository<UsersEntity, Long> {
+    Optional<UsersEntity> findByNameAndPassword(String username, String password);
 
-    Optional<Users> findByName(String username);
+    Optional<UsersEntity> findByName(String username);
 
-    Optional<Users> findByEmail(String email);
+    Optional<UsersEntity> findByEmail(String email);
 
-    Optional<Users> findByEmailAndUserType(String email, Users.UserType userType);
+    Optional<UsersEntity> findByEmailAndUserType(String email, UsersEntity.UserType userType);
 
-    Optional<Users> findByUserId(String userId);
+    Optional<UsersEntity> findByUserId(String userId);
 
-    Optional<Users> findByUserIdAndUserType(String userId, Users.UserType userType);
+    Optional<UsersEntity> findByUserIdAndUserType(String userId, UsersEntity.UserType userType);
 
     Optional<UserProjection> findProjectedById(Long id);
 

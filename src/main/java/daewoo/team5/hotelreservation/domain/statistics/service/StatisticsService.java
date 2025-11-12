@@ -2,8 +2,8 @@ package daewoo.team5.hotelreservation.domain.statistics.service;
 
 import daewoo.team5.hotelreservation.domain.payment.entity.PaymentEntity;
 import daewoo.team5.hotelreservation.domain.place.dto.ReservationStatsDTO;
-import daewoo.team5.hotelreservation.domain.place.entity.DailyPlaceReservation;
-import daewoo.team5.hotelreservation.domain.place.entity.Room;
+import daewoo.team5.hotelreservation.domain.place.entity.DailyPlaceReservationEntity;
+import daewoo.team5.hotelreservation.domain.place.entity.RoomEntity;
 import daewoo.team5.hotelreservation.domain.place.repository.DailyPlaceReservationRepository;
 import daewoo.team5.hotelreservation.domain.place.repository.PaymentRepository;
 import daewoo.team5.hotelreservation.domain.place.repository.ReservationRepository;
@@ -316,13 +316,13 @@ public class StatisticsService {
     }
 
     public List<DailyAvailabilityDTO> getAvailability(Long ownerId) {
-        List<Room> rooms = roomRepository.findAllByOwnerId(ownerId);
+        List<RoomEntity> rooms = roomRepository.findAllByOwnerId(ownerId);
 
         // DailyPlaceReservation 전체 조회
-        List<DailyPlaceReservation> reservations = dailyPlaceReservationRepository.findAll();
+        List<DailyPlaceReservationEntity> reservations = dailyPlaceReservationRepository.findAll();
 
         // roomId + date 기준으로 map 구성
-        Map<String, DailyPlaceReservation> dprMap = reservations.stream()
+        Map<String, DailyPlaceReservationEntity> dprMap = reservations.stream()
                 .collect(Collectors.toMap(
                         d -> d.getRoom().getId() + "_" + d.getDate(),
                         d -> d
@@ -330,15 +330,15 @@ public class StatisticsService {
 
         Map<LocalDate, List<RoomAvailabilityDTO>> availabilityMap = new HashMap<>();
 
-        for (Room room : rooms) {
+        for (RoomEntity room : rooms) {
             // DailyPlaceReservation이 기록된 모든 날짜 가져오기
             Set<LocalDate> dates = reservations.stream()
-                    .map(DailyPlaceReservation::getDate)
+                    .map(DailyPlaceReservationEntity::getDate)
                     .collect(Collectors.toSet());
 
             for (LocalDate date : dates) {
                 String key = room.getId() + "_" + date;
-                DailyPlaceReservation dpr = dprMap.get(key);
+                DailyPlaceReservationEntity dpr = dprMap.get(key);
 
                 int total = room.getCapacityRoom();
                 int available = (dpr != null) ? dpr.getAvailableRoom() : total;

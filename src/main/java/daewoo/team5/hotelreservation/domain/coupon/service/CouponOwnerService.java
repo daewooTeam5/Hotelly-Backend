@@ -5,7 +5,7 @@ import daewoo.team5.hotelreservation.domain.coupon.entity.CouponEntity;
 import daewoo.team5.hotelreservation.domain.coupon.entity.CouponHistoryEntity;
 import daewoo.team5.hotelreservation.domain.coupon.repository.CouponHistoryRepository;
 import daewoo.team5.hotelreservation.domain.coupon.repository.CouponRepository;
-import daewoo.team5.hotelreservation.domain.place.entity.Places;
+import daewoo.team5.hotelreservation.domain.place.entity.PlacesEntity;
 import daewoo.team5.hotelreservation.domain.place.repository.PlaceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
@@ -33,7 +33,7 @@ public class CouponOwnerService {
 
     /**  쿠폰 목록 조회 */
     public Page<CouponListDto> getCoupons(Long ownerId, Pageable pageable) {
-        Places place = placeRepository.findByOwner_Id(ownerId)
+        PlacesEntity place = placeRepository.findByOwner_Id(ownerId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 관리자의 숙소를 찾을 수 없습니다."));
 
         boolean sortByUsedCount = pageable.getSort().stream()
@@ -126,7 +126,7 @@ public class CouponOwnerService {
     /**  쿠폰 생성 */
     @Transactional
     public Long createCoupon(Long ownerId, CouponCreateDto dto) {
-        Places place = placeRepository.findByOwner_Id(ownerId)
+        PlacesEntity place = placeRepository.findByOwner_Id(ownerId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 관리자의 숙소를 찾을 수 없습니다."));
 
         LocalDate expiredDate = LocalDate.parse(dto.getExpiredAt());

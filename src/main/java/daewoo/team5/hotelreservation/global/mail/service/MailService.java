@@ -37,6 +37,7 @@ import java.util.Base64;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Deprecated
 public class MailService {
     private final JavaMailSender javaMailSender;
     private final ReservationRepository reservationRepository; // ReservationRepository 주입

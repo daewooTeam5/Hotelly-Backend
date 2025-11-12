@@ -27,7 +27,7 @@ public class OwnerRequestEntity extends BaseTimeEntity {
     private LocalDateTime decisionAt; // 승인/거절 일시
 
     @ManyToOne
-    private Users user; // 요청자 ID (FK)
+    private UsersEntity user; // 요청자 ID (FK)
 
     @Enumerated(EnumType.STRING)
     @Column

@@ -1,6 +1,6 @@
 package daewoo.team5.hotelreservation.redis;
 
-import daewoo.team5.hotelreservation.domain.place.entity.Places;
+import daewoo.team5.hotelreservation.domain.place.entity.PlacesEntity;
 import daewoo.team5.hotelreservation.domain.place.entity.RegionEntity;
 import daewoo.team5.hotelreservation.domain.place.repository.PlaceRepository;
 import daewoo.team5.hotelreservation.domain.place.repository.RegionRepository;
@@ -34,8 +34,8 @@ public class AutoCompleteDataLoader implements CommandLineRunner {
         }
 
         // 2) 숙소명 데이터
-        List<Places> places = placeRepository.findAll();
-        for (Places p : places) {
+        List<PlacesEntity> places = placeRepository.findAll();
+        for (PlacesEntity p : places) {
             redisService.saveKeyword(p.getName());
         }
 

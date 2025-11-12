@@ -1,6 +1,6 @@
 package daewoo.team5.hotelreservation.domain.users.controller;
 import daewoo.team5.hotelreservation.domain.users.dto.request.UserResponse;
-import daewoo.team5.hotelreservation.domain.users.entity.Users;
+import daewoo.team5.hotelreservation.domain.users.entity.UsersEntity;
 import daewoo.team5.hotelreservation.domain.users.repository.UsersRepository;
 import daewoo.team5.hotelreservation.domain.users.service.UsersService;
 import daewoo.team5.hotelreservation.global.core.common.ApiResult;
@@ -30,9 +30,9 @@ public class UserAdminController {
         System.out.println("principal class = " + principal.getClass().getName());
 
         if (principal instanceof Long userId) {
-            Users user = usersRepository.findById(userId)
+            UsersEntity user = usersRepository.findById(userId)
                     .orElseThrow(() -> new ApiException(404, "존재하지 않는 유저", "유저가 존재하지 않습니다."));
-            if (user.getStatus() != Users.Status.active) {
+            if (user.getStatus() != UsersEntity.Status.active) {
                 throw new ApiException(403, "승인 필요", "관리자 승인이 필요합니다.");
             }
         }

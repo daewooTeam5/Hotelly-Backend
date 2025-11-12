@@ -2,15 +2,12 @@ package daewoo.team5.hotelreservation.domain.place.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import daewoo.team5.hotelreservation.domain.place.dto.RoomDTO;
 import daewoo.team5.hotelreservation.domain.place.dto.RoomOwnerDTO;
 import daewoo.team5.hotelreservation.domain.place.dto.RoomUpdateDTO;
 import daewoo.team5.hotelreservation.domain.place.service.RoomOwnerService;
-import daewoo.team5.hotelreservation.domain.users.entity.Users;
 import daewoo.team5.hotelreservation.domain.users.projection.UserProjection;
 import daewoo.team5.hotelreservation.domain.users.repository.UsersRepository;
 import daewoo.team5.hotelreservation.global.aop.annotation.AuthUser;
-import daewoo.team5.hotelreservation.global.core.common.ApiResult;
 import daewoo.team5.hotelreservation.global.exception.ApiException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @RestController
