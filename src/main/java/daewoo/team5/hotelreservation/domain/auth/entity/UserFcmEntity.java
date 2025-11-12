@@ -1,5 +1,6 @@
 package daewoo.team5.hotelreservation.domain.auth.entity;
 
+import daewoo.team5.hotelreservation.domain.notification.entity.NotificationEntity;
 import daewoo.team5.hotelreservation.domain.users.entity.Users;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -24,4 +25,16 @@ public class UserFcmEntity {
     private Users user;
 
     private String token;
+
+    private Boolean isSubscribed;
+
+    @Column
+    @Enumerated(EnumType.STRING)
+    private DeviceType deviceType;
+
+    public enum DeviceType {
+        WEB,
+        ANDROID,
+        IOS
+    }
 }
