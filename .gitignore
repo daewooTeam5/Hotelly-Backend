@@ -41,3 +41,5 @@ config/firebase-service.json
 .DS_Store
 
 logs/*
+
+.env
