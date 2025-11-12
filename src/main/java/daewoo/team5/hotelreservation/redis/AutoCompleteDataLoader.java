@@ -1,7 +1,7 @@
 package daewoo.team5.hotelreservation.redis;
 
 import daewoo.team5.hotelreservation.domain.place.entity.Places;
-import daewoo.team5.hotelreservation.domain.place.entity.Region;
+import daewoo.team5.hotelreservation.domain.place.entity.RegionEntity;
 import daewoo.team5.hotelreservation.domain.place.repository.PlaceRepository;
 import daewoo.team5.hotelreservation.domain.place.repository.RegionRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,8 +20,8 @@ public class AutoCompleteDataLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        List<Region> regions = regionRepository.findAll();
-        for (Region r : regions) {
+        List<RegionEntity> regions = regionRepository.findAll();
+        for (RegionEntity r : regions) {
             if (r.getSido() != null) {
                 redisService.saveKeyword(r.getSido());
             }

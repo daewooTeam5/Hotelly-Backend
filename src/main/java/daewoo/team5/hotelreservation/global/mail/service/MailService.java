@@ -4,7 +4,7 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.qrcode.QRCodeWriter;
-import daewoo.team5.hotelreservation.domain.payment.entity.Reservation;
+import daewoo.team5.hotelreservation.domain.payment.entity.ReservationEntity;
 import daewoo.team5.hotelreservation.domain.payment.projection.PaymentDetailProjection;
 import daewoo.team5.hotelreservation.domain.place.repository.ReservationRepository;
 import daewoo.team5.hotelreservation.global.exception.ApiException;
@@ -78,7 +78,7 @@ public class MailService {
 
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH시 mm분");
 
-            Reservation reservation = reservationRepository.findById(paymentDetail.getReservationId())
+            ReservationEntity reservation = reservationRepository.findById(paymentDetail.getReservationId())
                     .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "예약 정보를 찾을 수 없습니다.", "이메일 발송 중 예약 정보를 찾지 못했습니다."));
 
             boolean isMember = reservation.getGuest().getUsers() != null;

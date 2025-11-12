@@ -1,7 +1,7 @@
 // src/main/java/daewoo/team5/hotelreservation/domain/place/review/service/ReviewService.java
 package daewoo.team5.hotelreservation.domain.place.review.service;
 
-import daewoo.team5.hotelreservation.domain.payment.entity.Reservation;
+import daewoo.team5.hotelreservation.domain.payment.entity.ReservationEntity;
 import daewoo.team5.hotelreservation.domain.payment.repository.GuestRepository;
 import daewoo.team5.hotelreservation.domain.place.entity.Places;
 import daewoo.team5.hotelreservation.domain.place.repository.PlaceRepository;
@@ -10,7 +10,6 @@ import daewoo.team5.hotelreservation.domain.place.review.dto.*;
 import daewoo.team5.hotelreservation.domain.place.review.entity.Review;
 import daewoo.team5.hotelreservation.domain.place.review.entity.ReviewComment;
 import daewoo.team5.hotelreservation.domain.place.review.entity.ReviewImage;
-import daewoo.team5.hotelreservation.domain.place.review.projection.ReviewCommentProjection;
 import daewoo.team5.hotelreservation.domain.place.review.projection.ReviewImageProjection;
 import daewoo.team5.hotelreservation.domain.place.review.projection.ReviewProjection;
 import daewoo.team5.hotelreservation.domain.place.review.repository.ReviewImageRepository;
@@ -52,7 +51,7 @@ public class ReviewService {
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "게스트 정보를 찾을 수 없습니다.", "게스트 정보가 존재하지 않습니다."));
 
         // ✅ [수정] 요청받은 reservationId로 예약 정보를 직접 조회
-        Reservation reservation = reservationRepository.findById(request.getReservationId())
+        ReservationEntity reservation = reservationRepository.findById(request.getReservationId())
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "예약 정보를 찾을 수 없습니다.","예약 정보를 찾을 수 없습니다."));
 
         // === 리뷰 작성 권한 검증 ===
@@ -65,7 +64,7 @@ public class ReviewService {
         if (reviewRepository.existsByReservationReservationId(reservation.getReservationId())) {
             throw new ApiException(HttpStatus.CONFLICT, "리뷰 중복", "이미 해당 예약에 대한 리뷰를 작성하셨습니다.");
         }
-        if (reservation.getStatus() != Reservation.ReservationStatus.checked_out) {
+        if (reservation.getStatus() != ReservationEntity.ReservationStatus.checked_out) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "리뷰 작성 불가", "체크아웃이 완료된 예약에 대해서만 리뷰를 작성할 수 있습니다.");
         }
 

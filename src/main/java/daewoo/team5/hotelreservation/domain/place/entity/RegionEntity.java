@@ -3,14 +3,14 @@ package daewoo.team5.hotelreservation.domain.place.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Entity
+@Entity(name = "Region")
 @Table(name = "regions")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Region {
+public class RegionEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

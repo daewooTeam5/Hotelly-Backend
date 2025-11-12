@@ -5,7 +5,7 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Entity
+@Entity(name = "Payment")
 @Table(name = "payments")
 @Getter
 @Setter
@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @ToString
 @Builder
-public class Payment {
+public class PaymentEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,7 +21,7 @@ public class Payment {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "reservation_id", nullable = false)
-    private Reservation reservation;
+    private ReservationEntity reservation;
 
     @Column
     private String orderId;

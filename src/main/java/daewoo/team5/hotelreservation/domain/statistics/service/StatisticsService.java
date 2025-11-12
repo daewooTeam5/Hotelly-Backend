@@ -1,6 +1,6 @@
 package daewoo.team5.hotelreservation.domain.statistics.service;
 
-import daewoo.team5.hotelreservation.domain.payment.entity.Payment;
+import daewoo.team5.hotelreservation.domain.payment.entity.PaymentEntity;
 import daewoo.team5.hotelreservation.domain.place.dto.ReservationStatsDTO;
 import daewoo.team5.hotelreservation.domain.place.entity.DailyPlaceReservation;
 import daewoo.team5.hotelreservation.domain.place.entity.Room;
@@ -165,7 +165,7 @@ public class StatisticsService {
 
         return results.stream()
                 .map(row -> new PaymentMethodStatsDTO(
-                        Enum.valueOf(Payment.PaymentMethod.class, row[0].toString()),
+                        Enum.valueOf(PaymentEntity.PaymentMethod.class, row[0].toString()),
                         ((Number) row[1]).longValue(),
                         ((Number) row[2]).longValue()
                 ))

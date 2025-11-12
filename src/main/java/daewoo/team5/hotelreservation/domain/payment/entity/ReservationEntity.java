@@ -8,7 +8,7 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-@Entity
+@Entity(name = "Reservation")
 @Table(name = "reservations")
 @Getter
 @Setter
@@ -16,7 +16,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @ToString
 @Builder
-public class Reservation extends BaseTimeEntity {
+public class ReservationEntity extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

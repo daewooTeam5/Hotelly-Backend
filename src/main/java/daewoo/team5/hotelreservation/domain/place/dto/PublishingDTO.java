@@ -1,7 +1,7 @@
 package daewoo.team5.hotelreservation.domain.place.dto;
 
 
-import daewoo.team5.hotelreservation.domain.place.entity.*;
+import daewoo.team5.hotelreservation.domain.file.entity.FileEntity;
 
 import lombok.*;
 
@@ -34,7 +34,7 @@ public class PublishingDTO {
 
     private List<String> images; // Base64 인코딩된 문자열 리스트
 
-    private List<File> placeImages;
+    private List<FileEntity> placeImages;
 
     private List<Long> amenityIds; // 편의시설 이름 리스트
 

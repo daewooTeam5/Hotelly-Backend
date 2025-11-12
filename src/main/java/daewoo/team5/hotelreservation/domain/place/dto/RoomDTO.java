@@ -1,10 +1,8 @@
 package daewoo.team5.hotelreservation.domain.place.dto;
 
-import daewoo.team5.hotelreservation.domain.place.dto.BedDTO;
-import daewoo.team5.hotelreservation.domain.place.entity.File;
+import daewoo.team5.hotelreservation.domain.file.entity.FileEntity;
 import lombok.*;
 
-import java.time.LocalTime;
 import java.util.List;
 
 @Getter
@@ -33,7 +31,7 @@ public class RoomDTO {
 
     private List<FileDTO> images;
 
-    private List<File> roomImages;
+    private List<FileEntity> roomImages;
 
     private List<Long> amenityIds;
 

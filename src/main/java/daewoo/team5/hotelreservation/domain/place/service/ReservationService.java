@@ -14,7 +14,7 @@ import daewoo.team5.hotelreservation.domain.notification.repository.Notification
 
 import daewoo.team5.hotelreservation.domain.payment.dto.TossCancelResponse;
 import daewoo.team5.hotelreservation.domain.payment.entity.GuestEntity;
-import daewoo.team5.hotelreservation.domain.payment.entity.Payment;
+import daewoo.team5.hotelreservation.domain.payment.entity.PaymentEntity;
 import daewoo.team5.hotelreservation.domain.payment.projection.NonMemberReservationDetailProjection;
 import daewoo.team5.hotelreservation.domain.payment.projection.PaymentProjection;
 import daewoo.team5.hotelreservation.domain.payment.entity.PointHistoryEntity;
@@ -28,7 +28,7 @@ import daewoo.team5.hotelreservation.domain.place.entity.DailyPlaceReservation;
 import daewoo.team5.hotelreservation.domain.place.entity.Places;
 import daewoo.team5.hotelreservation.domain.place.repository.*;
 import daewoo.team5.hotelreservation.domain.place.specification.ReservationSpecification;
-import daewoo.team5.hotelreservation.domain.payment.entity.Reservation;
+import daewoo.team5.hotelreservation.domain.payment.entity.ReservationEntity;
 import daewoo.team5.hotelreservation.domain.users.entity.Users;
 import daewoo.team5.hotelreservation.domain.users.projection.UserProjection;
 import daewoo.team5.hotelreservation.domain.users.repository.UsersRepository;
@@ -87,7 +87,7 @@ public class ReservationService {
     }
     // ===================== 변환 메서드 =====================
 
-    private ReservationListDTO toListDTO(Reservation r) {
+    private ReservationListDTO toListDTO(ReservationEntity r) {
         return ReservationListDTO.builder()
                 .reservationId(r.getReservationId())
                 .orderId(r.getOrderId())
@@ -107,8 +107,8 @@ public class ReservationService {
                 .build();
     }
 
-    private ReservationDetailDTO toDetailDTO(Reservation r) {
-        Optional<Payment> paymentOpt =
+    private ReservationDetailDTO toDetailDTO(ReservationEntity r) {
+        Optional<PaymentEntity> paymentOpt =
                 paymentRepository.findTop1ByReservation_ReservationIdOrderByTransactionDateDesc(r.getReservationId());
 
         return ReservationDetailDTO.builder()
@@ -157,11 +157,11 @@ public class ReservationService {
                 .pointDiscountAmount(r.getPointDiscountAmount())
 
                 // 결제 정보
-                .paymentId(paymentOpt.map(Payment::getId).orElse(null))
+                .paymentId(paymentOpt.map(PaymentEntity::getId).orElse(null))
                 .method(paymentOpt.map(p -> p.getMethod().name()).orElse(null))
                 .paymentStatusDetail(paymentOpt.map(p -> p.getStatus().name()).orElse(null))
-                .paymentAmount(paymentOpt.map(Payment::getAmount).orElse(null))
-                .transactionDate(paymentOpt.map(Payment::getTransactionDate).orElse(null))
+                .paymentAmount(paymentOpt.map(PaymentEntity::getAmount).orElse(null))
+                .transactionDate(paymentOpt.map(PaymentEntity::getTransactionDate).orElse(null))
 
                 .build();
     }
@@ -183,10 +183,10 @@ public class ReservationService {
     public ReservationDetailDTO updateReservation(Long reservationId, Long ownerId, ReservationRequestDTO dto) {
         return reservationRepository.findByIdAndOwnerId(reservationId, ownerId).map(reservation -> {
             if (dto.getStatus() != null) {
-                reservation.setStatus(Reservation.ReservationStatus.valueOf(dto.getStatus()));
+                reservation.setStatus(ReservationEntity.ReservationStatus.valueOf(dto.getStatus()));
             }
             if (dto.getPaymentStatus() != null) {
-                reservation.setPaymentStatus(Reservation.ReservationPaymentStatus.valueOf(dto.getPaymentStatus()));
+                reservation.setPaymentStatus(ReservationEntity.ReservationPaymentStatus.valueOf(dto.getPaymentStatus()));
             }
             if (dto.getResevStart() != null) {
                 reservation.setResevStart(dto.getResevStart());
@@ -194,7 +194,7 @@ public class ReservationService {
             if (dto.getResevEnd() != null) {
                 reservation.setResevEnd(dto.getResevEnd());
             }
-            Reservation saved = reservationRepository.save(reservation);
+            ReservationEntity saved = reservationRepository.save(reservation);
             return toDetailDTO(saved);
         }).orElseThrow(() -> new ApiException(
                 HttpStatus.NOT_FOUND,
@@ -204,9 +204,9 @@ public class ReservationService {
     }
 
     @Transactional
-    public ReservationDetailDTO cancel(Reservation r) {
+    public ReservationDetailDTO cancel(ReservationEntity r) {
         // ✅ 결제 정보 확인
-        Payment payment = paymentRepository
+        PaymentEntity payment = paymentRepository
                 .findTop1ByReservation_ReservationIdOrderByTransactionDateDesc(r.getReservationId())
                 .orElseThrow(() -> new ApiException(
                         HttpStatus.NOT_FOUND,
@@ -218,10 +218,10 @@ public class ReservationService {
         TossCancelResponse response = tossPaymentService.cancelPayment(payment.getPaymentKey(), "고객 예약 취소");
 
         // ✅ DB 업데이트
-        r.setStatus(Reservation.ReservationStatus.cancelled);
-        r.setPaymentStatus(Reservation.ReservationPaymentStatus.refunded);
+        r.setStatus(ReservationEntity.ReservationStatus.cancelled);
+        r.setPaymentStatus(ReservationEntity.ReservationPaymentStatus.refunded);
 
-        payment.setStatus(Payment.PaymentStatus.cancelled);
+        payment.setStatus(PaymentEntity.PaymentStatus.cancelled);
         if (response != null && response.getCancels() != null && !response.getCancels().isEmpty()) {
             TossCancelResponse.CancelHistory lastCancel = response.getCancels().get(response.getCancels().size() - 1);
             payment.setAmount(lastCancel.getCancelAmount());
@@ -252,7 +252,7 @@ public class ReservationService {
             });
         }
 
-        Reservation saved = reservationRepository.save(r);
+        ReservationEntity saved = reservationRepository.save(r);
         backupPoint(r, r.getGuest() != null && r.getGuest().getUsers() != null ? r.getGuest().getUsers() : null);
 
         // ✅ 알림 생성 및 FCM 전송 (회원일 경우에만)
@@ -288,7 +288,7 @@ public class ReservationService {
         return toDetailDTO(saved);
     }
 
-    public void backupPoint(Reservation r,Users users){
+    public void backupPoint(ReservationEntity r, Users users){
         // 로그인 안한 유저면 패스
         // 포인트 적립된값 차감
         PointHistoryEntity pointHistory = pointHistoryRepository.findByReservationAndType(r,PointHistoryEntity.PointType.EARN).orElseThrow(() -> new ApiException(
@@ -329,7 +329,7 @@ public class ReservationService {
     // 소유자 기반 예약 취소
     @Transactional
     public ReservationDetailDTO cancelOwner(Long reservationId, Long ownerId) {
-        Reservation r = reservationRepository.findByIdAndOwnerId(reservationId, ownerId)
+        ReservationEntity r = reservationRepository.findByIdAndOwnerId(reservationId, ownerId)
                 .orElseThrow(() -> new ApiException(
                         HttpStatus.NOT_FOUND,
                         "Not Found",
@@ -404,7 +404,7 @@ public class ReservationService {
         return reservationRepository.existsByUsersIdAndRoomPlaceIdAndStatus(
                 guestEntity.getId(),
                 placeId,
-                Reservation.ReservationStatus.checked_out
+                ReservationEntity.ReservationStatus.checked_out
         );
     }
 
@@ -435,12 +435,12 @@ public class ReservationService {
 
     @Transactional(readOnly = true)
     public CheckInResultDto validateCheckin(String orderId) {
-        Reservation reservation = reservationRepository.findByOrderId(orderId).orElseThrow(() -> new ApiException(
+        ReservationEntity reservation = reservationRepository.findByOrderId(orderId).orElseThrow(() -> new ApiException(
                 HttpStatus.NOT_FOUND,
                 "Not Found",
                 "해당 예약을 찾을 수 없습니다."
         ));
-        if(reservation.getStatus()!=Reservation.ReservationStatus.confirmed){
+        if(reservation.getStatus()!= ReservationEntity.ReservationStatus.confirmed){
             throw new ApiException(
                     HttpStatus.BAD_REQUEST,
                     "Bad Request",
@@ -471,7 +471,7 @@ public class ReservationService {
         );
     }
 
-    public List<Reservation> getTodayReservation(Long userId) {
+    public List<ReservationEntity> getTodayReservation(Long userId) {
         List<Places> allByOwnerId = placeRepository.findAllByOwnerId(userId);
         if(allByOwnerId.isEmpty()){
             throw new ApiException(
@@ -485,8 +485,8 @@ public class ReservationService {
 
     @Transactional
     public Boolean checkIn(String reservationId) {
-        Reservation reservation = reservationRepository.findByOrderId(reservationId).orElseThrow();
-        reservation.setStatus(Reservation.ReservationStatus.checked_in);
+        ReservationEntity reservation = reservationRepository.findByOrderId(reservationId).orElseThrow();
+        reservation.setStatus(ReservationEntity.ReservationStatus.checked_in);
         return true;
     }
 }

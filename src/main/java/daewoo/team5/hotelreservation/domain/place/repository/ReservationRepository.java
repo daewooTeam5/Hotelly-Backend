@@ -1,6 +1,6 @@
 package daewoo.team5.hotelreservation.domain.place.repository;
 
-import daewoo.team5.hotelreservation.domain.payment.entity.Reservation;
+import daewoo.team5.hotelreservation.domain.payment.entity.ReservationEntity;
 import daewoo.team5.hotelreservation.domain.payment.projection.NonMemberReservationDetailProjection;
 import daewoo.team5.hotelreservation.domain.payment.projection.ReservationInfoProjection;
 import daewoo.team5.hotelreservation.domain.payment.projection.ReservationProjection;
@@ -20,8 +20,8 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ReservationRepository extends JpaRepository<Reservation, Long>,
-        JpaSpecificationExecutor<Reservation> {
+public interface ReservationRepository extends JpaRepository<ReservationEntity, Long>,
+        JpaSpecificationExecutor<ReservationEntity> {
 
     // 소유자 단건 조회
     @Query("SELECT r FROM Reservation r " +
@@ -29,25 +29,25 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long>,
             "JOIN rm.place pl " +
             "WHERE r.reservationId = :reservationId " +
             "AND pl.owner.id = :ownerId")
-    Optional<Reservation> findByIdAndOwnerId(@Param("reservationId") Long reservationId,
-                                             @Param("ownerId") Long ownerId);
+    Optional<ReservationEntity> findByIdAndOwnerId(@Param("reservationId") Long reservationId,
+                                                   @Param("ownerId") Long ownerId);
 
     // 소유자 전체 조회 (페이징)
     @Query("SELECT r FROM Reservation r " +
             "JOIN r.room rm " +
             "JOIN rm.place pl " +
             "WHERE pl.owner.id = :ownerId")
-    Page<Reservation> findAllByOwnerId(@Param("ownerId") Long ownerId,
-                                       Pageable pageable);
+    Page<ReservationEntity> findAllByOwnerId(@Param("ownerId") Long ownerId,
+                                             Pageable pageable);
 
-    Optional<Reservation> findByOrderId(String orderId);
+    Optional<ReservationEntity> findByOrderId(String orderId);
 
 
     // 예약 ID로 예약을 조회
-    Optional<Reservation> findById(Long reservationId);
+    Optional<ReservationEntity> findById(Long reservationId);
 
     @Query("select r from Reservation r join fetch r.room join fetch r.guest where r.reservationId = :reservationId")
-    Optional<Reservation> findByIdFetchJoin(Long reservationId);
+    Optional<ReservationEntity> findByIdFetchJoin(Long reservationId);
 
     /**
      * 주석: 사용자가 특정 숙소에 대해 체크아웃 상태의 예약을 가지고 있는지 확인하는 쿼리
@@ -75,7 +75,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long>,
             "AND r.status = :status")
     boolean existsByUsersIdAndRoomPlaceIdAndStatus(@Param("userId") Long userId,
                                                    @Param("placeId") Long placeId,
-                                                   @Param("status") Reservation.ReservationStatus status);
+                                                   @Param("status") ReservationEntity.ReservationStatus status);
 
     // 오늘 생성된 예약
     @Query("SELECT COUNT(r) " +
@@ -135,7 +135,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long>,
             "FROM Reservation r " +
             "WHERE r.guest.id = :guestId " +
             "AND r.room.place.id = :placeId " +
-            "AND r.status = daewoo.team5.hotelreservation.domain.payment.entity.Reservation$ReservationStatus.checked_out " +
+            "AND r.status = daewoo.team5.hotelreservation.domain.payment.entity.ReservationEntity.ReservationStatus.checked_out " +
             "AND NOT EXISTS (SELECT rv FROM Review rv WHERE rv.reservation.reservationId = r.reservationId)")
     List<ReviewableReservationResponse> findReviewableReservations(@Param("guestId") Long guestId, @Param("placeId") Long placeId);
 
@@ -480,7 +480,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long>,
     // 일별 취소율
     @Query("SELECT new daewoo.team5.hotelreservation.domain.place.dto.ChartDataResponse(" +
             "CAST(r.resevStart AS string), " +
-            "(SUM(CASE WHEN r.status = daewoo.team5.hotelreservation.domain.payment.entity.Reservation.ReservationStatus.cancelled THEN 1 ELSE 0 END) * 1.0 / COUNT(r)) * 100.0) " +
+            "(SUM(CASE WHEN r.status = daewoo.team5.hotelreservation.domain.payment.entity.ReservationEntity.ReservationStatus.cancelled THEN 1 ELSE 0 END) * 1.0 / COUNT(r)) * 100.0) " +
             "FROM Reservation r " +
             "WHERE r.resevStart BETWEEN :start AND :end " +
             "GROUP BY r.resevStart " +
@@ -490,7 +490,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long>,
     // 월별 취소율
     @Query("SELECT new daewoo.team5.hotelreservation.domain.place.dto.ChartDataResponse(" +
             "CONCAT(CAST(YEAR(r.resevStart) AS string), '-', LPAD(CAST(MONTH(r.resevStart) AS string), 2, '0')), " +
-            "(SUM(CASE WHEN r.status = daewoo.team5.hotelreservation.domain.payment.entity.Reservation.ReservationStatus.cancelled THEN 1 ELSE 0 END) * 1.0 / COUNT(r)) * 100.0) " +
+            "(SUM(CASE WHEN r.status = daewoo.team5.hotelreservation.domain.payment.entity.ReservationEntity.ReservationStatus.cancelled THEN 1 ELSE 0 END) * 1.0 / COUNT(r)) * 100.0) " +
             "FROM Reservation r " +
             "GROUP BY YEAR(r.resevStart), MONTH(r.resevStart) " +
             "ORDER BY YEAR(r.resevStart), MONTH(r.resevStart)")
@@ -499,7 +499,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long>,
     // 연도별 취소율
     @Query("SELECT new daewoo.team5.hotelreservation.domain.place.dto.ChartDataResponse(" +
             "CAST(YEAR(r.resevStart) AS string), " +
-            "(SUM(CASE WHEN r.status = daewoo.team5.hotelreservation.domain.payment.entity.Reservation.ReservationStatus.cancelled THEN 1 ELSE 0 END) * 1.0 / COUNT(r)) * 100.0) " +
+            "(SUM(CASE WHEN r.status = daewoo.team5.hotelreservation.domain.payment.entity.ReservationEntity.ReservationStatus.cancelled THEN 1 ELSE 0 END) * 1.0 / COUNT(r)) * 100.0) " +
             "FROM Reservation r " +
             "GROUP BY YEAR(r.resevStart) " +
             "ORDER BY YEAR(r.resevStart)")
@@ -621,5 +621,5 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long>,
                                                                                   @Param("firstName") String firstName,
                                                                                   @Param("email") String email);
 
-    List<Reservation> findByRoomPlaceIdAndResevStart(Long placeId, LocalDate resevStart);
+    List<ReservationEntity> findByRoomPlaceIdAndResevStart(Long placeId, LocalDate resevStart);
 }

@@ -1,6 +1,6 @@
 package daewoo.team5.hotelreservation.domain.place.service;
 
-import daewoo.team5.hotelreservation.domain.place.entity.File;
+import daewoo.team5.hotelreservation.domain.file.entity.FileEntity;
 import daewoo.team5.hotelreservation.domain.place.repository.FileRepository;
 import daewoo.team5.hotelreservation.domain.users.entity.Users;
 import jakarta.servlet.http.HttpServletRequest;
@@ -37,7 +37,7 @@ public class FileUploadService {
     }
 
     @Transactional
-    public File storeProfileImage(MultipartFile multipartFile, Users user, HttpServletRequest request) {
+    public FileEntity storeProfileImage(MultipartFile multipartFile, Users user, HttpServletRequest request) {
         // 1. 새 파일의 물리적 저장부터 먼저 수행합니다.
         String originalFileName = StringUtils.cleanPath(multipartFile.getOriginalFilename());
         String extension = originalFileName.substring(originalFileName.lastIndexOf("."));
@@ -52,9 +52,9 @@ public class FileUploadService {
             String fileUrl = baseUrl + "/uploads/" + savedFileName;
 
             // 3. 기존 File 엔티티를 찾습니다.
-            Optional<File> existingFileOpt = fileRepository.findFirstByDomainAndDomainFileId("profile", user.getId());
+            Optional<FileEntity> existingFileOpt = fileRepository.findFirstByDomainAndDomainFileId("profile", user.getId());
 
-            File fileToSave;
+            FileEntity fileToSave;
             if (existingFileOpt.isPresent()) {
                 // ✅ 기존 File 엔티티가 있으면, 내용만 업데이트합니다. (UPDATE)
                 fileToSave = existingFileOpt.get();
@@ -73,7 +73,7 @@ public class FileUploadService {
 
             } else {
                 // ✅ 기존 File 엔티티가 없으면, 새로 생성합니다. (INSERT)
-                fileToSave = File.builder()
+                fileToSave = FileEntity.builder()
                         .user(user)
                         .filename(savedFileName)
                         .extension(extension)

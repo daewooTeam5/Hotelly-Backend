@@ -24,7 +24,7 @@ public class PointHistoryEntity {
     private Users user; // 지급받은 유저 ID
 
     @ManyToOne
-    private Reservation reservation; // 예약 ID (null 가능)
+    private ReservationEntity reservation; // 예약 ID (null 가능)
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

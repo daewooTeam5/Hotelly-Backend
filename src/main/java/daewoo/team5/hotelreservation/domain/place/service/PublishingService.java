@@ -1,5 +1,6 @@
 package daewoo.team5.hotelreservation.domain.place.service;
 
+import daewoo.team5.hotelreservation.domain.file.entity.FileEntity;
 import daewoo.team5.hotelreservation.domain.file.service.FileService;
 import daewoo.team5.hotelreservation.domain.place.dto.AddressDTO;
 import daewoo.team5.hotelreservation.domain.place.dto.PublishingDTO;
@@ -265,7 +266,7 @@ public class PublishingService {
                 .orElseThrow(() -> new RuntimeException("해당 숙소 없음 id=" + id));
 
         List<PlaceAddress> addresses = placeAddressRepository.findByPlaceId(id);
-        List<File> placeImage = fileRepository.findByDomainAndDomainFileId("place", place.getId());
+        List<FileEntity> placeImage = fileRepository.findByDomainAndDomainFileId("place", place.getId());
         List<Room> rooms = roomRepository.findByPlaceId(id);
 
         List<Long> amenityIds = placeAmenityRepository.findByPlaceId(id).stream()
@@ -306,7 +307,7 @@ public class PublishingService {
         return repository.findAllByOwnerId(ownerId).stream()
                 .map(p -> {
                     String imageUrl = fileRepository.findFirstByDomainAndDomainFileId("place", p.getId())
-                            .map(File::getUrl).orElse(null);
+                            .map(FileEntity::getUrl).orElse(null);
 
                     AddressDTO addressDto = placeAddressRepository.findFirstByPlaceId(p.getId())
                             .map(addr -> AddressDTO.builder()

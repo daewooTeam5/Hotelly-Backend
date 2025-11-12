@@ -1,7 +1,7 @@
 package daewoo.team5.hotelreservation.domain.discount.entity;
 
 import daewoo.team5.hotelreservation.domain.payment.entity.DiscountEntity;
-import daewoo.team5.hotelreservation.domain.payment.entity.Reservation;
+import daewoo.team5.hotelreservation.domain.payment.entity.ReservationEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -27,7 +27,7 @@ public class ReservationDiscountHistoryEntity {
     private LocalDate discountEndDate;
 
     @ManyToOne
-    private Reservation reservation;
+    private ReservationEntity reservation;
 
     @ManyToOne
     private DiscountEntity discount;

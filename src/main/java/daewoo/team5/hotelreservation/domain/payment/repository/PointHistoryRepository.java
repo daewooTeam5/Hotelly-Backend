@@ -2,7 +2,7 @@ package daewoo.team5.hotelreservation.domain.payment.repository;
 
 import daewoo.team5.hotelreservation.domain.payment.entity.PointHistoryEntity;
 import daewoo.team5.hotelreservation.domain.payment.projection.PointProjection;
-import daewoo.team5.hotelreservation.domain.payment.entity.Reservation;
+import daewoo.team5.hotelreservation.domain.payment.entity.ReservationEntity;
 import daewoo.team5.hotelreservation.domain.payment.projection.PointHistorySummaryProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -26,7 +26,7 @@ public interface PointHistoryRepository extends JpaRepository<PointHistoryEntity
             "ORDER BY p.createdAt DESC")
     List<PointProjection> findPointsByUserId(Long userId);
 
-    Optional<PointHistoryEntity> findByReservationAndType(Reservation reservation, PointHistoryEntity.PointType type);
+    Optional<PointHistoryEntity> findByReservationAndType(ReservationEntity reservation, PointHistoryEntity.PointType type);
 
     List<PointHistoryEntity> findAllByUserIdOrderByCreatedAtDesc(Long userId);
 

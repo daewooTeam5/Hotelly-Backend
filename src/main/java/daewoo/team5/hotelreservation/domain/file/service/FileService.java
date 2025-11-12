@@ -1,6 +1,6 @@
 package daewoo.team5.hotelreservation.domain.file.service;
 
-import daewoo.team5.hotelreservation.domain.place.entity.File;
+import daewoo.team5.hotelreservation.domain.file.entity.FileEntity;
 import daewoo.team5.hotelreservation.domain.place.repository.FileRepository;
 import daewoo.team5.hotelreservation.infrastructure.file.FileUploader;
 import daewoo.team5.hotelreservation.infrastructure.file.UploadResult;
@@ -8,8 +8,6 @@ import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 @Service
 @RequiredArgsConstructor
@@ -18,12 +16,12 @@ public class FileService {
     private final FileUploader fileUploader;
     private final FileRepository fileRepository;
 
-    public File save(String url,Long userId, Long domainId, String fileDomain) {
+    public FileEntity save(String url, Long userId, Long domainId, String fileDomain) {
         if (url == null || url.isBlank()) throw new IllegalArgumentException("url은 필수입니다.");
         if (domainId == null) throw new IllegalArgumentException("domainId는 필수입니다.");
         if (fileDomain == null || fileDomain.isBlank()) throw new IllegalArgumentException("fileDomain은 필수입니다.");
 
-        File entity = File.builder()
+        FileEntity entity = FileEntity.builder()
                 .userId(userId)
                 .filename("oauthProfile")
                 .extension("oauthProfile")
@@ -42,7 +40,7 @@ public class FileService {
         if (fileDomain == null || fileDomain.isBlank()) throw new IllegalArgumentException("fileDomain은 필수입니다.");
 
         // 기존 파일 검색
-        File existingFile = fileRepository.findFirstByDomainAndDomainFileId(fileDomain, domainId).orElse(null);
+        FileEntity existingFile = fileRepository.findFirstByDomainAndDomainFileId(fileDomain, domainId).orElse(null);
 
         // 업로드 수행
         UploadResult result = fileUploader.uploadFile(file, fileName);
@@ -62,7 +60,7 @@ public class FileService {
             return existingFile.getUrl();
         } else {
             // 기존 파일이 없으면 새로 저장
-            File entity = File.builder()
+            FileEntity entity = FileEntity.builder()
                     .userId(userId)
                     .filename(result.getStoredName())
                     .extension(result.getExtension())
@@ -86,7 +84,7 @@ public class FileService {
         UploadResult result = fileUploader.uploadFile(file, fileName);
         log.info("파일 업로드 완료: {}", result);
 
-        File entity = File.builder()
+        FileEntity entity = FileEntity.builder()
                 .userId(userId)
                 .filename(result.getStoredName())
                 .extension(result.getExtension())

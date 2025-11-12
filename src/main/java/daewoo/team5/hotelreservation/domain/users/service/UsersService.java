@@ -3,7 +3,6 @@ package daewoo.team5.hotelreservation.domain.users.service;
 import daewoo.team5.hotelreservation.domain.file.service.FileService;
 import daewoo.team5.hotelreservation.domain.payment.entity.GuestEntity;
 import daewoo.team5.hotelreservation.domain.payment.repository.GuestRepository;
-import daewoo.team5.hotelreservation.domain.place.entity.File;
 import daewoo.team5.hotelreservation.domain.place.repository.FileRepository;
 import daewoo.team5.hotelreservation.domain.place.service.FileUploadService;
 import daewoo.team5.hotelreservation.domain.users.dto.OwnerRequestDto;
@@ -33,7 +32,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 

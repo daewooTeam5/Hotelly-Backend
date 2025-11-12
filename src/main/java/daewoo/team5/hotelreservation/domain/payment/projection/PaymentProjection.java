@@ -1,6 +1,6 @@
 package daewoo.team5.hotelreservation.domain.payment.projection;
 
-import daewoo.team5.hotelreservation.domain.payment.entity.Payment;
+import daewoo.team5.hotelreservation.domain.payment.entity.PaymentEntity;
 
 import java.time.LocalDateTime;
 
@@ -9,8 +9,8 @@ public interface PaymentProjection {
     String getOrderId();
     String getPaymentKey();
     Long getAmount();
-    Payment.PaymentMethod getMethod();
-    Payment.PaymentStatus getStatus();
+    PaymentEntity.PaymentMethod getMethod();
+    PaymentEntity.PaymentStatus getStatus();
     LocalDateTime getTransactionDate();
     String getMethodType();
 

@@ -6,7 +6,7 @@ import daewoo.team5.hotelreservation.domain.notification.entity.NotificationEnti
 import daewoo.team5.hotelreservation.domain.notification.repository.NotificationRepository;
 import daewoo.team5.hotelreservation.domain.payment.entity.PointHistoryEntity;
 import daewoo.team5.hotelreservation.domain.payment.repository.PointHistoryRepository;
-import daewoo.team5.hotelreservation.domain.place.entity.File;
+import daewoo.team5.hotelreservation.domain.file.entity.FileEntity;
 import daewoo.team5.hotelreservation.domain.place.repository.PaymentRepository;
 import daewoo.team5.hotelreservation.domain.place.repository.ReservationRepository;
 import daewoo.team5.hotelreservation.domain.place.review.repository.ReviewCommentRepository;
@@ -29,7 +29,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -71,7 +70,7 @@ public class AdminUserService {
         for (Object[] row : results) {
             Users user = (Users) row[0];
             OwnerRequestEntity orq = (OwnerRequestEntity) row[1]; // 이제 null이 아님
-            File file = (File) row[2];
+            FileEntity file = (FileEntity) row[2];
 
             Long key = user.getId();
             OwnerRequestDto dto = dtoMap.computeIfAbsent(key, k -> new OwnerRequestDto(

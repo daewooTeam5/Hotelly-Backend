@@ -14,7 +14,7 @@ import java.time.LocalTime;
 @Table(
         name = "shopping",   // 실제 DB 테이블명
         uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"user_id", "place_id"})
+                @UniqueConstraint(columnNames = {"user_id", "room_id"})
         }
 )
 @Builder

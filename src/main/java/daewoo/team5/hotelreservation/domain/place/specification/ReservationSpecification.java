@@ -1,6 +1,6 @@
 package daewoo.team5.hotelreservation.domain.place.specification;
 
-import daewoo.team5.hotelreservation.domain.payment.entity.Reservation;
+import daewoo.team5.hotelreservation.domain.payment.entity.ReservationEntity;
 import daewoo.team5.hotelreservation.domain.place.dto.ReservationSearchRequest;
 import daewoo.team5.hotelreservation.domain.place.entity.Places;
 import daewoo.team5.hotelreservation.domain.place.entity.Room;
@@ -15,15 +15,15 @@ import java.util.List;
 
 public class ReservationSpecification {
 
-    public static Specification<Reservation> filter(ReservationSearchRequest req, Long ownerId) {
+    public static Specification<ReservationEntity> filter(ReservationSearchRequest req, Long ownerId) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
             // Join: Guest (예약자)
-            Join<Reservation, GuestEntity> guest = root.join("guest", JoinType.LEFT);
+            Join<ReservationEntity, GuestEntity> guest = root.join("guest", JoinType.LEFT);
 
             // Join: Room
-            Join<Reservation, Room> room = root.join("room", JoinType.LEFT);
+            Join<ReservationEntity, Room> room = root.join("room", JoinType.LEFT);
 
             // Join: Place (room → place)
             Join<Room, Places> place = room.join("place", JoinType.LEFT);

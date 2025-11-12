@@ -1,6 +1,6 @@
 package daewoo.team5.hotelreservation.domain.coupon.entity;
 
-import daewoo.team5.hotelreservation.domain.payment.entity.Reservation;
+import daewoo.team5.hotelreservation.domain.payment.entity.ReservationEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -33,7 +33,7 @@ public class CouponHistoryEntity {
 
     // Reservation 엔티티가 있다고 가정!
     @ManyToOne
-    private Reservation reservation; // 예약 ID
+    private ReservationEntity reservation; // 예약 ID
 
     @ManyToOne()
     private UserCouponEntity userCoupon; // 발급 받은 유저 쿠폰 ID

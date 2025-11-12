@@ -24,5 +24,5 @@ public class PaymentHistoryEntity {
     private String paymentInfo;
 
     @ManyToOne
-    private Payment payment;
+    private PaymentEntity payment;
 }

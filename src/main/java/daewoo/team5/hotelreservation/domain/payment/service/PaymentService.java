@@ -93,7 +93,7 @@ public class PaymentService {
         return summaries;
     }
 
-    private Payment.PaymentStatus mapStatus(String status) {
+    private PaymentEntity.PaymentStatus mapStatus(String status) {
         /**
          *   READY: 결제를 생성하면 가지게 되는 초기 상태입니다. 인증 전까지는 READY 상태를 유지합니다.
          * - IN_PROGRESS: 결제수단 정보와 해당 결제수단의 소유자가 맞는지 인증을 마친 상태입니다. 결제 승인 API를 호출하면 결제가 완료됩니다.
@@ -105,14 +105,14 @@ public class PaymentService {
          * - EXPIRED: 결제 유효 시간 30분이 지나 거래가 취소된 상태입니다. IN_PROGRESS 상태에서 결제 승인 API를 호출하지 않으면 EXPIRED가 됩니다.
          */
         return switch (status) {
-            case "DONE" -> Payment.PaymentStatus.paid;
-            case "CANCELLED", "FAILED" -> Payment.PaymentStatus.cancelled;
+            case "DONE" -> PaymentEntity.PaymentStatus.paid;
+            case "CANCELLED", "FAILED" -> PaymentEntity.PaymentStatus.cancelled;
             default -> throw new ApiException(HttpStatus.UNPROCESSABLE_ENTITY, "결제 상태 오류", "Unknown status: " + status);
         };
     }
 
     @Transactional
-    public Payment confirmPayment(UserProjection user, PaymentConfirmRequestDto dto) {
+    public PaymentEntity confirmPayment(UserProjection user, PaymentConfirmRequestDto dto) {
         try {
             // TODO 결제 금액 유효성 검사
 
@@ -120,7 +120,7 @@ public class PaymentService {
             String cleanText = tossPaymentDto
                     .getRequestedAt().substring(0, 19);
             LocalDateTime paymentTime = LocalDateTime.parse(cleanText, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-            Reservation reservation = reservationRepository
+            ReservationEntity reservation = reservationRepository
                     .findByOrderId(
                             dto.getOrderId()).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "존재하지 않는 예약입니다.", "존재하지 않는 예약입니다.")
                     );
@@ -153,19 +153,19 @@ public class PaymentService {
                 users.setPoint(balanceAfter);
             }
 
-            Payment savePayment = paymentRepository.save(
-                    Payment.builder()
+            PaymentEntity savePayment = paymentRepository.save(
+                    PaymentEntity.builder()
                             .paymentKey(tossPaymentDto.getPaymentKey())
                             .orderId(tossPaymentDto.getOrderId())
                             .amount(tossPaymentDto.getTotalAmount())
                             .status(mapStatus(tossPaymentDto.getStatus()))
-                            .method(Payment.PaymentMethod.card)
+                            .method(PaymentEntity.PaymentMethod.card)
                             .methodType(tossPaymentDto.getMethod())
                             .transactionDate(LocalDateTime.now())
                             .reservation(reservation)
                             .build()
             );
-            Payment payment = paymentRepository.findByOrderId(savePayment.getOrderId()).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "결제 정보가 존재하지 않습니다.", "결제 정보가 존재하지 않습니다."));
+            PaymentEntity payment = paymentRepository.findByOrderId(savePayment.getOrderId()).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "결제 정보가 존재하지 않습니다.", "결제 정보가 존재하지 않습니다."));
             ObjectMapper objectMapper = new ObjectMapper();
 
             paymentHistoryRepository.save(
@@ -177,9 +177,9 @@ public class PaymentService {
 
             // TODO : Room 양방향 제거후 영속성 유지
             entityManager.detach(payment);
-            Reservation reservationUpdate = reservationRepository.findByOrderId(savePayment.getOrderId()).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "예약 정보가 존재하지 않습니다.", "예약 정보가 존재하지 않습니다."));
-            reservationUpdate.setStatus(Reservation.ReservationStatus.confirmed);
-            reservationUpdate.setPaymentStatus(Reservation.ReservationPaymentStatus.paid);
+            ReservationEntity reservationUpdate = reservationRepository.findByOrderId(savePayment.getOrderId()).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "예약 정보가 존재하지 않습니다.", "예약 정보가 존재하지 않습니다."));
+            reservationUpdate.setStatus(ReservationEntity.ReservationStatus.confirmed);
+            reservationUpdate.setPaymentStatus(ReservationEntity.ReservationPaymentStatus.paid);
             payment.setReservation(reservationUpdate);
             return payment;
         } catch (FeignException e) {
@@ -241,7 +241,7 @@ public class PaymentService {
     }
 
     @Transactional
-    public Reservation reservationPlace(UserProjection user, ReservationRequestDto dto) {
+    public ReservationEntity reservationPlace(UserProjection user, ReservationRequestDto dto) {
         GuestEntity guest = getGuest(user, dto.getEmail(), dto.getFirstName(), dto.getLastName(), dto.getPhone());
         Room room = roomRepository.findById(dto.getRoomId())
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "존재 하지 않는 방입니다.", "존재하지 않는 방입니다."));
@@ -281,11 +281,11 @@ public class PaymentService {
                 .multiply(BigDecimal.valueOf(dto.getRoomCount()));     // 예약
         int discountAmount = 0;
 
-        Reservation reservation = Reservation.builder()
+        ReservationEntity reservation = ReservationEntity.builder()
                 .guest(guest)
                 .orderId(dto.getRoomId() + "_" + guest.getId() + "_" + System.currentTimeMillis())
-                .paymentStatus(Reservation.ReservationPaymentStatus.unpaid)
-                .status(Reservation.ReservationStatus.pending)
+                .paymentStatus(ReservationEntity.ReservationPaymentStatus.unpaid)
+                .status(ReservationEntity.ReservationStatus.pending)
                 .baseAmount(baseAmount)
                 .finalAmount(baseAmount)
                 .resevStart(dto.getCheckIn())
@@ -297,7 +297,7 @@ public class PaymentService {
                 .pointDiscountAmount(0)
                 .room(room)
                 .build();
-        Reservation save = reservationRepository.save(reservation);
+        ReservationEntity save = reservationRepository.save(reservation);
         // TODO : 할인 금액 검증
 //        Integer discountValue = discountService.calculateDiscountAmount(room, dto.getCheckIn(), dto.getCheckOut());
 //        int percentDiscountAmount = Math.round((float) baseAmount.intValue() / discountValue);
@@ -353,7 +353,7 @@ public class PaymentService {
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "존재하지 않는 결제 정보입니다.", "존재하지 않는 결제 정보입니다."));
     }
 
-    public Reservation getReservationById(Long reservationId) {
+    public ReservationEntity getReservationById(Long reservationId) {
         return reservationRepository
                 .findByIdFetchJoin(reservationId)
                 .orElseThrow(

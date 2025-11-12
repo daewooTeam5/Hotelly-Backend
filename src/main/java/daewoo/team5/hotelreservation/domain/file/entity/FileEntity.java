@@ -1,4 +1,4 @@
-package daewoo.team5.hotelreservation.domain.place.entity;
+package daewoo.team5.hotelreservation.domain.file.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -6,7 +6,7 @@ import daewoo.team5.hotelreservation.domain.users.entity.Users;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Entity
+@Entity(name = "File")
 @Table(name = "file")
 @Getter
 @Setter
@@ -14,7 +14,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-public class File {
+public class FileEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,7 +24,7 @@ public class File {
     @Column(name = "user_id",    updatable = false)
    private Long userId; // 업로더 ID
 
-    @Column(name = "filename", length = 100, nullable = false)
+    @Column(name = "filename", length = 300, nullable = false)
     private String filename; // 파일명
 
     @Column(name = "extension", length = 50, nullable = false)

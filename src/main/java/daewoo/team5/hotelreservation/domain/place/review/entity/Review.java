@@ -1,7 +1,7 @@
 // src/main/java/daewoo/team5/hotelreservation/domain/place/review/entity/Review.java
 package daewoo.team5.hotelreservation.domain.place.review.entity;
 
-import daewoo.team5.hotelreservation.domain.payment.entity.Reservation;
+import daewoo.team5.hotelreservation.domain.payment.entity.ReservationEntity;
 import daewoo.team5.hotelreservation.domain.place.entity.Places;
 import daewoo.team5.hotelreservation.domain.users.entity.Users;
 import daewoo.team5.hotelreservation.global.core.common.BaseTimeEntity;
@@ -34,7 +34,7 @@ public class Review extends BaseTimeEntity {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reservation_id", nullable = false, unique = true)
-    private Reservation reservation;
+    private ReservationEntity reservation;
 
     @Column(nullable = false)
     private Integer rating; // 평점 (1~5)
@@ -50,7 +50,7 @@ public class Review extends BaseTimeEntity {
     @OneToOne(mappedBy = "review", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private ReviewComment commentByOwner;
 
-    public static Review createReview(Places place, Users user, Reservation reservation, Integer rating, String comment) {
+    public static Review createReview(Places place, Users user, ReservationEntity reservation, Integer rating, String comment) {
         Review review = new Review();
         review.place = place;
         review.user = user;

@@ -1,6 +1,6 @@
 package daewoo.team5.hotelreservation.domain.payment.projection;
 
-import daewoo.team5.hotelreservation.domain.payment.entity.Reservation;
+import daewoo.team5.hotelreservation.domain.payment.entity.ReservationEntity;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -8,8 +8,8 @@ import java.time.LocalDate;
 public interface ReservationProjection {
     Long getReservationId();
     String getOrderId();
-    Reservation.ReservationStatus getStatus();
-    Reservation.ReservationPaymentStatus getPaymentStatus();
+    ReservationEntity.ReservationStatus getStatus();
+    ReservationEntity.ReservationPaymentStatus getPaymentStatus();
     BigDecimal getBaseAmount();
     BigDecimal getFinalAmount();
     LocalDate getResevStart();

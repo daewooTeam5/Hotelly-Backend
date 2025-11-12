@@ -1,7 +1,7 @@
 package daewoo.team5.hotelreservation.domain.users.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import daewoo.team5.hotelreservation.domain.place.entity.File;
+import daewoo.team5.hotelreservation.domain.file.entity.FileEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import daewoo.team5.hotelreservation.global.core.common.BaseTimeEntity;
@@ -54,7 +54,7 @@ public class Users extends BaseTimeEntity {
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "file_id")
     @JsonManagedReference
-    private File profileImage;
+    private FileEntity profileImage;
 
 
     @Column(nullable = false)

@@ -1,6 +1,6 @@
 package daewoo.team5.hotelreservation.domain.place.controller;
 
-import daewoo.team5.hotelreservation.domain.payment.entity.Reservation;
+import daewoo.team5.hotelreservation.domain.payment.entity.ReservationEntity;
 import daewoo.team5.hotelreservation.domain.place.dto.*;
 import daewoo.team5.hotelreservation.domain.place.service.ReservationService;
 import daewoo.team5.hotelreservation.domain.users.projection.UserProjection;
@@ -71,10 +71,10 @@ public class PlaceOwnerController {
 
     @GetMapping("/today")
     @AuthUser
-    public ApiResult<List<Reservation>> getTodayReservation(
+    public ApiResult<List<ReservationEntity>> getTodayReservation(
             UserProjection user
             ) {
-        List<Reservation> todayReservation = reservationService.getTodayReservation(user.getId());
+        List<ReservationEntity> todayReservation = reservationService.getTodayReservation(user.getId());
         return ApiResult.ok(todayReservation);
     }
 
