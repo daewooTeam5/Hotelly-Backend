@@ -1,4 +1,4 @@
-package daewoo.team5.hotelreservation.redis;
+package daewoo.team5.hotelreservation.infrastructure.redis;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

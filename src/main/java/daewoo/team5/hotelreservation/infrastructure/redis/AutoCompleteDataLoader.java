@@ -1,4 +1,4 @@
-package daewoo.team5.hotelreservation.redis;
+package daewoo.team5.hotelreservation.infrastructure.redis;
 
 import daewoo.team5.hotelreservation.domain.place.entity.PlacesEntity;
 import daewoo.team5.hotelreservation.domain.place.entity.RegionEntity;
