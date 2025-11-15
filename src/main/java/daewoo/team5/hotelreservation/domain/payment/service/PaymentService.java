@@ -71,6 +71,7 @@ public class PaymentService {
     private final PointService pointService;
     private final PointHistoryRepository pointHistoryRepository;
     private final DiscountService discountService;
+    private final ReservationEventRepository reservationEventRepository;
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -343,6 +344,8 @@ public class PaymentService {
         }
         BigDecimal finalAmount = baseAmount.subtract(BigDecimal.valueOf(discountAmount));
         save.setFinalAmount(finalAmount);
+        // 예약 완료후 특정시간내 결제 안할시 취소를 위해 redis ttl 키 설정
+        reservationEventRepository.registerReservationCancelEvent(save.getReservationId());
         return save;
     }
 
