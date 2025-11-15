@@ -1,7 +1,5 @@
 package daewoo.team5.hotelreservation.domain.place.service;
 
-import daewoo.team5.hotelreservation.domain.place.repository.PlaceRepository;
-import daewoo.team5.hotelreservation.domain.place.review.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -13,13 +11,13 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class RatingInitializer implements CommandLineRunner {
 
-    private final PlaceRepository placeRepository;
-    private final ReviewRepository reviewRepository;
+//    private final PlaceRepository placeRepository;
+//    private final ReviewRepository reviewRepository;
 
     @Override
     @Transactional
     public void run(String... args) throws Exception {
-        log.info("서버 시작 시 숙소별 평균 평점 계산을 시작합니다...");
+//        log.info("서버 시작 시 숙소별 평균 평점 계산을 시작합니다...");
 //List<Places> places = placeRepository.findAll();
 //
 //        for (Places place : places) {
