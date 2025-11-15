@@ -49,9 +49,6 @@ public class PlacesEntity extends BaseTimeEntity {
     @Column(name = "review_count")
     private Integer reviewCount;   // 리뷰 수
 
-    @Column(name = "min_price", precision = 10, scale = 2)
-    private BigDecimal minPrice;   // 최소 가격
-
     @Column(name = "updated_at")
     @UpdateTimestamp
     private LocalDateTime updatedAt; // 수정일시

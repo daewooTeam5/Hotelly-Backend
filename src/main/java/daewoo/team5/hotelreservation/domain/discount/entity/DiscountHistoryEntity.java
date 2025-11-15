@@ -14,7 +14,8 @@ import lombok.Builder;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Entity
+@Table(name = "discount_history")
+@Entity(name = "DiscountHistory")
 public class DiscountHistoryEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

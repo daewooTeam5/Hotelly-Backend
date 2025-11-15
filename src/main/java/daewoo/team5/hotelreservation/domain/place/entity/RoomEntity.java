@@ -1,5 +1,6 @@
 package daewoo.team5.hotelreservation.domain.place.entity;
 
+import daewoo.team5.hotelreservation.global.core.common.BaseCUTimeEntity;
 import daewoo.team5.hotelreservation.global.core.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -13,7 +14,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RoomEntity extends BaseTimeEntity {
+public class RoomEntity extends BaseCUTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,10 +23,13 @@ public class RoomEntity extends BaseTimeEntity {
     @ManyToOne
     private PlacesEntity place; // 숙소 ID (FK: Place 테이블)
 
-    @Column(name = "room_type", length = 50, nullable = false)
+    @Column(name = "room_name", length = 100, nullable = false)
+    private String roomName;
+
+    @Column(name = "room_type", length = 50)
     private String roomType; // 방 유형
 
-    @Column(name = "bed_type", length = 50, nullable = false)
+    @Column(name = "bed_type", length = 50)
     private String bedType; // 침대 유형
 
     @Column(name = "capacity_people", nullable = false)
@@ -38,16 +42,7 @@ public class RoomEntity extends BaseTimeEntity {
     @Column(name = "price", precision = 10, scale = 2, nullable = false)
     private BigDecimal price; // 가격
 
-    @Enumerated(EnumType.STRING)
-    @Column(length = 20, nullable = false)
-    private Status status; // 상태
-
     @Column(name = "area")
     private Double area; // 면적
 
-    public enum Status {
-        AVAILABLE,
-        RESERVED,
-        CLEANING
-    }
 }
