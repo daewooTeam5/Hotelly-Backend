@@ -1,5 +1,5 @@
 // src/main/java/daewoo/team5/hotelreservation/domain/place/review/entity/Review.java
-package daewoo.team5.hotelreservation.domain.place.review.entity;
+package daewoo.team5.hotelreservation.domain.review.entity;
 
 import daewoo.team5.hotelreservation.domain.payment.entity.ReservationEntity;
 import daewoo.team5.hotelreservation.domain.place.entity.PlacesEntity;

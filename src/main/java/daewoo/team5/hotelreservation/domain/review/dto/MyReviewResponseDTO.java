@@ -1,8 +1,7 @@
 // src/main/java/daewoo/team5/hotelreservation/domain/place/review/dto/MyReviewResponseDto.java
-package daewoo.team5.hotelreservation.domain.place.review.dto;
+package daewoo.team5.hotelreservation.domain.review.dto;
 
-import daewoo.team5.hotelreservation.domain.place.review.entity.Review;
-import daewoo.team5.hotelreservation.domain.place.review.projection.ReviewProjection;
+import daewoo.team5.hotelreservation.domain.review.projection.ReviewProjection;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

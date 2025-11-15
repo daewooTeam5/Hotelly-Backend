@@ -1,11 +1,11 @@
-package daewoo.team5.hotelreservation.domain.place.review.service;
+package daewoo.team5.hotelreservation.domain.review.service;
 
-import daewoo.team5.hotelreservation.domain.place.review.dto.CreateReviewCommentRequest;
-import daewoo.team5.hotelreservation.domain.place.review.entity.Review;
-import daewoo.team5.hotelreservation.domain.place.review.entity.ReviewComment;
-import daewoo.team5.hotelreservation.domain.place.review.projection.ReviewCommentProjection;
-import daewoo.team5.hotelreservation.domain.place.review.repository.ReviewCommentRepository;
-import daewoo.team5.hotelreservation.domain.place.review.repository.ReviewRepository;
+import daewoo.team5.hotelreservation.domain.review.dto.CreateReviewCommentRequest;
+import daewoo.team5.hotelreservation.domain.review.entity.Review;
+import daewoo.team5.hotelreservation.domain.review.entity.ReviewComment;
+import daewoo.team5.hotelreservation.domain.review.projection.ReviewCommentProjection;
+import daewoo.team5.hotelreservation.domain.review.repository.ReviewCommentRepository;
+import daewoo.team5.hotelreservation.domain.review.repository.ReviewRepository;
 import daewoo.team5.hotelreservation.domain.users.entity.UsersEntity;
 import daewoo.team5.hotelreservation.domain.users.projection.UserProjection;
 import daewoo.team5.hotelreservation.domain.users.repository.UsersRepository;

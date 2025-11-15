@@ -1,8 +1,8 @@
 // src/main/java/daewoo/team5/hotelreservation/domain/place/review/controller/ReviewCommentController.java
-package daewoo.team5.hotelreservation.domain.place.review.controller;
+package daewoo.team5.hotelreservation.domain.review.controller;
 
-import daewoo.team5.hotelreservation.domain.place.review.dto.CreateReviewCommentRequest;
-import daewoo.team5.hotelreservation.domain.place.review.service.ReviewCommentService;
+import daewoo.team5.hotelreservation.domain.review.dto.CreateReviewCommentRequest;
+import daewoo.team5.hotelreservation.domain.review.service.ReviewCommentService;
 import daewoo.team5.hotelreservation.domain.users.projection.UserProjection;
 import daewoo.team5.hotelreservation.global.aop.annotation.AuthUser;
 import daewoo.team5.hotelreservation.global.core.common.ApiResult;

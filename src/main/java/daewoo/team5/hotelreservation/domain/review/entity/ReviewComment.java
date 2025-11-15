@@ -1,4 +1,4 @@
-package daewoo.team5.hotelreservation.domain.place.review.entity;
+package daewoo.team5.hotelreservation.domain.review.entity;
 
 import daewoo.team5.hotelreservation.domain.users.entity.UsersEntity;
 import daewoo.team5.hotelreservation.global.core.common.BaseTimeEntity;

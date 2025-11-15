@@ -1,5 +1,5 @@
 // src/main/java/daewoo/team5/hotelreservation/domain/place/review/entity/ReviewImage.java
-package daewoo.team5.hotelreservation.domain.place.review.entity;
+package daewoo.team5.hotelreservation.domain.review.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;

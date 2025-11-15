@@ -1,8 +1,8 @@
 // src/main/java/daewoo/team5/hotelreservation/domain/place/review/repository/ReviewCommentRepository.java
-package daewoo.team5.hotelreservation.domain.place.review.repository;
+package daewoo.team5.hotelreservation.domain.review.repository;
 
-import daewoo.team5.hotelreservation.domain.place.review.entity.ReviewComment;
-import daewoo.team5.hotelreservation.domain.place.review.projection.ReviewCommentProjection;
+import daewoo.team5.hotelreservation.domain.review.entity.ReviewComment;
+import daewoo.team5.hotelreservation.domain.review.projection.ReviewCommentProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

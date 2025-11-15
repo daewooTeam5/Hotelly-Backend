@@ -1,4 +1,4 @@
-package daewoo.team5.hotelreservation.domain.place.review.projection;
+package daewoo.team5.hotelreservation.domain.review.projection;
 
 public interface ReviewCommentProjection {
     Long getId();

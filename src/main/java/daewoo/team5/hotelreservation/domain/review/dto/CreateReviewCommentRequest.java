@@ -1,5 +1,5 @@
 // src/main/java/daewoo/team5/hotelreservation/domain/place/review/dto/CreateReviewCommentRequest.java
-package daewoo.team5.hotelreservation.domain.place.review.dto;
+package daewoo.team5.hotelreservation.domain.review.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;

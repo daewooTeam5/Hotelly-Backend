@@ -1,8 +1,7 @@
-package daewoo.team5.hotelreservation.domain.place.review.controller;
+package daewoo.team5.hotelreservation.domain.review.controller;
 
-import daewoo.team5.hotelreservation.domain.place.review.dto.ReviewResponseDto;
-import daewoo.team5.hotelreservation.domain.place.review.repository.ReviewRepository;
-import daewoo.team5.hotelreservation.domain.place.review.service.ReviewService;
+import daewoo.team5.hotelreservation.domain.review.dto.ReviewResponseDto;
+import daewoo.team5.hotelreservation.domain.review.repository.ReviewRepository;
 import daewoo.team5.hotelreservation.global.core.common.ApiResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
