@@ -14,7 +14,6 @@ public class RoomInfoDto {
     private Integer capacityPeople;
     private Integer capacityRoom;
     private Double price;
-    private String status;
     private Integer availableRoom;
     private Double area;
     private List<String> images;

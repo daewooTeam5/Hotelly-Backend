@@ -86,7 +86,6 @@ public class PublishingService {
                     .price(BigDecimal.valueOf(roomDto.getMinPrice()))
                     .capacityPeople(roomDto.getCapacityPeople())
                     .capacityRoom(roomDto.getCapacityRoom())
-                    .status(RoomEntity.Status.AVAILABLE)
                     .place(place)
                     .build();
             roomRepository.save(room);
@@ -196,7 +195,6 @@ public class PublishingService {
                                 .bedType(r.getBedType())
                                 .price(BigDecimal.valueOf(r.getMinPrice()))
                                 .capacityPeople(r.getCapacityPeople())
-                                .status(RoomEntity.Status.AVAILABLE)
                                 .place(place)
                                 .build())
                         .toList()
@@ -321,7 +319,6 @@ public class PublishingService {
                             .id(p.getId())
                             .hotelName(p.getName())
                             .description(p.getDescription())
-                            .minPrice(p.getMinPrice())
                             .checkIn(p.getCheckIn().toString())
                             .checkOut(p.getCheckOut().toString())
                             .address(addressDto)

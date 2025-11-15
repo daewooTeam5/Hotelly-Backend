@@ -12,7 +12,8 @@ import lombok.Builder;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Entity
+@Table(name = "room_amenity")
+@Entity(name = "RoomAmenity")
 public class RoomAmenityEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

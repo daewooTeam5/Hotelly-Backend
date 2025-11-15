@@ -1,0 +1,191 @@
+// src/main/java/daewoo/team5/hotelreservation/domain/place/review/service/ReviewService.java
+package daewoo.team5.hotelreservation.domain.review.service;
+
+import daewoo.team5.hotelreservation.domain.payment.entity.ReservationEntity;
+import daewoo.team5.hotelreservation.domain.payment.repository.GuestRepository;
+import daewoo.team5.hotelreservation.domain.place.entity.PlacesEntity;
+import daewoo.team5.hotelreservation.domain.place.repository.PlaceRepository;
+import daewoo.team5.hotelreservation.domain.place.repository.ReservationRepository;
+import daewoo.team5.hotelreservation.domain.review.dto.*;
+import daewoo.team5.hotelreservation.domain.review.entity.Review;
+import daewoo.team5.hotelreservation.domain.review.entity.ReviewComment;
+import daewoo.team5.hotelreservation.domain.review.entity.ReviewImage;
+import daewoo.team5.hotelreservation.domain.review.projection.ReviewImageProjection;
+import daewoo.team5.hotelreservation.domain.review.projection.ReviewProjection;
+import daewoo.team5.hotelreservation.domain.review.repository.ReviewImageRepository;
+import daewoo.team5.hotelreservation.domain.review.repository.ReviewRepository;
+import daewoo.team5.hotelreservation.domain.users.entity.UsersEntity;
+import daewoo.team5.hotelreservation.domain.users.projection.UserProjection;
+import daewoo.team5.hotelreservation.domain.users.repository.UsersRepository;
+import daewoo.team5.hotelreservation.global.exception.ApiException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+@Transactional
+public class ReviewService {
+
+    private final ReviewRepository reviewRepository;
+    private final ReservationRepository reservationRepository;
+    private final UsersRepository usersRepository;
+    private final GuestRepository guestRepository;
+    private final PlaceRepository placeRepository;
+    private final ReviewImageRepository reviewImageRepository;
+
+    @Transactional
+    public ReviewResponse createReview(Long placeId, CreateReviewRequest request, UserProjection userProjection) {
+        UsersEntity user = usersRepository.findById(userProjection.getId())
+                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다.", "존재하지 않는 사용자입니다."));
+
+        var currentGuest = guestRepository.findByUsersId(user.getId())
+                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "게스트 정보를 찾을 수 없습니다.", "게스트 정보가 존재하지 않습니다."));
+
+        // ✅ [수정] 요청받은 reservationId로 예약 정보를 직접 조회
+        ReservationEntity reservation = reservationRepository.findById(request.getReservationId())
+                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "예약 정보를 찾을 수 없습니다.","예약 정보를 찾을 수 없습니다."));
+
+        // === 리뷰 작성 권한 검증 ===
+        if (!reservation.getGuest().getUsers().getId().equals(user.getId())) {
+            throw new ApiException(HttpStatus.FORBIDDEN, "리뷰 작성 권한이 없습니다.", "본인의 예약에 대해서만 리뷰를 작성할 수 있습니다.");
+        }
+        if (!reservation.getRoom().getPlace().getId().equals(placeId)) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "잘못된 접근입니다.", "리뷰를 작성하려는 숙소와 예약된 숙소가 다릅니다.");
+        }
+        if (reviewRepository.existsByReservationReservationId(reservation.getReservationId())) {
+            throw new ApiException(HttpStatus.CONFLICT, "리뷰 중복", "이미 해당 예약에 대한 리뷰를 작성하셨습니다.");
+        }
+        if (reservation.getStatus() != ReservationEntity.ReservationStatus.checked_out) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "리뷰 작성 불가", "체크아웃이 완료된 예약에 대해서만 리뷰를 작성할 수 있습니다.");
+        }
+
+        PlacesEntity places = reservation.getRoom().getPlace();
+        Review review = Review.createReview(places, user, reservation, request.getRating(), request.getComment());
+
+        if (request.getImageUrls() != null && !request.getImageUrls().isEmpty()) {
+            List<ReviewImage> reviewImages = request.getImageUrls().stream()
+                    .map(url -> ReviewImage.builder().imageUrl(url).review(review).build())
+                    .collect(Collectors.toList());
+            review.getImages().addAll(reviewImages);
+        }
+
+        reviewRepository.save(review);
+
+        // ===== ✅ 효율적인 평균 평점 계산 로직 추가 =====
+        places.addReviewStats(request.getRating());
+        placeRepository.save(places); // 변경된 평점과 리뷰 수 저장
+
+        return new ReviewResponse(review);
+    }
+
+
+
+    // getReviewsByPlace, parseSortParameter 메서드는 이전과 동일
+    @Transactional(readOnly = true)
+    public List<ReviewResponse> getReviewsByPlace(Long placeId, String sortBy) {
+        Sort sort = parseSortParameter(sortBy);
+        return reviewRepository.findByPlaceId(placeId, sort)
+                .stream()
+                .map(ReviewResponse::new)
+                .collect(Collectors.toList());
+    }
+
+    public void deleteReview(Long reviewId, UserProjection userProjection) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "리뷰를 찾을 수 없습니다.", "존재하지 않는 리뷰입니다."));
+        if (!review.getUser().getId().equals(userProjection.getId())) {
+            throw new ApiException(HttpStatus.FORBIDDEN, "삭제 권한이 없습니다.", "본인이 작성한 리뷰만 삭제할 수 있습니다.");
+        }
+
+        // ===== ✅ 평균 평점 및 리뷰 수 업데이트 로직 추가 =====
+        PlacesEntity places = review.getPlace();
+        places.removeReviewStats(review.getRating());
+        placeRepository.save(places);
+
+        reviewRepository.delete(review);
+    }
+
+    //내 리뷰 보기
+    public List<MyReviewResponseDTO> getReviewsByUser(Long userId) {
+        return reviewRepository.findReviewsByUserId(userId).stream()
+                .map(MyReviewResponseDTO::new) // Projection 생성자 사용
+                .collect(Collectors.toList());
+    }
+
+    private Sort parseSortParameter(String sortBy) {
+        if (sortBy == null || sortBy.isBlank()) {
+            return Sort.by(Sort.Direction.DESC, "createdAt");
+        }
+        String[] parts = sortBy.split(",");
+        String property = parts[0].trim();
+        Sort.Direction direction = parts.length > 1 ? Sort.Direction.fromString(parts[1].trim()) : Sort.Direction.DESC;
+
+        if (!List.of("createdAt", "rating").contains(property)) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "잘못된 정렬 기준입니다.", "허용되지 않은 정렬 속성입니다: " + property);
+        }
+        return Sort.by(direction, property);
+    }
+
+    public List<ReviewDto> getReviewsByPlaceId(Long placeId) {
+        return reviewRepository.findAllByPlaceIdWithDetails(placeId)
+                .stream()
+                .map(ReviewDto::fromEntity)
+                .toList();
+    }
+
+    public List<ReviewProjection> getUserReviews(Long userId) {
+        return reviewRepository.findReviewsByUserId(userId);
+    }
+
+    public List<ReviewImageProjection> getUserReviewImages(Long userId) {
+        return reviewImageRepository.findReviewImagesByUserId(userId);
+    }
+
+    public Page<MyReviewResponse> getMyReviews(Long userId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Review> reviews = reviewRepository.findByUserIdWithDetails(userId, pageable);
+
+        return reviews.map(this::convertToMyReviewResponse);
+    }
+
+    private MyReviewResponse convertToMyReviewResponse(Review review) {
+        return MyReviewResponse.builder()
+                .reviewId(review.getReviewId())
+                .place(MyReviewResponse.PlaceInfo.builder()
+                        .placeId(review.getPlace().getId())
+                        .placeName(review.getPlace().getName())
+                        .categoryName(review.getPlace().getCategory().getName())
+                        .build())
+                .rating(review.getRating())
+                .comment(review.getComment())
+                .imageUrls(review.getImages().stream()
+                        .map(ReviewImage::getImageUrl)
+                        .collect(Collectors.toList()))
+                .ownerComment(convertToOwnerCommentInfo(review.getCommentByOwner()))
+                .createdAt(review.getCreatedAt())
+                .build();
+    }
+
+    private MyReviewResponse.OwnerCommentInfo convertToOwnerCommentInfo(ReviewComment comment) {
+        if (comment == null) {
+            return null;
+        }
+
+        return MyReviewResponse.OwnerCommentInfo.builder()
+                .commentId(comment.getId())
+                .comment(comment.getComment())
+                .ownerName(comment.getUser().getName())
+                .createdAt(comment.getCreatedAt())
+                .build();
+    }
+
+}

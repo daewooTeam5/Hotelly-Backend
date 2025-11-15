@@ -10,7 +10,6 @@ public interface RoomInfo {
     Integer getCapacityPeople();
     Integer getCapacityRoom();
     Double getPrice();
-    String getStatus();
     Integer getAvailableRoom();
     Double getArea();
     String getImages();

@@ -81,10 +81,10 @@ public interface RoomRepository extends JpaRepository<RoomEntity, Long> {
     long countTotalRoomsByOwner(@Param("ownerId") Long ownerId);
 
     // 상태별 + 유형별 카운트
-    @Query("SELECT r.status, r.roomType, COUNT(r) " +
+    @Query("SELECT  r.roomType, COUNT(r) " +
             "FROM room r JOIN r.place p " +
             "WHERE p.owner.id = :ownerId " +
-            "GROUP BY r.status, r.roomType")
+            "GROUP BY  r.roomType")
     List<Object[]> countRoomStatusWithTypesByOwner(@Param("ownerId") Long ownerId);
 
 }

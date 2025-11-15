@@ -79,7 +79,6 @@ public class PlaceService {
                         r.getCapacityPeople(),
                         r.getCapacityRoom(),
                         r.getPrice(),
-                        r.getStatus(),
                         r.getAvailableRoom(),
                         r.getArea(),
                         splitImages(r.getImages()),

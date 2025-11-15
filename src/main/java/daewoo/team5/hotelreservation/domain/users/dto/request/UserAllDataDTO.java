@@ -4,9 +4,9 @@ import daewoo.team5.hotelreservation.domain.coupon.projection.CouponIssuedProjec
 import daewoo.team5.hotelreservation.domain.payment.projection.PaymentProjection;
 import daewoo.team5.hotelreservation.domain.payment.projection.PointProjection;
 import daewoo.team5.hotelreservation.domain.payment.projection.ReservationProjection;
-import daewoo.team5.hotelreservation.domain.place.review.projection.ReviewCommentProjection;
-import daewoo.team5.hotelreservation.domain.place.review.projection.ReviewImageProjection;
-import daewoo.team5.hotelreservation.domain.place.review.projection.ReviewProjection;
+import daewoo.team5.hotelreservation.domain.review.projection.ReviewCommentProjection;
+import daewoo.team5.hotelreservation.domain.review.projection.ReviewImageProjection;
+import daewoo.team5.hotelreservation.domain.review.projection.ReviewProjection;
 import daewoo.team5.hotelreservation.domain.question.projection.QuestionProjection;
 import daewoo.team5.hotelreservation.domain.users.projection.UserProjection;
 import lombok.*;

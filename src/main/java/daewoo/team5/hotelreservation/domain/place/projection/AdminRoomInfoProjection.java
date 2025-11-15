@@ -8,5 +8,4 @@ public interface AdminRoomInfoProjection {
     Integer getCapacityPeople();
     Integer getCapacityRoom();
     BigDecimal getPrice();
-    String getStatus();
 }

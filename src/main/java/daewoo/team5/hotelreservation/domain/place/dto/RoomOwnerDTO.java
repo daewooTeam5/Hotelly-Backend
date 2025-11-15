@@ -18,5 +18,4 @@ public class RoomOwnerDTO {
     private Integer capacityPeople;
     private Integer capacityRoom;
     private BigDecimal price;
-    private RoomEntity.Status status;
 }

@@ -9,9 +9,9 @@ import daewoo.team5.hotelreservation.domain.payment.repository.PointHistoryRepos
 import daewoo.team5.hotelreservation.domain.file.entity.FileEntity;
 import daewoo.team5.hotelreservation.domain.place.repository.PaymentRepository;
 import daewoo.team5.hotelreservation.domain.place.repository.ReservationRepository;
-import daewoo.team5.hotelreservation.domain.place.review.repository.ReviewCommentRepository;
-import daewoo.team5.hotelreservation.domain.place.review.repository.ReviewImageRepository;
-import daewoo.team5.hotelreservation.domain.place.review.repository.ReviewRepository;
+import daewoo.team5.hotelreservation.domain.review.repository.ReviewCommentRepository;
+import daewoo.team5.hotelreservation.domain.review.repository.ReviewImageRepository;
+import daewoo.team5.hotelreservation.domain.review.repository.ReviewRepository;
 import daewoo.team5.hotelreservation.domain.question.repository.QuestionRepository;
 import daewoo.team5.hotelreservation.domain.users.dto.request.OwnerRequestDto;
 import daewoo.team5.hotelreservation.domain.users.dto.request.UserAllDataDTO;
