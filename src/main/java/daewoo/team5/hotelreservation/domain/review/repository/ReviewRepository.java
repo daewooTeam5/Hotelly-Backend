@@ -1,9 +1,9 @@
 // src/main/java/daewoo/team5/hotelreservation/domain/place/review/repository/ReviewRepository.java
-package daewoo.team5.hotelreservation.domain.place.review.repository;
+package daewoo.team5.hotelreservation.domain.review.repository;
 
-import daewoo.team5.hotelreservation.domain.place.review.dto.ReviewResponseDto;
-import daewoo.team5.hotelreservation.domain.place.review.entity.Review;
-import daewoo.team5.hotelreservation.domain.place.review.projection.ReviewProjection;
+import daewoo.team5.hotelreservation.domain.review.dto.ReviewResponseDto;
+import daewoo.team5.hotelreservation.domain.review.entity.Review;
+import daewoo.team5.hotelreservation.domain.review.projection.ReviewProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -29,7 +29,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     // 특정 숙소 주인의 최근 리뷰 3개 (reviews → places → owner_id)
     List<Review> findTop3ByPlace_OwnerIdOrderByCreatedAtDesc(Long ownerId);
 
-    @Query("SELECT new daewoo.team5.hotelreservation.domain.place.review.dto.ReviewResponseDto(" +
+    @Query("SELECT new daewoo.team5.hotelreservation.domain.review.dto.ReviewResponseDto(" +
             "r.reviewId, u.name, u.role, r.comment, p.name, rc.comment, r.rating) " +
             "FROM Review r " +
             "JOIN r.user u " +
@@ -37,7 +37,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
             "LEFT JOIN r.commentByOwner rc")
     List<ReviewResponseDto> findAllReviewsWithDetails();
 
-    @Query("SELECT new daewoo.team5.hotelreservation.domain.place.review.dto.ReviewResponseDto(" +
+    @Query("SELECT new daewoo.team5.hotelreservation.domain.review.dto.ReviewResponseDto(" +
             "r.reviewId, u.name, u.role, r.comment, p.name, rc.comment, r.rating) " +
             "FROM Review r " +
             "JOIN r.user u " +

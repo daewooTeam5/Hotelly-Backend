@@ -1,9 +1,9 @@
 // daewooteam5/hotelreservation-backend/HotelReservation-Backend-feature-review3/src/main/java/daewoo/team5/hotelreservation/domain/place/review/dto/ReviewResponse.java
-package daewoo.team5.hotelreservation.domain.place.review.dto;
+package daewoo.team5.hotelreservation.domain.review.dto;
 
-import daewoo.team5.hotelreservation.domain.place.review.entity.Review;
-import daewoo.team5.hotelreservation.domain.place.review.entity.ReviewComment;
-import daewoo.team5.hotelreservation.domain.place.review.entity.ReviewImage;
+import daewoo.team5.hotelreservation.domain.review.entity.Review;
+import daewoo.team5.hotelreservation.domain.review.entity.ReviewComment;
+import daewoo.team5.hotelreservation.domain.review.entity.ReviewImage;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
