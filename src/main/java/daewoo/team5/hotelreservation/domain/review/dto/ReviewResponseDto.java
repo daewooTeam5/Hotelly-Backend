@@ -1,4 +1,4 @@
-package daewoo.team5.hotelreservation.domain.place.review.dto;
+package daewoo.team5.hotelreservation.domain.review.dto;
 
 import daewoo.team5.hotelreservation.domain.users.entity.UsersEntity;
 import lombok.AllArgsConstructor;
