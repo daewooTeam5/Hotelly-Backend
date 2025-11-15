@@ -1,11 +1,7 @@
 package daewoo.team5.hotelreservation.domain.users.controller;
 
-import daewoo.team5.hotelreservation.domain.place.review.dto.MyReviewResponse;
-import daewoo.team5.hotelreservation.domain.place.review.dto.MyReviewResponseDTO;
-import daewoo.team5.hotelreservation.domain.place.review.service.ReviewService;
-import daewoo.team5.hotelreservation.domain.users.projection.UserProjection;
-import daewoo.team5.hotelreservation.global.aop.annotation.AuthUser;
-import daewoo.team5.hotelreservation.global.core.common.ApiResult;
+import daewoo.team5.hotelreservation.domain.review.dto.MyReviewResponse;
+import daewoo.team5.hotelreservation.domain.review.service.ReviewService;
 
 
 import org.springframework.data.domain.Page;
@@ -16,8 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
-
-import java.util.List;
 
 
 @RestController

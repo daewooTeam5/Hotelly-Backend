@@ -2,7 +2,7 @@ package daewoo.team5.hotelreservation.domain.place.service;
 
 import daewoo.team5.hotelreservation.domain.payment.service.PaymentService;
 import daewoo.team5.hotelreservation.domain.place.dto.AdminPlaceDetailResponse;
-import daewoo.team5.hotelreservation.domain.place.review.service.ReviewService;
+import daewoo.team5.hotelreservation.domain.review.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

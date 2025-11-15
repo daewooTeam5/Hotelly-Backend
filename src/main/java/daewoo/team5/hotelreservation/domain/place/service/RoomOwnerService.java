@@ -59,7 +59,6 @@ public class RoomOwnerService {
                 .capacityPeople(dto.getCapacityPeople())
                 .capacityRoom(dto.getCapacityRoom())
                 .price(BigDecimal.valueOf(dto.getMinPrice()))
-                .status(RoomEntity.Status.AVAILABLE)
                 .place(place)  // 🔑 ownerId로 매핑된 place
                 .build();
         roomRepository.save(room);
@@ -109,7 +108,6 @@ public class RoomOwnerService {
         room.setCapacityPeople(dto.getCapacityPeople());
         room.setCapacityRoom(dto.getCapacityRoom());
         room.setPrice(dto.getPrice());
-        room.setStatus(dto.getStatus());
 
         return toDTO(roomRepository.save(room));
     }
@@ -129,7 +127,6 @@ public class RoomOwnerService {
                 .capacityPeople(room.getCapacityPeople())
                 .capacityRoom(room.getCapacityRoom())
                 .price(room.getPrice())
-                .status(room.getStatus())
                 .build();
     }
 
@@ -141,7 +138,6 @@ public class RoomOwnerService {
                 .capacityPeople(dto.getCapacityPeople())
                 .capacityRoom(dto.getCapacityRoom())
                 .price(dto.getPrice())
-                .status(dto.getStatus())
                 .build();
     }
 

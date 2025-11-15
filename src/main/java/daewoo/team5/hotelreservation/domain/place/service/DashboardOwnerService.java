@@ -7,8 +7,8 @@ import daewoo.team5.hotelreservation.domain.place.repository.PlaceRepository;
 import daewoo.team5.hotelreservation.domain.place.repository.ReservationRepository;
 import daewoo.team5.hotelreservation.domain.place.repository.RoomRepository;
 import daewoo.team5.hotelreservation.domain.place.repository.PaymentRepository;
-import daewoo.team5.hotelreservation.domain.place.review.entity.Review;
-import daewoo.team5.hotelreservation.domain.place.review.repository.ReviewRepository;
+import daewoo.team5.hotelreservation.domain.review.entity.Review;
+import daewoo.team5.hotelreservation.domain.review.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

@@ -12,7 +12,6 @@ public interface PlaceInfoProjection {
     Boolean getIsPublic();
     BigDecimal getAvgRating();
     Integer getReviewCount();
-    BigDecimal getMinPrice();
     String getSido();
     String getSigungu();
     String getRoadName();

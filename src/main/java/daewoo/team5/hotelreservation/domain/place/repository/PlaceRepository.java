@@ -189,7 +189,6 @@ public interface PlaceRepository extends JpaRepository<PlacesEntity, Long> {
               r.capacity_people AS capacityPeople,
               r.capacity_room AS capacityRoom,
               r.price AS price,
-              r.status AS status,
               COALESCE(MIN(dpr.available_room), r.capacity_room) AS availableRoom,
               r.area AS area,
               GROUP_CONCAT(DISTINCT f.url SEPARATOR ',') AS images,
@@ -214,7 +213,7 @@ public interface PlaceRepository extends JpaRepository<PlacesEntity, Long> {
             LEFT JOIN daily_place_reservation dpr
                    ON dpr.room_id = r.id
                   AND dpr.date >= :startDate AND dpr.date < :endDate
-            LEFT JOIN room_amenity_entity rae
+            LEFT JOIN room_amenity rae
                    ON rae.room_id = r.id
             LEFT JOIN amenity a
                    ON a.id = rae.amenity_id
@@ -225,7 +224,7 @@ public interface PlaceRepository extends JpaRepository<PlacesEntity, Long> {
                   AND dr.date BETWEEN d.start_date AND d.end_date
             WHERE r.place_id = :placeId
             GROUP BY r.id, r.room_type, r.bed_type, r.capacity_people,
-                     r.capacity_room, r.price, r.status, r.area
+                     r.capacity_room, r.price, r.area
             """, nativeQuery = true)
     List<RoomInfo> findRoomsByPlace(
             @Param("placeId") Long placeId,
@@ -278,7 +277,7 @@ public interface PlaceRepository extends JpaRepository<PlacesEntity, Long> {
     @Query("""
             SELECT p.id as placeId, p.name as placeName, p.description as description,
                    p.status as status, p.isPublic as isPublic, p.avgRating as avgRating,
-                   p.reviewCount as reviewCount, p.minPrice as minPrice,
+                   p.reviewCount as reviewCount,
                    pa.sido as sido, pa.sigungu as sigungu, pa.roadName as roadName,
                    pa.detailAddress as detailAddress,
                    (SELECT f.url FROM File f
