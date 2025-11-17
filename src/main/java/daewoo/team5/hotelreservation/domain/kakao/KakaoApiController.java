@@ -18,7 +18,7 @@ import java.util.Map;
 public class KakaoApiController {
 
     /**
-     * .env.properties 또는 application.yml 파일에 설정된 카카오 API 키 값을 주입받습니다.
+     * ..env.properties 또는 application.yml 파일에 설정된 카카오 API 키 값을 주입받습니다.
      */
     @Value("${kakao.api.key}")
     private String kakaoApiKey;

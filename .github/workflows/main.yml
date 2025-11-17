@@ -21,7 +21,7 @@ jobs:
       - name: ✅ Checkout Repository
         uses: actions/checkout@v4
 
-      - name: ⚙️ Create env.properties
+      - name: ⚙️ Create .env.properties
         run: |
           mkdir -p src/main/resources/properties
           echo "${{ secrets.ENV }}" > src/main/resources/properties/.env.properties
