@@ -1,4 +1,4 @@
-package daewoo.team5.hotelreservation.domain.place.repository.projection;
+package daewoo.team5.hotelreservation.domain.place.projection;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -31,6 +31,7 @@ public interface PaymentSummaryProjection {
     Long getRoomId();
     Integer getRoomNumber();
     String getRoomType();
+    String getRoomName();
 
     // First image (for place/room card)
     String getFirstImageUrl();

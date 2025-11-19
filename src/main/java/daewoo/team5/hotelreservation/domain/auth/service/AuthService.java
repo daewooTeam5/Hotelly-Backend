@@ -78,9 +78,10 @@ public class AuthService {
         return currentUser;
     }
 
-    public void logout(String refreshToken) {
+    public void logout(UserProjection user, LogoutDto logoutDto, String refreshToken) {
         long expirationTime = jwtProvider.parseClaims(refreshToken).getExpiration().getTime();
         blackListRepository.addToBlackList(refreshToken, expirationTime);
+
     }
 
     public UsersEntity adminSignUp(SignUpRequest signUpRequest) {
@@ -129,7 +130,7 @@ public class AuthService {
     public void sendOtpCode(String email) {
         String otpCode = otpRepository.generateOtp(email);
         log.info("Generated OTP Code: {}", otpCode);
-        mailService.sendHtmlMailAsync(email,"hotelly 인증 코드 전송",emailTemplate.getVerificationEmailTemplate(otpCode));
+        mailService.sendHtmlMailAsync(email, "hotelly 인증 코드 전송", emailTemplate.getVerificationEmailTemplate(otpCode));
     }
 
     @Transactional
@@ -181,8 +182,8 @@ public class AuthService {
         return newAccessToken;
     }
 
-    public String saveFcmToken(Long userId, String fcmToken) {
-        String cacheFcmToken = fcmCacheRepository.getFcmToken(userId);
+    public String saveFcmToken(Long userId, String fcmToken, UserFcmEntity.DeviceType device) {
+        String cacheFcmToken = fcmCacheRepository.getFcmToken(userId, device);
 
         // 1. 캐시에 토큰 존재하고 같으면 그대로 리턴
         if (cacheFcmToken != null && cacheFcmToken.equals(fcmToken)) {
@@ -197,15 +198,16 @@ public class AuthService {
             if (!userFcmEntity.getToken().equals(fcmToken)) {
                 userFcmEntity.setToken(fcmToken);
                 userFcmRepository.save(userFcmEntity);
-                fcmCacheRepository.saveFcmToken(userId, fcmToken);
+                fcmCacheRepository.saveFcmToken(userId, device, fcmToken);
             }
         } else {
             // 2-2. DB에 토큰이 존재하지 않을 경우 -> 생성
             userFcmRepository.save(UserFcmEntity.builder()
                     .user(usersRepository.findById(userId).orElseThrow(UserNotFoundException::new))
                     .token(fcmToken)
+                    .deviceType(device)
                     .build());
-            fcmCacheRepository.saveFcmToken(userId, fcmToken);
+            fcmCacheRepository.saveFcmToken(userId,device, fcmToken);
         }
         return fcmToken;
     }

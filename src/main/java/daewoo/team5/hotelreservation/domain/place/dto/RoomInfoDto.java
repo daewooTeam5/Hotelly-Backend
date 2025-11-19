@@ -9,6 +9,7 @@ import java.util.List;
 @AllArgsConstructor
 public class RoomInfoDto {
     private Long roomId;
+    private String roomName;
     private String roomType;
     private String bedType;
     private Integer capacityPeople;

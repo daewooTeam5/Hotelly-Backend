@@ -189,6 +189,7 @@ public interface PlaceRepository extends JpaRepository<PlacesEntity, Long> {
               r.capacity_people AS capacityPeople,
               r.capacity_room AS capacityRoom,
               r.price AS price,
+              r.room_name AS roomName,
               COALESCE(MIN(dpr.available_room), r.capacity_room) AS availableRoom,
               r.area AS area,
               GROUP_CONCAT(DISTINCT f.url SEPARATOR ',') AS images,

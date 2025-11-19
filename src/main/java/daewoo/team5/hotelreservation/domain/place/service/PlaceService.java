@@ -74,6 +74,7 @@ public class PlaceService {
         List<RoomInfoDto> roomDtos = roomEntities.stream()
                 .map(r -> new RoomInfoDto(
                         r.getRoomId(),
+                        r.getRoomName(),
                         r.getRoomType(),
                         r.getBedType(),
                         r.getCapacityPeople(),

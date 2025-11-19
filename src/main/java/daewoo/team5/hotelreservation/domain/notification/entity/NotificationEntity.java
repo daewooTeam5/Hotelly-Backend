@@ -29,6 +29,9 @@ public class NotificationEntity extends BaseTimeEntity {
     private String content;
 
     @Column
+    private String link;
+
+    @Column
     @Enumerated(EnumType.STRING)
     private NotificationType notificationType;
 

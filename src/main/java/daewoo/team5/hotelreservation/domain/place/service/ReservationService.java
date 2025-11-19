@@ -8,16 +8,16 @@ import daewoo.team5.hotelreservation.domain.coupon.entity.UserCouponEntity;
 import daewoo.team5.hotelreservation.domain.coupon.repository.CouponHistoryRepository;
 import daewoo.team5.hotelreservation.domain.coupon.repository.CouponRepository;
 import daewoo.team5.hotelreservation.domain.coupon.repository.UserCouponRepository;
-
 import daewoo.team5.hotelreservation.domain.notification.entity.NotificationEntity;
 import daewoo.team5.hotelreservation.domain.notification.repository.NotificationRepository;
-
+import daewoo.team5.hotelreservation.domain.notification.service.NotificationService;
 import daewoo.team5.hotelreservation.domain.payment.dto.TossCancelResponse;
 import daewoo.team5.hotelreservation.domain.payment.entity.GuestEntity;
 import daewoo.team5.hotelreservation.domain.payment.entity.PaymentEntity;
+import daewoo.team5.hotelreservation.domain.payment.entity.PointHistoryEntity;
+import daewoo.team5.hotelreservation.domain.payment.entity.ReservationEntity;
 import daewoo.team5.hotelreservation.domain.payment.projection.NonMemberReservationDetailProjection;
 import daewoo.team5.hotelreservation.domain.payment.projection.PaymentProjection;
-import daewoo.team5.hotelreservation.domain.payment.entity.PointHistoryEntity;
 import daewoo.team5.hotelreservation.domain.payment.projection.ReservationInfoProjection;
 import daewoo.team5.hotelreservation.domain.payment.projection.ReservationProjection;
 import daewoo.team5.hotelreservation.domain.payment.repository.GuestRepository;
@@ -26,18 +26,18 @@ import daewoo.team5.hotelreservation.domain.payment.service.TossPaymentService;
 import daewoo.team5.hotelreservation.domain.place.dto.*;
 import daewoo.team5.hotelreservation.domain.place.entity.DailyPlaceReservationEntity;
 import daewoo.team5.hotelreservation.domain.place.entity.PlacesEntity;
+import daewoo.team5.hotelreservation.domain.place.projection.ReservationUser;
 import daewoo.team5.hotelreservation.domain.place.repository.*;
 import daewoo.team5.hotelreservation.domain.place.specification.ReservationSpecification;
-import daewoo.team5.hotelreservation.domain.payment.entity.ReservationEntity;
 import daewoo.team5.hotelreservation.domain.users.entity.UsersEntity;
 import daewoo.team5.hotelreservation.domain.users.projection.UserProjection;
 import daewoo.team5.hotelreservation.domain.users.repository.UsersRepository;
 import daewoo.team5.hotelreservation.global.exception.ApiException;
 import daewoo.team5.hotelreservation.infrastructure.firebasefcm.FcmService;
+import daewoo.team5.hotelreservation.infrastructure.mail.EmailTemplate;
+import daewoo.team5.hotelreservation.infrastructure.mail.MailService;
 import lombok.RequiredArgsConstructor;
-
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -71,6 +71,9 @@ public class ReservationService {
     private final UserFcmRepository userFcmRepository;
     private final FcmService fcmService;
     private final PlaceRepository placeRepository;
+    private final MailService mailService;
+    private final EmailTemplate emailTemplate;
+    private final NotificationService notificationService;
 
     /**
      * ✅ [추가] 리뷰 작성 가능한 예약 목록을 조회하는 서비스 로직
@@ -81,7 +84,7 @@ public class ReservationService {
             return List.of(); // 비로그인 시 빈 목록 반환
         }
         GuestEntity guest = guestRepository.findByUsersId(user.getId())
-                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "투숙객 정보를 찾을 수 없습니다.","투숙객 정보를 찾을 수 없습니다."));
+                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "투숙객 정보를 찾을 수 없습니다.", "투숙객 정보를 찾을 수 없습니다."));
 
         return reservationRepository.findReviewableReservations(guest.getId(), placeId);
     }
@@ -235,7 +238,7 @@ public class ReservationService {
         }
 
         // 쿠폰 복구
-        if(r.getGuest().getUsers()!=null) {
+        if (r.getGuest().getUsers() != null) {
             log.info("Finding coupon history for reservation: {}", r.getReservationId());
             couponHistoryRepository.findByReservation_idWithUsed(r.getReservationId()).ifPresent(ch -> {
                 log.info("Cancelling coupon history: {}", ch.getId());
@@ -288,10 +291,10 @@ public class ReservationService {
         return toDetailDTO(saved);
     }
 
-    public void backupPoint(ReservationEntity r, UsersEntity users){
+    public void backupPoint(ReservationEntity r, UsersEntity users) {
         // 로그인 안한 유저면 패스
         // 포인트 적립된값 차감
-        PointHistoryEntity pointHistory = pointHistoryRepository.findByReservationAndType(r,PointHistoryEntity.PointType.EARN).orElseThrow(() -> new ApiException(
+        PointHistoryEntity pointHistory = pointHistoryRepository.findByReservationAndType(r, PointHistoryEntity.PointType.EARN).orElseThrow(() -> new ApiException(
                 HttpStatus.NOT_FOUND,
                 "Point History Not Found",
                 "해당 예약의 포인트 내역이 존재하지 않습니다."
@@ -303,13 +306,13 @@ public class ReservationService {
                         .type(PointHistoryEntity.PointType.USE)
                         .amount(pointHistory.getAmount())
                         .balanceAfter(balanceAfter)
-                        .description("예약 취소로 인한 포인트 차감 주문 번호 :"+r.getOrderId())
+                        .description("예약 취소로 인한 포인트 차감 주문 번호 :" + r.getOrderId())
                         .createdAt(LocalDateTime.now())
                         .build()
         );
         users.setPoint(balanceAfter);
         // 예약 에 사용한 포인트는 다시 적립
-        if(r.getPointDiscountAmount()!=null && r.getPointDiscountAmount()>0){
+        if (r.getPointDiscountAmount() != null && r.getPointDiscountAmount() > 0) {
             long pointAfter = users.getPoint() + r.getPointDiscountAmount();
             pointHistoryRepository.save(
                     PointHistoryEntity.builder()
@@ -317,7 +320,7 @@ public class ReservationService {
                             .type(PointHistoryEntity.PointType.EARN)
                             .amount(r.getPointDiscountAmount().longValue())
                             .balanceAfter(pointAfter)
-                            .description("예약 취소로 인한 사용포인트 복원 주문 번호 :"+r.getOrderId())
+                            .description("예약 취소로 인한 사용포인트 복원 주문 번호 :" + r.getOrderId())
                             .createdAt(LocalDateTime.now())
                             .build()
             );
@@ -351,10 +354,11 @@ public class ReservationService {
 
     /**
      * 재고 조정 유틸 메서드
+     *
      * @param roomId 객실 ID
-     * @param start 예약 시작일
-     * @param end 예약 종료일
-     * @param delta 변경 수량 (+1 복구, -1 차감)
+     * @param start  예약 시작일
+     * @param end    예약 종료일
+     * @param delta  변경 수량 (+1 복구, -1 차감)
      */
     private void adjustInventory(Long roomId, LocalDate start, LocalDate end, int delta) {
         LocalDate date = start;
@@ -386,8 +390,9 @@ public class ReservationService {
 
     /**
      * 주석: 사용자가 특정 숙소에 대해 리뷰를 작성할 수 있는지 확인합니다.
+     *
      * @param placeId 확인할 숙소 ID
-     * @param user 현재 로그인한 사용자 정보
+     * @param user    현재 로그인한 사용자 정보
      * @return 리뷰 작성 가능 여부 (true/false)
      */
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
@@ -440,25 +445,25 @@ public class ReservationService {
                 "Not Found",
                 "해당 예약을 찾을 수 없습니다."
         ));
-        if(reservation.getStatus()!= ReservationEntity.ReservationStatus.confirmed){
+        if (reservation.getStatus() != ReservationEntity.ReservationStatus.confirmed) {
             throw new ApiException(
                     HttpStatus.BAD_REQUEST,
                     "Bad Request",
                     "체크인 가능한 상태가 아닙니다."
             );
         }
-        if(reservation.getResevStart().isBefore(LocalDate.now())){
+        if (reservation.getResevStart().isBefore(LocalDate.now())) {
             throw new ApiException(
                     HttpStatus.BAD_REQUEST,
                     "Bad Request",
                     "체크인 가능한 상태가 아닙니다."
             );
         }
-        if(reservation.getRoom().getPlace().getCheckIn().isAfter(LocalDateTime.now().toLocalTime())){
+        if (reservation.getRoom().getPlace().getCheckIn().isAfter(LocalDateTime.now().toLocalTime())) {
             throw new ApiException(
                     HttpStatus.BAD_REQUEST,
                     "체크인 가능한 시간이 아닙니다",
-                    String.format("숙소 체크인 시간 : %s 현재 시간 %s",reservation.getRoom().getPlace().getCheckIn(),LocalDateTime.now().toLocalTime())
+                    String.format("숙소 체크인 시간 : %s 현재 시간 %s", reservation.getRoom().getPlace().getCheckIn(), LocalDateTime.now().toLocalTime())
             );
         }
         return new CheckInResultDto(
@@ -473,14 +478,14 @@ public class ReservationService {
 
     public List<ReservationEntity> getTodayReservation(Long userId) {
         List<PlacesEntity> allByOwnerId = placeRepository.findAllByOwnerId(userId);
-        if(allByOwnerId.isEmpty()){
+        if (allByOwnerId.isEmpty()) {
             throw new ApiException(
                     HttpStatus.NOT_FOUND,
                     "Not Found",
                     "해당 소유자의 보유 숙소가 존재하지 않습니다."
             );
         }
-        return reservationRepository.findByRoomPlaceIdAndResevStart(allByOwnerId.get(0).getId(),LocalDate.now());
+        return reservationRepository.findByRoomPlaceIdAndResevStart(allByOwnerId.get(0).getId(), LocalDate.now());
     }
 
     @Transactional
@@ -488,5 +493,39 @@ public class ReservationService {
         ReservationEntity reservation = reservationRepository.findByOrderId(reservationId).orElseThrow();
         reservation.setStatus(ReservationEntity.ReservationStatus.checked_in);
         return true;
+    }
+
+    public void checkInOutNotifier(List<ReservationUser> allToCheckInOutUser){
+        allToCheckInOutUser.forEach(user -> {
+            // fcm 토큰이 있을시 fcm 전송
+            if (user.getUserFcmToken() != null) {
+                try {
+                    notificationService.sendNotification(
+                            user.getUserName() + "님 내일 " + user.getHotelName() + " 체크인 시간입니다.",
+                            "체크인시간은 " + user.getResevStart() + " 입니다. 객실 :" + user.getRoomName(),
+                            "/profile/payments/" + user.getReservationId(),
+                            user.getUserFcmToken(),
+                            NotificationEntity.NotificationType.CHECKIN
+                    );
+                } catch (Exception e) {
+                    throw new IllegalStateException("fcm 전송 실패");
+                }
+            }
+            mailService.sendHtmlMailAsync(user.getUserEmail(), user.getHotelName()+ " 체크인 알림", emailTemplate.getCheckInNotifyTemplate(user));
+
+        });
+    }
+    @Transactional
+    public void checkInNotifier(LocalDate today) {
+        // 예약 전날에 알림주기
+        List<ReservationUser> allToCheckInUser = reservationRepository.findAllToCheckInUser(today.plusDays(1));
+        checkInOutNotifier(allToCheckInUser);
+    }
+    @Transactional
+    public void checkOutNotifier(LocalDate today) {
+        // 체크아웃 전날 알림주기
+        List<ReservationUser> allToCheckInUser = reservationRepository.findAllToCheckOutUser(today.plusDays(1));
+        checkInOutNotifier(allToCheckInUser);
+
     }
 }

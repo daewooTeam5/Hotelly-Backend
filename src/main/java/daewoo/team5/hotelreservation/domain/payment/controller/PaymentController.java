@@ -22,7 +22,7 @@ import daewoo.team5.hotelreservation.domain.users.repository.UsersRepository;
 import daewoo.team5.hotelreservation.global.aop.annotation.AuthUser;
 import daewoo.team5.hotelreservation.global.core.common.ApiResult;
 import daewoo.team5.hotelreservation.global.exception.ApiException;
-import daewoo.team5.hotelreservation.global.mail.service.MailService;
+import daewoo.team5.hotelreservation.infrastructure.mail.MailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -83,7 +83,7 @@ public class PaymentController {
 
 
         // 이메일 발송 (회원/비회원 공통)
-        mailService.sendReservationConfirmation(guestEmail, paymentDetail);
+//        mailService.sendReservationConfirmation(guestEmail, paymentDetail);
 
 
         // 포인트 적립 (회원 전용)

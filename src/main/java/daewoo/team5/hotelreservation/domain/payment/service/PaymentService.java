@@ -24,7 +24,7 @@ import daewoo.team5.hotelreservation.domain.place.entity.DailyPlaceReservationEn
 import daewoo.team5.hotelreservation.domain.place.entity.PlacesEntity;
 import daewoo.team5.hotelreservation.domain.place.entity.RoomEntity;
 import daewoo.team5.hotelreservation.domain.place.repository.*;
-import daewoo.team5.hotelreservation.domain.place.repository.projection.PaymentSummaryProjection;
+import daewoo.team5.hotelreservation.domain.place.projection.PaymentSummaryProjection;
 import daewoo.team5.hotelreservation.domain.users.entity.UsersEntity;
 import daewoo.team5.hotelreservation.domain.users.projection.MyInfoProjection;
 import daewoo.team5.hotelreservation.domain.users.projection.UserProjection;

@@ -23,13 +23,13 @@ public class RoomEntity extends BaseCUTimeEntity {
     @ManyToOne
     private PlacesEntity place; // 숙소 ID (FK: Place 테이블)
 
-    @Column(name = "room_name", length = 100, nullable = false)
+    @Column(name = "room_name", length = 200, nullable = false)
     private String roomName;
 
-    @Column(name = "room_type", length = 50)
+    @Column(name = "room_type", length = 100)
     private String roomType; // 방 유형
 
-    @Column(name = "bed_type", length = 50)
+    @Column(name = "bed_type", length = 100)
     private String bedType; // 침대 유형
 
     @Column(name = "capacity_people", nullable = false)

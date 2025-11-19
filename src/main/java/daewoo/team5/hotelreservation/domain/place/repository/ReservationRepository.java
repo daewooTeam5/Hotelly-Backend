@@ -6,6 +6,7 @@ import daewoo.team5.hotelreservation.domain.payment.projection.ReservationInfoPr
 import daewoo.team5.hotelreservation.domain.payment.projection.ReservationProjection;
 import daewoo.team5.hotelreservation.domain.place.dto.ChartDataResponse;
 import daewoo.team5.hotelreservation.domain.place.dto.ReviewableReservationResponse;
+import daewoo.team5.hotelreservation.domain.place.projection.ReservationUser;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -622,4 +623,44 @@ public interface ReservationRepository extends JpaRepository<ReservationEntity, 
                                                                                   @Param("email") String email);
 
     List<ReservationEntity> findByRoomPlaceIdAndResevStart(Long placeId, LocalDate resevStart);
+
+
+    @Query("""
+            SELECT
+            coalesce(u.id,r.guest.id) as userId,
+            coalesce(u.name,r.guest.firstName || r.guest.lastName) as userName,
+            coalesce(u.email,r.guest.email) as userEmail,
+            r.reservationId as reservationId,
+            uf.token as userFcmToken,
+            r.room.place.name as hotelName,
+            r.room.roomName as roomName,
+            r.resevStart as resevStart,
+            r.resevEnd as resevEnd
+            from Reservation r
+            left join Users u
+            on u.id = r.guest.users.id
+            left join userFcm uf
+            on uf.user.id = r.guest.users.id
+            where r.resevStart =:resevStart
+            """)
+    List<ReservationUser> findAllToCheckInUser(LocalDate resevStart);
+    @Query("""
+            SELECT
+            coalesce(u.id,r.guest.id) as userId,
+            coalesce(u.name,r.guest.firstName || r.guest.lastName) as userName,
+            coalesce(u.email,r.guest.email) as userEmail,
+            r.reservationId as reservationId,
+            uf.token as userFcmToken,
+            r.room.place.name as hotelName,
+            r.room.roomName as roomName,
+            r.resevStart as resevStart,
+            r.resevEnd as resevEnd
+            from Reservation r
+            left join Users u
+            on u.id = r.guest.users.id
+            left join userFcm uf
+            on uf.user.id = r.guest.users.id
+            where r.resevEnd =:resevEnd
+            """)
+    List<ReservationUser> findAllToCheckOutUser(LocalDate resevEnd);
 }

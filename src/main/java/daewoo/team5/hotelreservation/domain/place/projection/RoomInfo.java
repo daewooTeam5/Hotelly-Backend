@@ -5,6 +5,7 @@ import java.util.List;
 public interface RoomInfo {
     Long getPlaceId();
     Long getRoomId();
+    String getRoomName();
     String getRoomType();
     String getBedType();
     Integer getCapacityPeople();

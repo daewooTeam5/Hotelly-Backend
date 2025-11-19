@@ -1,10 +1,7 @@
 package daewoo.team5.hotelreservation.global.exception;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 // RFC 9457 Problem Details for HTTP APIs
 // 참고 주소 : https://www.rfc-editor.org/rfc/rfc9457.html
@@ -12,6 +9,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 public class ErrorDetails {
     // error 에 관련된 문서 링크
     private String type;
