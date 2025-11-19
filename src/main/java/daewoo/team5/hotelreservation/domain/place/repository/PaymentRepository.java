@@ -5,7 +5,7 @@ import daewoo.team5.hotelreservation.domain.payment.entity.PaymentEntity.Payment
 import daewoo.team5.hotelreservation.domain.payment.projection.*;
 import daewoo.team5.hotelreservation.domain.place.dto.ChartDataResponse;
 import daewoo.team5.hotelreservation.domain.place.entity.PlacesEntity;
-import daewoo.team5.hotelreservation.domain.place.repository.projection.PaymentSummaryProjection;
+import daewoo.team5.hotelreservation.domain.place.projection.PaymentSummaryProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;
@@ -139,6 +139,7 @@ public interface PaymentRepository extends JpaRepository<PaymentEntity, Long> {
             
                     rm.id                           AS roomId,
                     rm.room_type                    AS roomType,
+                    rm.room_name                    AS roomName,
             
                     img.image_url                   AS firstImageUrl
                 FROM payments p

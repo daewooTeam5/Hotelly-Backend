@@ -1,6 +1,5 @@
 package daewoo.team5.hotelreservation.domain.auth.dto;
 
-import daewoo.team5.hotelreservation.domain.auth.entity.UserFcmEntity;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -13,7 +12,6 @@ import lombok.AllArgsConstructor;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class SaveFcmTokenDto {
-    private String fcmToken;
-    private UserFcmEntity.DeviceType device;
+public class LogoutDto {
+    String fcmToken;
 }

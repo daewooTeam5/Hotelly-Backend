@@ -9,7 +9,7 @@ import daewoo.team5.hotelreservation.domain.payment.projection.PaymentDetailProj
 import daewoo.team5.hotelreservation.domain.payment.projection.PointHistorySummaryProjection;
 import daewoo.team5.hotelreservation.domain.payment.service.PaymentService;
 import daewoo.team5.hotelreservation.domain.payment.service.PointService;
-import daewoo.team5.hotelreservation.domain.place.repository.projection.PaymentSummaryProjection;
+import daewoo.team5.hotelreservation.domain.place.projection.PaymentSummaryProjection;
 import daewoo.team5.hotelreservation.domain.shoppingcart.projection.CartProjection;
 import daewoo.team5.hotelreservation.domain.shoppingcart.service.ShoppingCartService;
 import daewoo.team5.hotelreservation.domain.users.dto.OwnerRequestDto;

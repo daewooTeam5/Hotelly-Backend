@@ -45,13 +45,16 @@ public class AuthController implements AuthSwagger {
     }
 
     @PostMapping("/logout")
+    @AuthUser
     public ApiResult<Boolean> logout(
+            UserProjection user,
+            @RequestBody(required = false) LogoutDto logoutDto,
             @CookieValue(name = "refreshToken", required = false) String refreshToken,
             HttpServletResponse response
     ) {
         // refreshToken 쿠키 삭제
         cookieProvider.removeCookie("refreshToken", response);
-        authService.logout(refreshToken);
+        authService.logout(user, logoutDto, refreshToken);
         return ApiResult.ok(true, "로그아웃 되었습니다.");
     }
 
@@ -147,8 +150,8 @@ public class AuthController implements AuthSwagger {
     public ApiResult<Boolean> saveFcmToken(
             UserProjection user,
             @RequestBody SaveFcmTokenDto dto
-    ){
-        String firebaseToken = authService.saveFcmToken(user.getId(), dto.getFcmToken());
+    ) {
+        String firebaseToken = authService.saveFcmToken(user.getId(), dto.getFcmToken(), dto.getDevice());
         fcmService.subscribeToTopic("all", firebaseToken);
         return ApiResult.ok(true, "FCM 토큰 저장 성공");
     }

@@ -136,8 +136,10 @@ public class PlaceController {
                 ),
                 "위시리스트 조회 성공"
         );
-
-
+    }
+    @GetMapping()
+    public List<Object> getAvaliableCouponList(){
+        return null;
     }
 
     private Long extractUserId(Authentication authentication) {
