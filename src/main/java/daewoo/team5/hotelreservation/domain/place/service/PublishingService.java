@@ -83,6 +83,7 @@ public class PublishingService {
             RoomEntity room = RoomEntity.builder()
                     .roomType(roomDto.getRoomType() != null ? roomDto.getRoomType() : "single")
                     .bedType(roomDto.getBedType())
+                    .roomName(roomDto.getRoomType() != null ? roomDto.getRoomType() : "single"+" "+roomDto.getBedType())
                     .price(BigDecimal.valueOf(roomDto.getMinPrice()))
                     .capacityPeople(roomDto.getCapacityPeople())
                     .capacityRoom(roomDto.getCapacityRoom())
