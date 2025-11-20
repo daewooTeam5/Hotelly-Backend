@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -42,12 +43,21 @@ public class PlaceService {
             int start, String name, String checkIn, String checkOut,
             int people, int rooms,
             String placeCategory, Double minRating, Double minPrice, Double maxPrice,
-            String address,Long userId
+            String address, Long userId
     ) {
+        List<String> categoryList = Collections.emptyList();
+
+        if (placeCategory != null && !placeCategory.isBlank()) {
+            categoryList = Arrays.stream(placeCategory.split(","))
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .toList();
+        }
+
         return placeRepository.findAllSearchPlaceInfo(
                 name, checkIn, checkOut, people, rooms,
-                placeCategory, minRating, minPrice, maxPrice,
-                userId,address,
+                categoryList, minRating, minPrice, maxPrice,
+                userId, address,
                 PageRequest.of(start - 1, 10)
         );
     }
