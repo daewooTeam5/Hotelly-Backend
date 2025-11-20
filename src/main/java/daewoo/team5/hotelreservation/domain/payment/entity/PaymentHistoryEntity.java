@@ -1,5 +1,6 @@
 package daewoo.team5.hotelreservation.domain.payment.entity;
 
+import daewoo.team5.hotelreservation.global.core.util.AESConverter;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,6 +22,7 @@ public class PaymentHistoryEntity {
     private Long id;
 
     @Column(columnDefinition = "TEXT")
+    @Convert(converter = AESConverter.class)
     private String paymentInfo;
 
     @ManyToOne

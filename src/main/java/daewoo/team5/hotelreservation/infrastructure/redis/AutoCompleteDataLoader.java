@@ -34,7 +34,7 @@ public class AutoCompleteDataLoader implements CommandLineRunner {
         }
 
         // 2) 숙소명 데이터
-        List<PlacesEntity> places = placeRepository.findAll();
+        List<PlacesEntity> places = placeRepository.findTop10AllByOrderByAvgRatingDesc();
         for (PlacesEntity p : places) {
             redisService.saveKeyword(p.getName());
         }

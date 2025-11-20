@@ -290,6 +290,8 @@ public interface PlaceRepository extends JpaRepository<PlacesEntity, Long> {
             """)
     PlaceInfoProjection findPlaceInfo(@Param("placeId") Long placeId);
 
+    List<PlacesEntity> findTop10AllByOrderByAvgRatingDesc();
+
     List<PlacesEntity> findAllByOwnerId(Long ownerId);
 
     @Query(value = """
