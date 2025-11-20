@@ -53,7 +53,7 @@ public class CustomApiHandler implements ResponseBodyAdvice<Object> {
                 request.getRequestURI()
         );
         if ("production".equals(mode)) {
-            sendErrorToDiscord(request, response, e.getMessage(), e);
+//            sendErrorToDiscord(request, response, e.getMessage(), e);
         }
         return ResponseEntity.status(500).body(
                 ApiResult.builder()
@@ -76,7 +76,7 @@ public class CustomApiHandler implements ResponseBodyAdvice<Object> {
         log.error(e.toString());
 
         if ("production".equals(mode)) {
-            sendErrorToDiscord(request, response, e.getMessage(), e);
+//            sendErrorToDiscord(request, response, e.getMessage(), e);
         }
         return
                 ApiResult.builder()

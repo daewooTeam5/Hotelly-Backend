@@ -1,6 +1,5 @@
 package daewoo.team5.hotelreservation.domain.place.controller;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import daewoo.team5.hotelreservation.domain.coupon.entity.CouponEntity;
 import daewoo.team5.hotelreservation.domain.payment.service.PaymentService;
@@ -42,6 +41,7 @@ public class PlaceController {
     }
 
     @GetMapping("")
+    @AuthUser
     public ApiResult<Page<PlaceItemInfomation>> searchPlacesWithFilters(
             @RequestParam Integer start,
             @RequestParam(required = false) String name,
@@ -55,7 +55,7 @@ public class PlaceController {
             @RequestParam(required = false) Double minPrice,
             @RequestParam(required = false) Double maxPrice,
             @RequestParam(required = false) String address,
-            Authentication authentication
+            UserProjection user
     ) {
         LocalDate today = LocalDate.now();
 
@@ -68,7 +68,7 @@ public class PlaceController {
         LocalDate checkOutDate = (checkOut != null && !checkOut.isEmpty())
                 ? LocalDate.parse(checkOut)
                 : today.plusDays(1);
-        Long userId = extractUserId(authentication);
+        Long userId = user.getId();
         int people = (adults != null ? adults : 0) + (children != null ? children : 0);
         int roomCount = rooms != null ? rooms : 1;
 
@@ -140,38 +140,6 @@ public class PlaceController {
 //    @GetMapping()
     public List<Object> getAvaliableCouponList(){
         return null;
-    }
-
-    private Long extractUserId(Authentication authentication) {
-        Long userId = null;
-
-        if (authentication != null && authentication.isAuthenticated()) {
-            Object principal = authentication.getPrincipal();
-
-            if (principal instanceof UserProjection) {
-                // Projection을 principal로 쓸 때
-                userId = ((UserProjection) principal).getId();
-            } else if (principal instanceof Long) {
-                // JwtProvider에서 Long userId를 principal로 세팅했을 때
-                userId = (Long) principal;
-            } else if (principal instanceof String) {
-                // principal이 JSON 문자열일 수 있는 경우 대비
-                String principalStr = (String) principal;
-                try {
-                    ObjectMapper mapper = new ObjectMapper();
-                    Map<String, Object> subMap = mapper.readValue(principalStr, new TypeReference<>() {
-                    });
-                    userId = Long.valueOf(String.valueOf(subMap.get("id")));
-                } catch (Exception e) {
-                    // 혹시 그냥 userId 문자열인 경우
-                    try {
-                        userId = Long.valueOf(principalStr);
-                    } catch (NumberFormatException ignored) {
-                    }
-                }
-            }
-        }
-        return userId;
     }
 
     @GetMapping("/category")
