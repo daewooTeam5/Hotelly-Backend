@@ -103,6 +103,7 @@ public class PlaceController {
     }
 
     @GetMapping("/wishlist")
+    @AuthUser
     public ApiResult<Page<PlaceItemInfomation>> getUserWishList(
             @RequestParam Integer start,
             @RequestParam(required = false) String name,
@@ -115,10 +116,9 @@ public class PlaceController {
             @RequestParam(required = false) Double minRating,
             @RequestParam(required = false) Double minPrice,
             @RequestParam(required = false) Double maxPrice,
-            Authentication authentication
+            UserProjection authentication
     ) {
-        Long userId = extractUserId(authentication);
-        if (userId == null) {
+        if (authentication == null) {
             throw new ApiException(HttpStatus.UNAUTHORIZED, "인증 필요", "로그인이 필요합니다.");
         }
 
@@ -131,7 +131,7 @@ public class PlaceController {
 
         return ApiResult.ok(
                 wishListService.getUserWishList(
-                        userId, name, checkIn, checkOut, people, roomCount,
+                        authentication.getId(), name, checkIn, checkOut, people, roomCount,
                         placeCategory, minRating, minPrice, maxPrice, start
                 ),
                 "위시리스트 조회 성공"

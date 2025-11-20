@@ -3,6 +3,8 @@ package daewoo.team5.hotelreservation.global.core.provider;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import daewoo.team5.hotelreservation.domain.auth.repository.WhiteListRepository;
+import daewoo.team5.hotelreservation.domain.users.projection.UserProjection;
 import daewoo.team5.hotelreservation.global.exception.ApiException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -46,21 +48,18 @@ public class JwtProvider {
                 .getBody();
     }
 
-    public Authentication getAuthentication(String token) throws JsonProcessingException {
+    public Authentication getAuthentication(String token)  {
         Claims claims = parseClaims(token);
-        String subJson = claims.getSubject(); // JSON 문자열
-        ObjectMapper mapper = new ObjectMapper();
-        Map<String, Object> subMap = mapper.readValue(subJson, new TypeReference<>(){});
-        String role = (String) subMap.get("role");
         log.info("Claims: {}", claims);
-        Long userId = Long.valueOf(String.valueOf(subMap.get("id")));
+        String role = (String) claims.get("role");
+        Long userId = Long.valueOf(String.valueOf(claims.getSubject()));
 
         return new UsernamePasswordAuthenticationToken(userId, null, List.of(new SimpleGrantedAuthority("ROLE_" + role)));
     }
     // JWT 토큰 발급
+    @Deprecated
     public <T> String generateToken(T data,long expirationTime) {
         log.info("secret key: {}", jwtSecretKey);
-
         String payloadJson;
         try {
             // 객체를 JSON 문자열로 변환
@@ -82,14 +81,6 @@ public class JwtProvider {
     }
     // JWT 토큰 발급
     public <T> String generateToken(T data, TokenType tokenType) {
-        log.info("secret key: {}", jwtSecretKey);
-        String payloadJson;
-        try {
-            // 객체를 JSON 문자열로 변환
-            payloadJson = objectMapper.writeValueAsString(data);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("JWT payload 직렬화 실패", e);
-        }
         Date now = new Date();
 
         Date expiryDate = new Date(now.getTime() +
@@ -97,13 +88,33 @@ public class JwtProvider {
                         ? expirationTimeAccessToken
                         : expirationTimeRefreshToken)
         );
-
-        return Jwts.builder()
-                .setSubject(payloadJson)        // payload를 문자열로 넣음
-                .setIssuedAt(now)
-                .setExpiration(expiryDate)
-                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
-                .compact();
+        String tokenResult;
+        if (tokenType==TokenType.REFRESH){
+            tokenResult = Jwts.builder()
+                    .setSubject(data.toString())
+                    .setIssuedAt(now)
+                    .setExpiration(expiryDate)
+                    .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                    .compact();
+        }else {
+            if (data instanceof UserProjection) {
+                UserProjection user = (UserProjection) data;
+                return Jwts.builder()
+                        .setSubject(user.getId().toString())        // payload를 문자열로 넣음
+                        .setIssuedAt(now)
+                        .claim("userId", user.getUserId())
+                        .claim("name", user.getName())
+                        .claim("email", user.getEmail())
+                        .claim("phone", user.getPhone())
+                        .claim("status", user.getStatus())
+                        .claim("role", user.getRole())
+                        .claim("profileImageUrl", user.getProfileImageUrl()).setExpiration(expiryDate)
+                        .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                        .compact();
+            }
+            throw new IllegalStateException("잘못된 토큰 유형");
+        }
+        return tokenResult;
     }
 
     // token 디코딩

@@ -11,6 +11,9 @@ import lombok.*;
         name = "wishlist",   // 실제 DB 테이블명
         uniqueConstraints = {
                 @UniqueConstraint(columnNames = {"user_id", "place_id"})
+        },
+        indexes = {
+                @Index(name = "idx_wishlist_user_place", columnList = "user_id, place_id")
         }
 )
 @Builder

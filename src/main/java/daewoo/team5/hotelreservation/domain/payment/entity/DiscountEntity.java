@@ -17,7 +17,9 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 @Entity(name = "Discount")
-@Table(name = "discount")
+@Table(name = "discount", indexes = {
+        @Index(name = "idx_discount_placeid_date", columnList = "place_id, start_date, end_date")
+})
 public class DiscountEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

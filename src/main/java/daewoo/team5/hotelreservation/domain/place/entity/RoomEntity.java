@@ -8,7 +8,10 @@ import lombok.*;
 import java.math.BigDecimal;
 
 @Entity(name = "room")
-@Table(name = "room")
+@Table(name = "room",
+        indexes = {
+                @Index(name = "idx_room_place_cap_price", columnList = "place_id, capacity_people, price")
+        })
 @Getter
 @Setter
 @NoArgsConstructor

@@ -21,7 +21,6 @@ import daewoo.team5.hotelreservation.global.exception.UserNotFoundException;
 import daewoo.team5.hotelreservation.infrastructure.mail.EmailTemplate;
 import daewoo.team5.hotelreservation.infrastructure.mail.MailService;
 import io.jsonwebtoken.Claims;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -116,14 +115,7 @@ public class AuthService {
 
         String accessToken = jwtProvider.generateToken(projection, JwtProvider.TokenType.ACCESS);
         String refreshToken = jwtProvider.generateToken(projection.getId(), JwtProvider.TokenType.REFRESH);
-
-        Cookie cookie = new Cookie("refreshToken", refreshToken);
-        cookie.setHttpOnly(true);
-        cookie.setSecure(false);
-        cookie.setPath("/");
-        cookie.setMaxAge(30 * 24 * 60 * 60); // 30일
-        response.addCookie(cookie);
-
+        response.addHeader("Set-Cookie", cookieProvider.generateRefreshTokenCookie(refreshToken).toString());
         return new LoginSuccessDto(accessToken, projection);
     }
 
@@ -166,19 +158,14 @@ public class AuthService {
             throw new ApiException(HttpStatus.UNAUTHORIZED, "토큰 재발급 실패", "예기치 못한 오류 발생");
         }
         Claims tokenParse = jwtProvider.parseClaims(refreshToken);
-        tokenParse.getSubject();
         Long userId = Long.parseLong(tokenParse.getSubject());
         UserProjection users = userRepository.findById(userId, UserProjection.class).orElseThrow(
                 () -> new ApiException(HttpStatus.NOT_FOUND, "사용자 없음", "해당 사용자가 존재하지 않습니다.")
         );
         String newAccessToken = jwtProvider.generateToken(users, JwtProvider.TokenType.ACCESS);
-        String newRefreshToken = jwtProvider.generateToken(users.getId(), tokenParse.getExpiration().getTime());
-        Cookie refreshTokenCookie = new Cookie("refreshToken", newRefreshToken);
-        refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setSecure(false);
-        refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setMaxAge((int) ((tokenParse.getExpiration().getTime() - System.currentTimeMillis()) / 1000));
-        response.addCookie(refreshTokenCookie);
+        String newRefreshToken = jwtProvider.generateToken(users.getId(), JwtProvider.TokenType.REFRESH);
+        ResponseCookie refreshCookie = cookieProvider.generateRefreshTokenCookie(newRefreshToken);
+        response.addHeader("Set-Cookie", refreshCookie.toString());
         return newAccessToken;
     }
 
@@ -207,7 +194,7 @@ public class AuthService {
                     .token(fcmToken)
                     .deviceType(device)
                     .build());
-            fcmCacheRepository.saveFcmToken(userId,device, fcmToken);
+            fcmCacheRepository.saveFcmToken(userId, device, fcmToken);
         }
         return fcmToken;
     }
@@ -297,7 +284,9 @@ public class AuthService {
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "사용자 없음", "해당 사용자가 존재하지 않습니다."));
 
         String jwtAccessToken = jwtProvider.generateToken(userProjection, JwtProvider.TokenType.ACCESS);
+        log.info("Kakao User Info: {}", jwtAccessToken);
         String refreshToken = jwtProvider.generateToken(userProjection.getId(), JwtProvider.TokenType.REFRESH);
+        log.info("Refresh Token: {}", refreshToken);
 
         // 5. Refresh Token을 쿠키에 저장
         ResponseCookie refreshCookie = cookieProvider.generateRefreshTokenCookie(refreshToken);

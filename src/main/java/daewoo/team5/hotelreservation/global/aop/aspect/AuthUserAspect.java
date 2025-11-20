@@ -28,6 +28,8 @@ public class AuthUserAspect {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated()) return joinPoint.proceed(args);
 
+        log.info("aaaa {}", auth);
+        log.info("aaaa {}", auth.getPrincipal());
         Object principal = auth.getPrincipal();
         UserProjection currentUser = usersRepository.findById(Long.parseLong(principal.toString()), UserProjection.class)
                 .orElseThrow(() -> new ApiException(404, "존재하지 않는 유저", "존재 하지 않는 유저입니다."));

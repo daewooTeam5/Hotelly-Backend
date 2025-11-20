@@ -23,7 +23,7 @@ public interface NotificationRepository extends JpaRepository<NotificationEntity
             select count(n.id)
             from Notification n
             where (n.user.id = :userId or n.user.id is null)
-              and n.createdAt > :userCreatedAt
+              and n.createdAt > n.user.createdAt
             """)
     long countByUserId(Long userId);
 }

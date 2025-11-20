@@ -7,7 +7,10 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity(name = "File")
-@Table(name = "file")
+@Table(name = "file",
+        indexes = {
+                @Index(name = "idx_file_domain_fileid_type", columnList = "domain, domain_file_id, filetype")
+        })
 @Getter
 @Setter
 @NoArgsConstructor

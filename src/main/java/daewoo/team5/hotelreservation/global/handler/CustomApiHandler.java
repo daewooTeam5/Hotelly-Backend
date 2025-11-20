@@ -4,9 +4,12 @@ package daewoo.team5.hotelreservation.global.handler;
 import daewoo.team5.hotelreservation.global.exception.ApiException;
 import daewoo.team5.hotelreservation.global.exception.ErrorDetails;
 import daewoo.team5.hotelreservation.global.core.common.ApiResult;
+import daewoo.team5.hotelreservation.infrastructure.webhook.DiscordNotifier;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -19,16 +22,28 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
 @RestControllerAdvice
+@RequiredArgsConstructor
 @Slf4j
 public class CustomApiHandler implements ResponseBodyAdvice<Object> {
+    private final DiscordNotifier discordNotifier;
+
+
+    @Value("${MODE:production}")
+    private String mode;
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResult<?>> handleException(Exception e, HttpServletRequest request) {
+    public ResponseEntity<ApiResult<?>> handleException(
+            Exception e,
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) {
         log.error("Exception: ", e);
         ErrorDetails errorDetails = new ErrorDetails(
                 null,
@@ -37,6 +52,9 @@ public class CustomApiHandler implements ResponseBodyAdvice<Object> {
                 e.getMessage(),
                 request.getRequestURI()
         );
+        if ("production".equals(mode)) {
+            sendErrorToDiscord(request, response, e.getMessage(), e);
+        }
         return ResponseEntity.status(500).body(
                 ApiResult.builder()
                         .message("서버 오류")
@@ -55,7 +73,11 @@ public class CustomApiHandler implements ResponseBodyAdvice<Object> {
             error.setInstance(request.getRequestURI());
         }
         response.setStatus(error.getStatus());
+        log.error(e.toString());
 
+        if ("production".equals(mode)) {
+            sendErrorToDiscord(request, response, e.getMessage(), e);
+        }
         return
                 ApiResult.builder()
                         .message(error.getTitle())
@@ -119,5 +141,43 @@ public class CustomApiHandler implements ResponseBodyAdvice<Object> {
             return body;
         }
         return body;
+    }
+    private void sendErrorToDiscord(HttpServletRequest request, HttpServletResponse response, String title, Exception e) {
+        try {
+            String ip = request.getHeader("X-Forwarded-For");
+            if (ip == null) ip = request.getRemoteAddr();
+
+            String userAgent = request.getHeader("User-Agent");
+            String deviceInfo = discordNotifier.parseDeviceInfo(userAgent);
+
+            Map<String, String> info = new HashMap<>();
+            info.put("URL", request.getRequestURI());
+            info.put("발생 시간", LocalDateTime.now().toString());
+            info.put("IP 주소", ip);
+            info.put("디바이스", deviceInfo);
+            info.put("상태코드", HttpStatus.valueOf(response.getStatus()).toString());
+            info.put("에러 제목", title);
+            info.put("예외 전체 메시지", e.toString());
+            info.put("에러 메시지", formatStackTrace(e));
+
+            log.info(info.toString());
+            discordNotifier.sendError("🔥 ApiException 발생", info);
+
+        } catch (Exception ex) {
+            log.error("⚠️ Discord 전송 중 오류 발생", ex);
+        }
+    }
+
+    // ✅ 스택 트레이스를 문자열로 변환 + 길이 제한 (디스코드 메시지 제한 고려)
+    private String formatStackTrace(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        String fullTrace = sw.toString();
+
+        // 너무 길면 잘라서 생략 처리
+        if (fullTrace.length() > 1800) {
+            return "```java\n" + fullTrace.substring(0, 1800) + "\n... (생략됨) ...```";
+        }
+        return "```java\n" + fullTrace + "```";
     }
 }
