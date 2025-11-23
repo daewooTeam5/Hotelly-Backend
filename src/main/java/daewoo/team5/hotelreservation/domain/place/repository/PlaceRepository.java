@@ -71,7 +71,7 @@ public interface PlaceRepository extends JpaRepository<PlacesEntity, Long> {
                         ),
                         r.capacity_room
                     ) >= :room
-        AND (:placeCategory IS NULL OR pc.name IN (:placeCategory))
+                AND (:placeCategorySize = 0 OR pc.name IN (:placeCategory))
                 AND (:minRating IS NULL OR p.avg_rating >= :minRating)
                 AND NOT EXISTS (
                     SELECT 1
@@ -101,7 +101,7 @@ public interface PlaceRepository extends JpaRepository<PlacesEntity, Long> {
                         AND r.capacity_people >= CEIL(CAST(:people AS DECIMAL) / :room)
                         AND r.price BETWEEN COALESCE(:minPrice, 0) AND COALESCE(:maxPrice, 999999999)
                         AND p.status = 'APPROVED'
-                    AND (:placeCategory IS NULL OR pc.name IN (:placeCategory))
+                    AND (:placeCategorySize = 0 OR pc.name IN (:placeCategory))
                         AND (:minRating IS NULL OR p.avg_rating >= :minRating)
                         AND COALESCE(
                                 (SELECT MIN(dpr.available_room)
@@ -128,6 +128,7 @@ public interface PlaceRepository extends JpaRepository<PlacesEntity, Long> {
             @Param("people") int people,
             @Param("room") int room,
             @Param("placeCategory") List<String> placeCategory,
+            @Param("placeCategorySize") int placeCategorySize,
             @Param("minRating") Double minRating,
             @Param("minPrice") Double minPrice,
             @Param("maxPrice") Double maxPrice,

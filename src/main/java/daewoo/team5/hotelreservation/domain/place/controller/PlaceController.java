@@ -68,7 +68,7 @@ public class PlaceController {
         LocalDate checkOutDate = (checkOut != null && !checkOut.isEmpty())
                 ? LocalDate.parse(checkOut)
                 : today.plusDays(1);
-        Long userId = user.getId();
+        Long userId = user!=null?user.getId():null;
         int people = (adults != null ? adults : 0) + (children != null ? children : 0);
         int roomCount = rooms != null ? rooms : 1;
 

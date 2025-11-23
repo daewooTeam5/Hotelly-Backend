@@ -56,7 +56,7 @@ public class PlaceService {
 
         return placeRepository.findAllSearchPlaceInfo(
                 name, checkIn, checkOut, people, rooms,
-                categoryList, minRating, minPrice, maxPrice,
+                categoryList,categoryList.size(), minRating, minPrice, maxPrice,
                 userId, address,
                 PageRequest.of(start - 1, 10)
         );
