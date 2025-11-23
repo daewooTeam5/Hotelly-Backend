@@ -10,6 +10,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -28,11 +29,17 @@ public class AuthUserAspect {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated()) return joinPoint.proceed(args);
 
-        log.info("aaaa {}", auth);
-        log.info("aaaa {}", auth.getPrincipal());
-        Object principal = auth.getPrincipal();
-        UserProjection currentUser = usersRepository.findById(Long.parseLong(principal.toString()), UserProjection.class)
-                .orElseThrow(() -> new ApiException(404, "존재하지 않는 유저", "존재 하지 않는 유저입니다."));
+        UserProjection currentUser;
+        if(!(auth instanceof AnonymousAuthenticationToken)){
+            log.info(auth.toString());
+            log.info(auth.getPrincipal().toString());
+            Object principal = auth.getPrincipal();
+
+            currentUser = usersRepository.findById(Long.parseLong(principal.toString()), UserProjection.class)
+                    .orElse(null);
+        }else{
+            currentUser = null;
+        }
 
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Class<?>[] paramTypes = signature.getMethod().getParameterTypes();
